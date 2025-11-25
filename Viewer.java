@@ -9,7 +9,7 @@ public class Viewer {
 
         JFrame frame = new JFrame("Sea Battle MVC Pattern");
 
-        frame.setSize(1300, 800);
+        frame.setSize(1360, 800);
         frame.setLocation(100, 50);
         frame.add("Center", canvas);
         frame.setVisible(true);
