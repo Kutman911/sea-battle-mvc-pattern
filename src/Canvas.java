@@ -12,23 +12,17 @@ public class Canvas extends JPanel {
 
     public void paint(Graphics g) {
         super.paint(g);
-        int[][] cellAreaComputer = model.getCellAreaComputer();
 
-        int startPosition = 50;
-        int x = startPosition;
-        int y = startPosition;
-        int width = 50;
-        int height = 50;
-        int offset = 10;
+        Graphics2D graphics2D = (Graphics2D) g;
+
+        Cell[][] cellAreaComputer = model.getCallAreaComputer();
 
         for(int i = 0; i < cellAreaComputer.length; i++) {
             for(int j = 0; j < cellAreaComputer[i].length; j++) {
-                g.setColor(Color.YELLOW);
-                g.drawRect(x, y, width, height);
-                x = x + width + offset;
+                graphics2D.setColor(Color.YELLOW);
+                graphics2D.draw(cellAreaComputer[i][j]);
+
             }
-            x = startPosition;
-            y = y + height + offset;
         }
     }
 }
