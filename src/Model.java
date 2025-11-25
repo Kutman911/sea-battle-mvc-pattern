@@ -7,6 +7,13 @@ public class Model {
     public Model(Viewer viewer) {
         this.viewer = viewer;
         initializationComputerArea();
+        placeTestShip();
+    }
+
+    private void placeTestShip() {
+        if (cellAreaComputer.length > 2 && cellAreaComputer[0].length > 2) {
+            cellAreaComputer[2][2].setState(CellState.SHIP);
+        }
     }
 
     public void doAction(int x, int y) {
@@ -15,6 +22,17 @@ public class Model {
                 Cell cell = cellAreaComputer[i][j];
                 if (cell.contains(x - 10, y - 10)) {
                     System.out.println(cell);
+
+                    if (cell.getState() == CellState.SHIP) {
+                        cell.setState(CellState.HIT);
+                        System.out.println("СТАТУС: ПОПАДАНИЕ!");
+                    } else if (cell.getState() == CellState.WATER) {
+                        cell.setState(CellState.MISS);
+                        System.out.println("СТАТУС: ПРОМАХ!");
+                    } else {
+                        System.out.println("СТАТУС: УЖЕ АТАКОВАНО");
+                    }
+
                     break out;
                 }
             }
