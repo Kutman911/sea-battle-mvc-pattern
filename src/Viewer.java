@@ -2,18 +2,32 @@ import javax.swing.JFrame;
 
 public class Viewer {
 
+    private Canvas canvas;
+    private JFrame frame;
+
     public Viewer() {
+
         Controller controller = new Controller(this);
         Model model = controller.getModel();
-        Canvas canvas = new Canvas(model);
 
-        JFrame frame = new JFrame("Sea Battle MVC Pattern");
+        canvas = new Canvas(model);
+        canvas.addMouseListener(controller);
 
-        frame.setSize(1300, 800);
-        frame.setLocation(100, 50);
+        frame = new JFrame("Sea Battle MVC Pattern");
+        frame.setSize(1500, 900);
+        // frame.setLocation(400, 50);
         frame.add("Center", canvas);
-        frame.setVisible(true);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.addMouseListener(controller);
+        frame.setLocationRelativeTo(null);
+        // frame.setVisible(true);
     }
+
+    public void update() {
+        canvas.repaint();
+    }
+
+    public void setVisibleFrame(){
+
+        frame.setVisible(true);
+    }
+
 }
