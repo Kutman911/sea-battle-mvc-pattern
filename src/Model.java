@@ -155,10 +155,21 @@ public class Model {
         return desktopPlayer;
     }
 
+
     public int[][] getArrayOfIndexes() {
         return arrayOfIndexes;
     }
 
+    private void printDesktopComputer() {
+        for (int i = 0; i < desktopComputer.length; i++) {
+            for (int j = 0; j < desktopComputer[i].length; j++) {
+                int element = desktopComputer[i][j];
+                System.out.print(element + " ");
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
 
 }
 
