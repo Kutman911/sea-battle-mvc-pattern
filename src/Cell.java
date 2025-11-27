@@ -1,36 +1,27 @@
-import com.sun.jdi.PrimitiveValue;
+public class Cell {
 
-import java.awt.*;
+    private int row;
+    private int column;
 
-public class Cell extends Rectangle {
-    private int indexX;
-    private int indexY;
-
-    private CellState state;
-
-   public Cell(int indexX, int indexY, int x, int y, int width, int height) {
-       super(x, y, width, height);
-       this.indexX = indexX;
-       this.indexY = indexY;
-       this.state = CellState.WATER;
-   }
-
-    public CellState getState() {
-        return state;
+    public Cell() {
+        row = -1;
+        column = -1;
     }
 
-    public void setState(CellState state) {
-        this.state = state;
+    public int getRow() {
+        return row;
     }
 
-    @Override
-    public String toString() {
-        return "Cell{" +
-                "x=" + x +
-                ", y=" + y +
-                ", width=" + width +
-                ", height=" + height +
-                ", state=" + state +
-                '}';
+    public void setRow(int row) {
+        this.row = row;
+    }
+
+    public int getColumn() {
+        return column;
+    }
+
+    public void setColumn(int column) {
+        this.column = column;
     }
 }
+
