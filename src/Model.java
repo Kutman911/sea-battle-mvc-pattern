@@ -180,6 +180,37 @@ public class Model {
         }
         System.out.println();
     }
+    public static boolean isValidPlacement(Ship s) {
+        int dx = s.isVertical() ? 1 : 0;
+        int dy = s.isVertical() ? 0 : 1;
+
+        for (int k = 0; k < s.getSize(); k++) {
+            int nx = s.getX() + dx * k;
+            int ny = s.getY() + dy * k;
+
+            if (nx < 0 || nx >= 10 || ny < 0 || ny >= 10) return false;
+
+            // проверка пересечения с уже поставленными кораблями
+
+        }
+
+        return true;
+    }
+
+    public static boolean touches(Ship s, int x, int y) {
+        int dx = s.isVertical() ? 1 : 0;
+        int dy = s.isVertical() ? 0 : 1;
+
+        for (int k = 0; k < s.getSize(); k++) {
+            int nx = s.getX() + dx * k;
+            int ny = s.getY() + dy * k;
+
+            if (Math.abs(nx - x) <= 1 && Math.abs(ny - y) <= 1)
+                return true;
+        }
+        return false;
+    }
+
 
 }
 
