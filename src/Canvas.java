@@ -15,6 +15,7 @@ public class Canvas extends JPanel{
     private Image shipFourShipImageHorizontal;
     private Image shipFourShipImageVertical;
     private int[][] arrayOfIndexes;
+    private Point computerBoardPosition;
 
     public Canvas(Model model) {
         this.model = model;
@@ -63,6 +64,11 @@ public class Canvas extends JPanel{
         drawDesktopPlayer(g);
         drawSnowflakes((Graphics2D) g);
     }
+
+    public Point getComputerBoardPosition() {
+        return computerBoardPosition;
+    }
+
     private void drawWon(Graphics g) {
         int width = Coordinates.WIDTH;
         int height = Coordinates.HEIGHT;
@@ -150,6 +156,8 @@ public class Canvas extends JPanel{
 
         int x = centerPos.x;
         int y = centerPos.y;
+
+        computerBoardPosition = new Point(x, y);
 
         for(int i = 0; i < desktopComputer.length; i++) {
             for(int j = 0; j < desktopComputer[i].length; j++) {

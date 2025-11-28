@@ -1,3 +1,5 @@
+import java.awt.*;
+
 public class Model {
 
     private Viewer viewer;
@@ -7,6 +9,7 @@ public class Model {
     private int[][] arrayOfIndexes;
     private int stepX;
     private int stepY;
+    private Canvas canvas;
 
     public Model(Viewer viewer) {
         this.viewer = viewer;
@@ -17,29 +20,36 @@ public class Model {
     }
 
     public void doAction(int x, int y) {
-        if(square(x, y)) {
-            Cell cell = getRowAndColumn(x - Coordinates.X, y - Coordinates.Y, Coordinates.WIDTH, Coordinates.HEIGHT);
-            if(desktopComputer[cell.getRow()][cell.getColumn()] == 0) {
-                desktopComputer[cell.getRow()][cell.getColumn()] = -1;
-            } else if(
-                    desktopComputer[cell.getRow()][cell.getColumn()] == 1 ||
-                    desktopComputer[cell.getRow()][cell.getColumn()] == 2 ||
-                    desktopComputer[cell.getRow()][cell.getColumn()] == 3 ||
-                    desktopComputer[cell.getRow()][cell.getColumn()] == 4
-            ) {
-                desktopComputer[cell.getRow()][cell.getColumn()] = -9;
-            }
+        if(canvas != null) {
+            Point boardPos = canvas.getComputerBoardPosition();
+            if(boardPos != null && square(x, y, boardPos.x, boardPos.y)) {
+                Cell cell = getRowAndColumn(x - boardPos.x, y - boardPos.y, Coordinates.WIDTH, Coordinates.HEIGHT);
+                if(desktopComputer[cell.getRow()][cell.getColumn()] == 0) {
+                    desktopComputer[cell.getRow()][cell.getColumn()] = -1;
+                } else if(
+                        desktopComputer[cell.getRow()][cell.getColumn()] == 1 ||
+                                desktopComputer[cell.getRow()][cell.getColumn()] == 2 ||
+                                desktopComputer[cell.getRow()][cell.getColumn()] == 3 ||
+                                desktopComputer[cell.getRow()][cell.getColumn()] == 4
+                ) {
+                    desktopComputer[cell.getRow()][cell.getColumn()] = -9;
+                }
 
-            desktopPlayer[stepY][stepX] = -1;
+                desktopPlayer[stepY][stepX] = -1;
 
-            stepX = stepX + 1;
-            stepY = stepY + 1;
+                stepX = stepX + 1;
+                stepY = stepY + 1;
 
-            viewer.update();
-            if(won()) {
+                viewer.update();
+                if(won()) {
 
+                }
             }
         }
+    }
+
+    public void setCanvas(Canvas canvas) {
+        this.canvas = canvas;
     }
 
     private void initializationDesktopPlayer() {
@@ -130,7 +140,7 @@ public class Model {
         }
     }
 
-    private boolean square(int x, int y) {
+    private boolean square(int x, int y, int i, int y1) {
         if((Coordinates.X <= x) && (Coordinates.Y <= y) &&
         (x <= (Coordinates.X + (Coordinates.WIDTH * 10))) &&
         (y <= (Coordinates.Y + (Coordinates.HEIGHT * 10)))) {

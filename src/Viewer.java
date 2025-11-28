@@ -12,6 +12,7 @@ public class Viewer {
 
         canvas = new Canvas(model);
         canvas.addMouseListener(controller);
+        model.setCanvas(canvas);
 
         frame = new JFrame("Sea Battle MVC Pattern");
         frame.setSize(1500, 900);
