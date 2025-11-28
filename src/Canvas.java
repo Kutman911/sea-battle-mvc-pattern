@@ -1,10 +1,10 @@
-import javax.swing.JPanel;
+import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
-public class Canvas extends JPanel{
+public class Canvas extends JPanel {
 
     private Model model;
     private Image shipImage;
@@ -16,6 +16,7 @@ public class Canvas extends JPanel{
     private Image shipFourShipImageVertical;
     private int[][] arrayOfIndexes;
     private Point computerBoardPosition;
+
 
     public Canvas(Model model) {
         this.model = model;
@@ -63,6 +64,8 @@ public class Canvas extends JPanel{
 
         drawDesktopPlayer(g);
         drawSnowflakes((Graphics2D) g);
+
+        drawLevelWindow(g);
     }
 
     public Point getComputerBoardPosition() {
@@ -321,6 +324,55 @@ public class Canvas extends JPanel{
         int x = centerPos.x + (width * 10) + 100;
         int y = centerPos.y;
         return new Point(x, y);
+    }
+
+    private void drawLevelWindow(Graphics g) {
+        int state = model.getLevelWindow();
+        if (state == 0) {
+            return;
+        }
+
+        Graphics2D g2 = (Graphics2D) g.create();
+
+        int panelWidth = getWidth();
+        int panelHeight = getHeight();
+
+        g2.setColor(new Color(10, 20, 60, 122));
+        g2.fillRect(0, 0, panelWidth, panelHeight);
+
+        int boxWidth = 500;
+        int boxHeight = 220;
+
+        int x = (panelWidth - boxWidth) / 2;
+        int y = (panelHeight - boxHeight) / 2;
+
+        g2.setColor(new Color(255, 250, 245));
+        g2.fillRoundRect(x, y, boxWidth, boxHeight, 35, 35);
+
+        g2.setColor(new Color(200, 0, 0));
+        g2.setStroke(new BasicStroke(5));
+        g2.drawRoundRect(x, y, boxWidth, boxHeight, 35, 35);
+
+        g2.setColor(new Color(0, 90, 0));
+        g2.setFont(new Font("Comic Sans MS", Font.BOLD, 38));
+
+        String text;
+        if (state == 1) {
+            text = "LEVEL " + model.getCurrentLevel();
+        } else if (state == 2) {
+            text = "LEVEL " + model.getCurrentLevel() + " COMPLETED!";
+        } else {
+            text = "CONGRATULATIONS!";
+        }
+
+        FontMetrics fm = g2.getFontMetrics();
+        int textWidth = fm.stringWidth(text);
+        int textX = x + (boxWidth - textWidth) / 2;
+        int textY = y + boxHeight / 2 + 12;
+
+        g2.drawString(text, textX, textY);
+
+        g2.dispose();
     }
 
 }

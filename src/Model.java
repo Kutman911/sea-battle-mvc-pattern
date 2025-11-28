@@ -1,4 +1,6 @@
 import java.awt.*;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Model {
 
@@ -11,6 +13,12 @@ public class Model {
     private Canvas canvas;
     private java.util.List<Ship> playerShips;
     private int[][] arrayOfIndexes;
+//    0 - No window
+//    1 - Level X
+//    2 - Level X Completed
+//    3 - Game Completed
+    private int currentLevel = 1;
+    private int levelWindow = 1;
 
     public Model(Viewer viewer) {
         this.viewer = viewer;
@@ -43,7 +51,7 @@ public class Model {
 
                 viewer.update();
                 if(won()) {
-
+                    showLevelCompletedWindow();
                 }
             }
         }
@@ -254,6 +262,60 @@ public class Model {
         return false;
     }
 
+    public int getCurrentLevel() {
+        return currentLevel;
+    }
+
+    public int getLevelWindow() {
+        return levelWindow;
+    }
+
+    public void setLevelWindow(int state) {
+        this.levelWindow = state;
+        viewer.update();
+    }
+
+    public void nextLevel() {
+        currentLevel = currentLevel + 1;
+
+        if (currentLevel > 3) {
+            levelWindow = 3;
+            viewer.update();
+            return;
+        }
+
+        showLevelStartWindow(currentLevel);
+    }
+
+    public void showLevelStartWindow(int level) {
+        currentLevel = level;
+        levelWindow = 1;
+        viewer.update();
+
+        new Timer().schedule(
+                new TimerTask() {
+                    public void run() {
+                        levelWindow = 0;
+                        viewer.update();
+                    }
+                },
+                1800
+        );
+    }
+
+    public void showLevelCompletedWindow() {
+        levelWindow = 2;
+        viewer.update();
+
+        new Timer().schedule(
+                new TimerTask() {
+                    public void run() {
+                        nextLevel();
+                    }
+                },
+                1800
+        );
+    }
 
     public Viewer getViewer() {
         return viewer;

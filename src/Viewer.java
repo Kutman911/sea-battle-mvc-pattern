@@ -4,11 +4,12 @@ public class Viewer {
 
     private Canvas canvas;
     private JFrame frame;
+    private Model model;
 
     public Viewer() {
 
         Controller controller = new Controller(this);
-        Model model = controller.getModel();
+        model = controller.getModel();
 
         canvas = new Canvas(model);
         canvas.addMouseListener(controller);
@@ -21,6 +22,9 @@ public class Viewer {
         frame.add("Center", canvas);
         frame.setLocationRelativeTo(null);
         // frame.setVisible(true);
+
+
+
     }
 
     public void update() {
@@ -28,9 +32,8 @@ public class Viewer {
     }
 
     public void setVisibleFrame(){
-
+        model.showLevelStartWindow(model.getCurrentLevel());
         frame.setVisible(true);
     }
-
 
 }
