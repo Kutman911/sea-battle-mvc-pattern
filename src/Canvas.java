@@ -199,26 +199,21 @@ public class Canvas extends JPanel{
     }
 
     private void drawDesktopPlayer(Graphics g) {
-        int[][] desktopPlayer = model.getDesktopPlayer();
-
         int width = Coordinates.WIDTH;
         int height = Coordinates.HEIGHT;
+
         int totalWidth = width * 10 + 100 + width * 10;
         int totalHeight = height * 10;
         Point centerPos = getCenteredPosition(totalWidth, totalHeight);
 
-        int x = centerPos.x + (width * 10) + 100;
-        int y = centerPos.y;
+        int boardX = centerPos.x + (width * 10) + 100;
+        int boardY = centerPos.y;
 
-        g.setFont(new Font("Arial", Font.BOLD, 30));
-        g.setColor(Color.WHITE);
-        FontMetrics fm = g.getFontMetrics();
-        String label = "Player's Board";
-        int labelWidth = fm.stringWidth(label);
-        int labelX = x + (width * 10 - labelWidth) / 2;
-        g.drawString(label, labelX, y - 20);
+        int[][] desktopPlayer = model.getDesktopPlayer();
 
-        g.setColor(Color.WHITE);
+
+        int x = boardX;
+        int y = boardY;
 
         for(int i = 0; i < desktopPlayer.length; i++) {
             for(int j = 0; j < desktopPlayer[i].length; j++) {
@@ -233,29 +228,6 @@ public class Canvas extends JPanel{
                     g.drawLine(x + width, y, x, y + height);
                     g.setColor(Color.WHITE);
                     g.drawRect(x, y, width, height);
-                } else if(element == 1){
-                    g.setColor(Color.RED);
-                    g.fillRect(x, y, width, height);
-                    g.setColor(Color.WHITE);
-                    g.drawRect(x, y, width, height);
-
-                } else if(element == 2){
-                    g.setColor(Color.ORANGE);
-                    g.fillRect(x, y, width, height);
-                    g.setColor(Color.WHITE);
-                    g.drawRect(x, y, width, height);
-
-                } else if(element == 3){
-                    g.setColor(Color.MAGENTA);
-                    g.fillRect(x, y, width, height);
-                    g.setColor(Color.WHITE);
-                    g.drawRect(x, y, width, height);
-
-                } else if(element == 4){
-                    g.setColor(Color.BLUE);
-                    g.fillRect(x, y, width, height);
-                    g.setColor(Color.WHITE);
-                    g.drawRect(x, y, width, height);
                 } else if(element == -9){
                     g.setColor(Color.RED);
                     g.fillRect(x, y, width, height);
@@ -268,11 +240,40 @@ public class Canvas extends JPanel{
                     g.setColor(Color.WHITE);
                     g.drawRect(x, y, width, height);
                 }
-
                 x = x + width;
             }
-            x = centerPos.x + (width * 10) + 100;
+            x = boardX;
             y = y + height;
+        }
+
+        for (Ship ship : model.getPlayerShips()) {
+            Image shipImageToDraw = getShipImage(ship);
+
+            int shipDrawX, shipDrawY;
+
+            if (ship.isDragging()) {
+                shipDrawX = ship.getX();
+                shipDrawY = ship.getY();
+
+                if (model.isValidPlacement(ship)) {
+                    g.setColor(new Color(0, 255, 0, 100));
+                } else {
+                    g.setColor(new Color(255, 0, 0, 100));
+                }
+
+                int sw = ship.isVertical() ? width : width * ship.getSize();
+                int sh = ship.isVertical() ? height * ship.getSize() : height;
+                g.fillRect(shipDrawX, shipDrawY, sw, sh);
+
+            } else {
+                shipDrawX = boardX + ship.getX() * width;
+                shipDrawY = boardY + ship.getY() * height;
+            }
+
+            int drawWidth = ship.isVertical() ? width : width * ship.getSize();
+            int drawHeight = ship.isVertical() ? height * ship.getSize() : height;
+
+            g.drawImage(shipImageToDraw, shipDrawX, shipDrawY, drawWidth, drawHeight, null);
         }
     }
 
@@ -293,6 +294,32 @@ public class Canvas extends JPanel{
         int x = (panelWidth - totalWidth) / 2;
         int y = (panelHeight - totalHeight) / 2;
 
+        return new Point(x, y);
+    }
+
+    private Image getShipImage(Ship ship) {
+        if (ship.getSize() == 1) return shipImage;
+        if (ship.getSize() == 2) {
+            return ship.isVertical() ? shipImageVertical : shipImageHorizontal;
+        }
+        if (ship.getSize() == 3) {
+            return ship.isVertical() ? shipThreeShipImageVertical : shipThreeShipImageHorizontal;
+        }
+        if (ship.getSize() == 4) {
+            return ship.isVertical() ? shipFourShipImageVertical : shipFourShipImageHorizontal;
+        }
+        return null;
+    }
+
+    public Point getPlayerBoardPosition() {
+        int width = Coordinates.WIDTH;
+        int height = Coordinates.HEIGHT;
+        int totalWidth = width * 10 + 100 + width * 10;
+        int totalHeight = height * 10;
+        Point centerPos = getCenteredPosition(totalWidth, totalHeight);
+
+        int x = centerPos.x + (width * 10) + 100;
+        int y = centerPos.y;
         return new Point(x, y);
     }
 

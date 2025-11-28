@@ -6,17 +6,18 @@ public class Model {
     private Cell cell;
     private int[][] desktopComputer;
     private int[][] desktopPlayer;
-    private int[][] arrayOfIndexes;
     private int stepX;
     private int stepY;
     private Canvas canvas;
+    private java.util.List<Ship> playerShips;
+    private int[][] arrayOfIndexes;
 
     public Model(Viewer viewer) {
         this.viewer = viewer;
         cell = new Cell();
         arrayOfIndexes = new int[2][20];
         initializationDesktopComputer();
-        initializationDesktopPlayer();
+        initializationPlayerShips();
     }
 
     public void doAction(int x, int y) {
@@ -50,21 +51,6 @@ public class Model {
 
     public void setCanvas(Canvas canvas) {
         this.canvas = canvas;
-    }
-
-    private void initializationDesktopPlayer() {
-        desktopPlayer = new int[][] {
-                {1, 0, 0, 2, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 2, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                {0, 1, 0, 2, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 2, 0, 0, 4, 4, 4, 4},
-                {0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                {0, 1, 0, 0, 3, 3, 3, 0, 3, 0},
-                {0, 0, 0, 0, 0, 0, 0, 0, 3, 0},
-                {2, 2, 0, -1, 0, 0, 0, 0, 3, 0}
-        };
     }
 
     public boolean won() {
@@ -180,38 +166,100 @@ public class Model {
         }
         System.out.println();
     }
-    public static boolean isValidPlacement(Ship s) {
-        int dx = s.isVertical() ? 1 : 0;
-        int dy = s.isVertical() ? 0 : 1;
+    public boolean isValidPlacement(Ship s) {
+        int dx = s.isVertical() ? 0 : 1;
+        int dy = s.isVertical() ? 1 : 0;
 
         for (int k = 0; k < s.getSize(); k++) {
-            int nx = s.getX() + dx * k;
-            int ny = s.getY() + dy * k;
+            int col = s.getX() + dx * k;
+            int row = s.getY() + dy * k;
 
-            if (nx < 0 || nx >= 10 || ny < 0 || ny >= 10) return false;
+            if (row < 0 || row >= 10 || col < 0 || col >= 10) return false;
 
-            // проверка пересечения с уже поставленными кораблями
+            for (Ship other : playerShips) {
+                if (other == s || !other.isPlaced()) continue;
 
+                if (isShipPart(other, row, col)) return false;
+
+                if (touches(other, col, row)) return false;
+            }
         }
 
         return true;
     }
 
-    public static boolean touches(Ship s, int x, int y) {
-        int dx = s.isVertical() ? 1 : 0;
-        int dy = s.isVertical() ? 0 : 1;
+    private boolean isShipPart(Ship s, int row, int col) {
+        int dx = s.isVertical() ? 0 : 1;
+        int dy = s.isVertical() ? 1 : 0;
 
         for (int k = 0; k < s.getSize(); k++) {
-            int nx = s.getX() + dx * k;
-            int ny = s.getY() + dy * k;
+            int sCol = s.getX() + dx * k;
+            int sRow = s.getY() + dy * k;
+            if (sRow == row && sCol == col) return true;
+        }
+        return false;
+    }
 
-            if (Math.abs(nx - x) <= 1 && Math.abs(ny - y) <= 1)
+    public static boolean touches(Ship s, int col, int row) {
+        int dx = s.isVertical() ? 0 : 1;
+        int dy = s.isVertical() ? 1 : 0;
+
+        for (int k = 0; k < s.getSize(); k++) {
+            int sCol = s.getX() + dx * k;
+            int sRow = s.getY() + dy * k;
+
+            if (Math.abs(sCol - col) <= 1 && Math.abs(sRow - row) <= 1)
                 return true;
         }
         return false;
     }
 
+    private void initializationPlayerShips() {
+        playerShips = new java.util.ArrayList<>();
 
+        int x_offboard = 12;
+
+        playerShips.add(new Ship(x_offboard, 0, false, 4));
+
+        playerShips.add(new Ship(x_offboard, 2, false, 3));
+        playerShips.add(new Ship(x_offboard, 4, false, 3));
+
+        playerShips.add(new Ship(x_offboard, 6, false, 2));
+        playerShips.add(new Ship(x_offboard, 7, false, 2));
+        playerShips.add(new Ship(x_offboard, 8, false, 2));
+
+        playerShips.add(new Ship(x_offboard, 9, false, 1));
+        playerShips.add(new Ship(x_offboard + 1, 9, false, 1));
+        playerShips.add(new Ship(x_offboard + 2, 9, false, 1));
+        playerShips.add(new Ship(x_offboard + 3, 9, false, 1));
+
+        desktopPlayer = new int[10][10];
+        for(int i = 0; i < 10; i++) {
+            for(int j = 0; j < 10; j++) {
+                desktopPlayer[i][j] = 0;
+            }
+        }
+    }
+
+    public java.util.List<Ship> getPlayerShips() {
+        return playerShips;
+    }
+
+    public boolean isSetupPhase() {
+        for (Ship ship : playerShips) {
+            if (!ship.isPlaced()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    public Viewer getViewer() {
+        return viewer;
+    }
+
+    public Canvas getCanvas() {
+        return canvas;
+    }
 }
-
-
