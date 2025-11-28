@@ -159,6 +159,14 @@ public class Canvas extends JPanel{
 
         computerBoardPosition = new Point(x, y);
 
+        g.setFont(new Font("Arial", Font.BOLD, 30));
+        g.setColor(Color.WHITE);
+        FontMetrics fm = g.getFontMetrics();
+        String label = "Computer's Board";
+        int labelWidth = fm.stringWidth(label);
+        int labelX = x + (width * 10 - labelWidth) / 2;
+        g.drawString(label, labelX, y - 20);
+
         for(int i = 0; i < desktopComputer.length; i++) {
             for(int j = 0; j < desktopComputer[i].length; j++) {
                 int element = desktopComputer[i][j];
@@ -201,6 +209,14 @@ public class Canvas extends JPanel{
 
         int x = centerPos.x + (width * 10) + 100;
         int y = centerPos.y;
+
+        g.setFont(new Font("Arial", Font.BOLD, 30));
+        g.setColor(Color.WHITE);
+        FontMetrics fm = g.getFontMetrics();
+        String label = "Player's Board";
+        int labelWidth = fm.stringWidth(label);
+        int labelX = x + (width * 10 - labelWidth) / 2;
+        g.drawString(label, labelX, y - 20);
 
         g.setColor(Color.WHITE);
 
