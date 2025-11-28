@@ -134,7 +134,7 @@ public class Canvas extends JPanel{
             g.drawImage(shipFourShipImageVertical, x + (width * j1), y + (height * i1), width, height * 4, null);
         }
 
-        g.setColor(Color.GREEN);
+        g.setColor(Color.WHITE);
         g.drawRect(x - 10, y - 10, width * 10 + 50, height * 10 + 50);
 
     }
@@ -172,7 +172,7 @@ public class Canvas extends JPanel{
                     g.setColor(Color.WHITE);
                     g.drawRect(x, y, width, height);
                 } else {
-                    g.setColor(Color.YELLOW);
+                    g.setColor(Color.WHITE);
                     g.drawRect(x, y, width, height);
                 }
                 x = x + width;
@@ -194,7 +194,7 @@ public class Canvas extends JPanel{
         int x = centerPos.x + (width * 10) + 100;
         int y = centerPos.y;
 
-        g.setColor(Color.GREEN);
+        g.setColor(Color.WHITE);
 
         for(int i = 0; i < desktopPlayer.length; i++) {
             for(int j = 0; j < desktopPlayer[i].length; j++) {
@@ -241,7 +241,7 @@ public class Canvas extends JPanel{
                     g.setColor(Color.WHITE);
                     g.drawRect(x, y, width, height);
                 } else {
-                    g.setColor(Color.GREEN);
+                    g.setColor(Color.WHITE);
                     g.drawRect(x, y, width, height);
                 }
 
