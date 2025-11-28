@@ -1,8 +1,5 @@
 import javax.swing.JPanel;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Font;
-import java.awt.Image;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
@@ -21,7 +18,7 @@ public class Canvas extends JPanel{
 
     public Canvas(Model model) {
         this.model = model;
-        setBackground(new Color(30, 30, 30));
+        setBackground(new Color(75, 139, 181));
         File fileImage = new File("images/oneShip.png");
         File fileImageHorizontal = new File("images/twoShipHorizontal.png");
         File fileImageVertical = new File("images/twoShipVertical.png");
@@ -64,21 +61,25 @@ public class Canvas extends JPanel{
         }
 
         drawDesktopPlayer(g);
+        drawSnowflakes((Graphics2D) g);
     }
     private void drawWon(Graphics g) {
+        int width = Coordinates.WIDTH;
+        int height = Coordinates.HEIGHT;
+
+        int totalWidth = width * 10;
+        int totalHeight = height * 10;
+        Point centerPos = getCenteredPosition(totalWidth, totalHeight);
+        int x = centerPos.x;
+        int y = centerPos.y;
+
         g.setFont(new Font("Bernard MT Condensed", Font.BOLD, 50));
         g.setColor(Color.GREEN);
         g.drawString("You are won!", Coordinates.X + (Coordinates.WIDTH * 3), Coordinates.Y + (Coordinates.HEIGHT * 12));
 
         int[][] desktopComputer = model.getDesktopComputer();
 
-        int x = Coordinates.X;
-        int y = Coordinates.Y;
-        int width = Coordinates.WIDTH;
-        int height = Coordinates.HEIGHT;
-
         // draw 1
-
         for(int index = 0; index < 4; index++) {
             int i = arrayOfIndexes[0][index];
             int j = arrayOfIndexes[1][index];
@@ -86,7 +87,6 @@ public class Canvas extends JPanel{
         }
 
         // draw 2
-
         for(int index = 4; index < 10; index = index + 2) {
             int i1 = arrayOfIndexes[0][index];
             int j1 = arrayOfIndexes[1][index];
@@ -100,7 +100,6 @@ public class Canvas extends JPanel{
         }
 
         // draw 3
-
         int i1 = arrayOfIndexes[0][10];
         int j1 = arrayOfIndexes[1][10];
         int i3 = arrayOfIndexes[0][12];
@@ -143,10 +142,14 @@ public class Canvas extends JPanel{
     private void drawDesktopComputer(Graphics g) {
         int[][] desktopComputer = model.getDesktopComputer();
 
-        int x = Coordinates.X;
-        int y = Coordinates.Y;
         int width = Coordinates.WIDTH;
         int height = Coordinates.HEIGHT;
+        int totalWidth = width * 10 + 100 + width * 10;
+        int totalHeight = height * 10;
+        Point centerPos = getCenteredPosition(totalWidth, totalHeight);
+
+        int x = centerPos.x;
+        int y = centerPos.y;
 
         for(int i = 0; i < desktopComputer.length; i++) {
             for(int j = 0; j < desktopComputer[i].length; j++) {
@@ -174,7 +177,7 @@ public class Canvas extends JPanel{
                 }
                 x = x + width;
             }
-            x = Coordinates.X;
+            x = centerPos.x;
             y = y + height;
         }
     }
@@ -182,10 +185,14 @@ public class Canvas extends JPanel{
     private void drawDesktopPlayer(Graphics g) {
         int[][] desktopPlayer = model.getDesktopPlayer();
 
-        int x = Coordinates.X + (Coordinates.WIDTH * 10) + 100;
-        int y = Coordinates.Y;
         int width = Coordinates.WIDTH;
         int height = Coordinates.HEIGHT;
+        int totalWidth = width * 10 + 100 + width * 10;
+        int totalHeight = height * 10;
+        Point centerPos = getCenteredPosition(totalWidth, totalHeight);
+
+        int x = centerPos.x + (width * 10) + 100;
+        int y = centerPos.y;
 
         g.setColor(Color.GREEN);
 
@@ -238,12 +245,31 @@ public class Canvas extends JPanel{
                     g.drawRect(x, y, width, height);
                 }
 
-
-                g.drawRect(x, y, width, height);
                 x = x + width;
             }
-            x = Coordinates.X + (Coordinates.WIDTH * 10) + 100;
+            x = centerPos.x + (width * 10) + 100;
             y = y + height;
         }
     }
+
+    private void drawSnowflakes(Graphics2D g) {
+        g.setColor(new Color(255, 255, 255, 180));
+        for (int i = 0; i < 100; i++) {
+            int x = (int)(Math.random() * getWidth());
+            int y = (int)(Math.random() * getHeight());
+            int size = (int)(2 + Math.random() * 4);
+            g.fillOval(x, y, size, size);
+        }
+    }
+
+    private Point getCenteredPosition(int totalWidth, int totalHeight) {
+        int panelWidth = getWidth();
+        int panelHeight = getHeight();
+
+        int x = (panelWidth - totalWidth) / 2;
+        int y = (panelHeight - totalHeight) / 2;
+
+        return new Point(x, y);
+    }
+
 }
