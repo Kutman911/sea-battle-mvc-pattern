@@ -5,8 +5,12 @@ public class Viewer {
     private Canvas canvas;
     private JFrame frame;
     private Model model;
+    private AudioPlayer audioPlayer;
 
     public Viewer() {
+
+        audioPlayer = new AudioPlayer();
+        audioPlayer.playBackgroundMusic("src/sounds/background_music.wav");
 
         Controller controller = new Controller(this);
         model = controller.getModel();
