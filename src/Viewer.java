@@ -1,4 +1,4 @@
-import javax.swing.JFrame;
+import javax.swing.*;
 
 public class Viewer {
 
@@ -22,6 +22,7 @@ public class Viewer {
 
         frame = new JFrame("Sea Battle MVC Pattern");
         frame.setSize(1500, 900);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         // frame.setLocation(400, 50);
         frame.add("Center", canvas);
         frame.setLocationRelativeTo(null);
@@ -34,8 +35,11 @@ public class Viewer {
     }
 
     public void setVisibleFrame(){
-        model.showLevelStartWindow(model.getCurrentLevel());
         frame.setVisible(true);
+
+        SwingUtilities.invokeLater(() -> {
+            model.showLevelStartWindow(model.getCurrentLevel());
+        });
     }
 
 }

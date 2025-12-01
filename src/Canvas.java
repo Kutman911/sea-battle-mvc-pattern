@@ -16,7 +16,7 @@ public class Canvas extends JPanel {
     private Image shipFourShipImageVertical;
     private int[][] arrayOfIndexes;
     private Point computerBoardPosition;
-
+    private float levelAlpha = 0f;
 
     public Canvas(Model model) {
         this.model = model;
@@ -326,6 +326,43 @@ public class Canvas extends JPanel {
         return new Point(x, y);
     }
 
+    public void startLevelWindowAnimation() {
+        levelAlpha = 0f;
+        Timer timer = new Timer(15, null);
+
+        timer.addActionListener(e -> {
+            levelAlpha += 0.03f;
+
+            if (levelAlpha >= 1f) {
+                levelAlpha = 1f;
+                timer.stop();
+            }
+
+            repaint();
+        });
+
+        timer.start();
+    }
+
+    public void startLevelWindowFadeOut() {
+        levelAlpha = 1f;
+        Timer timer = new Timer(15, null);
+
+        timer.addActionListener(e -> {
+            levelAlpha -= 0.03f;
+
+            if (levelAlpha <= 0f) {
+                levelAlpha = 0f;
+                timer.stop();
+            }
+
+            repaint();
+        });
+
+        timer.start();
+    }
+
+
     private void drawLevelWindow(Graphics g) {
         int state = model.getLevelWindow();
         if (state == 0) {
@@ -333,6 +370,8 @@ public class Canvas extends JPanel {
         }
 
         Graphics2D g2 = (Graphics2D) g.create();
+
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, levelAlpha));
 
         int panelWidth = getWidth();
         int panelHeight = getHeight();
@@ -342,7 +381,6 @@ public class Canvas extends JPanel {
 
         int boxWidth = 500;
         int boxHeight = 220;
-
         int x = (panelWidth - boxWidth) / 2;
         int y = (panelHeight - boxHeight) / 2;
 
@@ -359,9 +397,12 @@ public class Canvas extends JPanel {
         String text;
         if (state == 1) {
             text = "LEVEL " + model.getCurrentLevel();
-        } else if (state == 2) {
+        }
+
+        else if (state == 2) {
             text = "LEVEL " + model.getCurrentLevel() + " COMPLETED!";
-        } else {
+        }
+        else {
             text = "CONGRATULATIONS!";
         }
 
@@ -374,5 +415,6 @@ public class Canvas extends JPanel {
 
         g2.dispose();
     }
+
 
 }

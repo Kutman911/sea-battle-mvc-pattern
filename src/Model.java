@@ -20,7 +20,7 @@
     //    2 - Level X Completed
     //    3 - Game Completed
         private int currentLevel = 1;
-        private int levelWindow = 1;
+        private int levelWindow = 0;
     
         public Model(Viewer viewer) {
             this.viewer = viewer;
@@ -294,6 +294,11 @@
     
             if (currentLevel > 3) {
                 levelWindow = 3;
+
+                if (canvas != null) {
+                    canvas.startLevelWindowAnimation();
+                }
+
                 viewer.update();
                 return;
             }
@@ -304,30 +309,56 @@
         public void showLevelStartWindow(int level) {
             currentLevel = level;
             levelWindow = 1;
+
+            if (canvas != null) {
+                canvas.startLevelWindowAnimation();
+            }
+
             viewer.update();
-    
+
             new Timer().schedule(
                     new TimerTask() {
                         public void run() {
-                            levelWindow = 0;
-                            viewer.update();
+                            if (canvas != null) {
+                                canvas.startLevelWindowFadeOut();
+                            }
+
+                            new Timer().schedule(new TimerTask() {
+                                public void run() {
+                                    levelWindow = 0;
+                                    viewer.update();
+                                }
+                            }, 400);
                         }
                     },
-                    1800
+                    2400
             );
         }
     
         public void showLevelCompletedWindow() {
             levelWindow = 2;
+
+            if (canvas != null) {
+                canvas.startLevelWindowAnimation();
+            }
+
             viewer.update();
-    
+
             new Timer().schedule(
                     new TimerTask() {
                         public void run() {
-                            nextLevel();
+                            if (canvas != null) {
+                                canvas.startLevelWindowFadeOut();
+                            }
+
+                            new Timer().schedule(new TimerTask() {
+                                public void run() {
+                                    nextLevel();
+                                }
+                            }, 400);
                         }
                     },
-                    1800
+                    2400
             );
         }
 
