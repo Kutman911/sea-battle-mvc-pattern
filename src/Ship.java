@@ -16,22 +16,18 @@ public class Ship {
     }
 
     public int getX() {
-
         return x;
     }
 
     public int getY() {
-
         return y;
     }
 
     public boolean isVertical() {
-
         return vertical;
     }
 
     public int getSize() {
-
         return size;
     }
 

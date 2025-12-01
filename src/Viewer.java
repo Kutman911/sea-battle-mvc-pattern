@@ -27,8 +27,6 @@ public class Viewer {
         frame.setLocationRelativeTo(null);
         // frame.setVisible(true);
 
-
-
     }
 
     public void update() {
