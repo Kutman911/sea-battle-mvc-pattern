@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.dnd.DropTarget;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
@@ -416,64 +417,19 @@ public class Canvas extends JPanel {
         g2.dispose();
     }
 
-    private void drawDesktopComputer(Graphics g) {
-        int x = computerBoardPosition.x;
-        int y = computerBoardPosition.y;
+    public void drawShips(Graphics g) {
+        int[][] desktopComputer = model.getDesktopComputer();
+        Graphics2D g2 = (Graphics2D) g.create();
+        Ship[] ships = model.getShips();
 
-        int cellW = Coordinates.WIDTH;
-        int cellH = Coordinates.HEIGHT;
+        for (Ship s : ships) {
+            int dx = s.getX();
+            int dy = s.getY();
+            int size = s.getSize();
+            boolean vertical = s.isVertical();
 
-        for (int j = 0; j < 10; j++) {
-            for (int i = 0; i < 10; i++) {
-                boolean even = ((i + j) % 2 == 0);
-                g.setColor(even ? new Color(197, 231, 255) : new Color(137, 199, 250));
-                g.fillRect(x + i * cellW, y + j * cellH, cellW, cellH);
-
-                g.setColor(new Color(103, 113, 254));
-                g.drawRect(x + i * cellW, y + j * cellH, cellW, cellH);
-            }
-        }
-
-
-        List<Ship> computerShips = model.getComputerShips();
-
-        for (Ship ship : computerShips) {
-            Image shipImageToDraw;
-
-            if (ship.getSize() == 1) {
-                shipImageToDraw = shipImage;
-
-            } else if (ship.getSize() == 2) {
-                shipImageToDraw = ship.isVertical()
-                        ? shipImageVertical
-                        : shipImageHorizontal;
-
-            } else if (ship.getSize() == 3) {
-                shipImageToDraw = ship.isVertical()
-                        ? shipThreeShipImageVertical
-                        : shipThreeShipImageHorizontal;
-
-            } else if (ship.getSize() == 4) {
-                shipImageToDraw = ship.isVertical()
-                        ? shipFourShipImageVertical
-                        : shipFourShipImageHorizontal;
-
-            } else {
-                continue;
-            }
-
-            int drawX = x + ship.getX() * cellW;
-            int drawY = y + ship.getY() * cellH;
-
-            int drawWidth = ship.isVertical()
-                    ? cellW
-                    : cellW * ship.getSize();
-
-            int drawHeight = ship.isVertical()
-                    ? cellH * ship.getSize()
-                    : cellH;
-
-            g.drawImage(shipImageToDraw, drawX, drawY, drawWidth, drawHeight, null);
+    //        drawing(desktopComputer, dx, dy, size, vertical);
         }
     }
+
 }

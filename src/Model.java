@@ -15,6 +15,9 @@
         private Canvas canvas;
         private java.util.List<Ship> playerShips;
         private int[][] arrayOfIndexes;
+
+        private Ship[] ships;
+
     //    0 - No window
     //    1 - Level X
     //    2 - Level X Completed
@@ -193,21 +196,38 @@
             System.out.println();
         }
 
+        public void placeShip(Ship s) {
+            for (int i = 0; i < s.getSize(); i++) {
+                int cx = s.getX() + (s.isVertical() ? i : 0);
+                int cy = s.getY() + (s.isVertical() ? 0 : i);
+                desktopComputer[cx][cy] = 1;
+            }
+        }
+
         public boolean isValidPlacement(Ship s) {
-            int dx = s.isVertical() ? 0 : 1;
-            int dy = s.isVertical() ? 1 : 0;
+            if (s.isVertical()) {
+                if (s.getX() + s.getSize() > 10) return false;
+            } else {
+                if (s.getY() + s.getSize() > 10) return false;
+            }
 
-            for (int k = 0; k < s.getSize(); k++) {
-                int col = s.getX() + dx * k;
-                int row = s.getY() + dy * k;
+            for (Ship other : playerShips) {
+                if (other == s || !other.isPlaced()) continue;
+                for (int i = 0; i < s.getSize(); i++) {
+                    int cx = s.getX() + (s.isVertical() ? i : 0);
+                    int cy = s.getY() + (s.isVertical() ? 0 : i);
 
-                if (row < 0 || row >= 10 || col < 0 || col >= 10) return false;
+                    for (int dx = -1; dx <= 1; dx++) {
+                        for (int dy = -1; dy <= 1; dy++) {
+                            int nx = cx + dx;
+                            int ny = cy + dy;
 
-                for (Ship other : playerShips) {
-                    if (other == s || !other.isPlaced()) continue;
-
-                    if (touches(other, col, row)) {
-                        return false;
+                            if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10) {
+                                if (desktopComputer[nx][ny] == 1) {
+                                    return false;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -228,6 +248,31 @@
             return false;
         }
 
+        public void generateBoard() {
+            Random rnd = new Random();
+
+            int[] sizes = {4, 3, 3, 2, 2, 2, 1, 1, 1, 1};
+            int shipIndex = 0;
+            ships = new Ship[10];
+
+            for (int size : sizes) {
+                boolean placed = false;
+
+                while (!placed) {
+                    boolean vertical = rnd.nextBoolean();
+                    int x = rnd.nextInt(10);
+                    int y = rnd.nextInt(10);
+
+                    Ship s = new Ship(x, y, vertical, size);
+
+                    if (isValidPlacement(s)) {
+                        placeShip(s);
+                        ships[shipIndex++] = s;
+                        placed = true;
+                    }
+                }
+            }
+        }
 
         private void initializationPlayerShips() {
             playerShips = new java.util.ArrayList<>();
@@ -397,6 +442,10 @@
     
         public Canvas getCanvas() {
             return canvas;
+        }
+
+        public Ship[] getShips() {
+            return ships;
         }
     
     }
