@@ -6,12 +6,13 @@ import java.awt.event.MouseMotionListener;
 public class Controller implements MouseListener, MouseMotionListener {
 
     private Model model;
+    private Viewer viewer;
     private Ship selectedShip = null;
     private int offsetX, offsetY;
     private int initialGridX, initialGridY;
 
     public Controller(Viewer viewer) {
-
+        this.viewer = viewer;
         model = new Model(viewer);
     }
 
@@ -19,9 +20,30 @@ public class Controller implements MouseListener, MouseMotionListener {
         return model;
     }
 
+    public void restartGame() {
+        Viewer currentViewer = this.viewer;
+        this.model = new Model(currentViewer);
+
+        if (currentViewer.getCanvas() != null) {
+            this.model.setCanvas(currentViewer.getCanvas());
+        }
+
+        currentViewer.update();
+        currentViewer.setVisibleFrame();
+        System.out.println("Игра успешно перезапущена.");
+    }
+
     @Override
     public void mouseClicked(MouseEvent event) {
+        if (!model.isSetupPhase()) {
 
+            model.doAction(event.getX(), event.getY());
+
+            if (model.lost()) {
+                viewer.showResult(false);
+                return;
+            }
+        }
     }
 
     @Override
@@ -114,7 +136,7 @@ public class Controller implements MouseListener, MouseMotionListener {
                 }
             }
         } else {
-            model.doAction(event.getX(), event.getY());
+
         }
     }
 
@@ -151,7 +173,12 @@ public class Controller implements MouseListener, MouseMotionListener {
             } else {
                 selectedShip.setX(initialGridX);
                 selectedShip.setY(initialGridY);
-                selectedShip.setPlaced(false);
+
+                if (initialGridX >= 0 && initialGridX < 10 && initialGridY >= 0 && initialGridY < 10) {
+                    selectedShip.setPlaced(false);
+                } else {
+                    selectedShip.setPlaced(false);
+                }
             }
 
             selectedShip.setDragging(false);

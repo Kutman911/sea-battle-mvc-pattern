@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.awt.*;
 
 public class Viewer {
 
@@ -6,13 +7,14 @@ public class Viewer {
     private JFrame frame;
     private Model model;
     private AudioPlayer audioPlayer;
+    private Controller controller;
 
     public Viewer() {
 
         audioPlayer = new AudioPlayer();
         audioPlayer.playBackgroundMusic("src/sounds/background_music.wav");
 
-        Controller controller = new Controller(this);
+        controller = new Controller(this);
         model = controller.getModel();
 
         canvas = new Canvas(model);
@@ -23,10 +25,8 @@ public class Viewer {
         frame = new JFrame("Sea Battle MVC Pattern");
         frame.setSize(1500, 900);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        // frame.setLocation(400, 50);
         frame.add("Center", canvas);
         frame.setLocationRelativeTo(null);
-        // frame.setVisible(true);
 
     }
 
@@ -42,4 +42,33 @@ public class Viewer {
         });
     }
 
+    public void showResult(boolean isWin) {
+        if (audioPlayer != null) {
+            audioPlayer.stop();
+        }
+
+        SwingUtilities.invokeLater(() -> {
+            ResultDialog dialog = new ResultDialog(
+                    (Frame) frame,
+                    isWin,
+                    () -> {
+                        if (controller != null) {
+                            controller.restartGame();
+                        }
+                        if (audioPlayer != null) {
+                            audioPlayer.playBackgroundMusic("src/sounds/background_music.wav");
+                        }
+                    }
+            );
+            dialog.setVisible(true);
+        });
+    }
+
+    public Canvas getCanvas() {
+        return canvas;
+    }
+
+    public Model getModel() {
+        return model;
+    }
 }
