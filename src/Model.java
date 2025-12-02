@@ -16,6 +16,7 @@ public class Model {
     private Canvas canvas;
     private List<Ship> playerShips;
     private int[][] arrayOfIndexes;
+    private ComputerLogic computerLogic;
 
     private Ship[] ships;
 
@@ -30,10 +31,14 @@ public class Model {
         initializationPlayerShips();
         stepX = 0;
         stepY = 0;
+        computerLogic = new ComputerLogic();
+        computerLogic.reset();
     }
 
     public void doAction(int x, int y) {
-        if (isSetupPhase()) return;
+        if (isSetupPhase()) {
+            return;
+        }
 
         if(canvas != null) {
             Point boardPos = canvas.getComputerBoardPosition();
@@ -77,7 +82,9 @@ public class Model {
                     }
                     showLevelCompletedWindow();
                 }
+                computerTurn();
 
+                viewer.update();
                 if (lost()) {
                     viewer.showResult(false);
                     return;
@@ -479,6 +486,89 @@ public class Model {
                     }
                 }
             }
+        }
+    }
+
+    private boolean isShipSunk(int row, int col) {
+        if (desktopPlayer == null) {
+            return false;
+        }
+
+        if (desktopPlayer[row][col] != -9) {
+            return false;
+        }
+
+        int[][] dirs = {
+                {-1, 0}, 
+                {1, 0},
+                {0, -1},
+                {0, 1}
+        };
+
+        for (int d = 0; d < dirs.length; d++) {
+            int dr = dirs[d][0];
+            int dc = dirs[d][1];
+
+            int r = row + dr;
+            int c = col + dc;
+
+            while (r >= 0 && r < 10 && c >= 0 && c < 10) {
+                int val = desktopPlayer[r][c];
+
+                if (val == 0 || val == -1) {
+                    break;
+                }
+
+                if (val > 0) {
+                    return false;
+                }
+
+                r += dr;
+                c += dc;
+            }
+        }
+
+        return true;
+    }
+
+    private void computerTurn() {
+        if (desktopPlayer == null) {
+            return;
+        }
+
+        if (computerLogic == null) {
+            computerLogic = new ComputerLogic();
+            computerLogic.reset();
+        }
+
+        boolean canShoot = true;
+
+        while (canShoot) {
+            int[] shot = computerLogic.getNextShot(desktopPlayer);
+            if (shot == null) {
+                break;
+            }
+
+            int row = shot[0];
+            int col = shot[1];
+
+            int cellValue = desktopPlayer[row][col];
+            boolean isHit = cellValue > 0;
+            boolean sunk = false;
+
+            if (!isHit) {
+                desktopPlayer[row][col] = -1;
+            } else {
+                desktopPlayer[row][col] = -9;
+                sunk = isShipSunk(row, col);
+            }
+
+            computerLogic.onShotResult(row, col, isHit, sunk, desktopPlayer);
+
+            if (!isHit) {
+                canShoot = false;
+            }
+
         }
     }
 
