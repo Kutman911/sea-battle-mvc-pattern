@@ -1,46 +1,18 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.dnd.DropTarget;
-import java.io.File;
-import java.io.IOException;
-import javax.imageio.ImageIO;
+import java.util.Random;
 
 public class Canvas extends JPanel {
 
     private Model model;
-    private Image shipImage;
-    private Image shipImageHorizontal;
-    private Image shipImageVertical;
-    private Image shipThreeShipImageHorizontal;
-    private Image shipThreeShipImageVertical;
-    private Image shipFourShipImageHorizontal;
-    private Image shipFourShipImageVertical;
     private int[][] arrayOfIndexes;
     private Point computerBoardPosition;
     private float levelAlpha = 0f;
+    private Random snowRandom = new Random(42);
 
     public Canvas(Model model) {
         this.model = model;
         setBackground(new Color(75, 139, 181));
-        File fileImage = new File("images/oneShip.png");
-        File fileImageHorizontal = new File("images/twoShipHorizontal.png");
-        File fileImageVertical = new File("images/twoShipVertical.png");
-        File fileThreeShipImageHorizontal = new File("images/threeShipHorizontal.png");
-        File fileThreeShipImageVertical = new File("images/threeShipVertical.png");
-        File fileFourShipImageHorizontal = new File("images/fourShipHorizontal.png");
-        File fileFourShipImageVertical = new File("images/fourShipVertical.png");
-
-        try {
-            shipImage = ImageIO.read(fileImage );
-            shipImageHorizontal = ImageIO.read(fileImageHorizontal);
-            shipImageVertical = ImageIO.read(fileImageVertical);
-            shipThreeShipImageHorizontal = ImageIO.read(fileThreeShipImageHorizontal);
-            shipThreeShipImageVertical = ImageIO.read(fileThreeShipImageVertical);
-            shipFourShipImageHorizontal = ImageIO.read(fileFourShipImageHorizontal);
-            shipFourShipImageVertical = ImageIO.read(fileFourShipImageVertical);
-        } catch (IOException ioe) {
-            System.out.println("Error " + ioe);
-        }
 
         int[][] array = model.getArrayOfIndexes();
         arrayOfIndexes = new int[2][array[0].length];
@@ -53,27 +25,27 @@ public class Canvas extends JPanel {
         }
     }
 
-
     public void paint(Graphics g) {
         super.paint(g);
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         if(model.won()) {
-            drawWon(g);
+            drawWon(g2);
         } else {
-            drawDesktopComputer(g);
+            drawDesktopComputer(g2);
         }
 
-        drawDesktopPlayer(g);
-        drawSnowflakes((Graphics2D) g);
-
-        drawLevelWindow(g);
+        drawDesktopPlayer(g2);
+        drawSnowflakes(g2);
+        drawLevelWindow(g2);
     }
 
     public Point getComputerBoardPosition() {
         return computerBoardPosition;
     }
 
-    private void drawWon(Graphics g) {
+    private void drawWon(Graphics2D g) {
         int width = Coordinates.WIDTH;
         int height = Coordinates.HEIGHT;
 
@@ -85,71 +57,66 @@ public class Canvas extends JPanel {
 
         g.setFont(new Font("Bernard MT Condensed", Font.BOLD, 50));
         g.setColor(Color.GREEN);
-        g.drawString("You are won!", Coordinates.X + (Coordinates.WIDTH * 3), Coordinates.Y + (Coordinates.HEIGHT * 12));
+        g.drawString("You won!", x + (width * 2), y - 40);
 
-        int[][] desktopComputer = model.getDesktopComputer();
-
-        // draw 1
+        // Рисуем корабли размера 1
         for(int index = 0; index < 4; index++) {
             int i = arrayOfIndexes[0][index];
             int j = arrayOfIndexes[1][index];
-            g.drawImage(shipImage, x + (width * j), y + (height * i),  width, height, null);
+            drawChristmasShip(g, x + (width * j), y + (height * i), width, height, 1, false);
         }
 
-        // draw 2
+        // Рисуем корабли размера 2
         for(int index = 4; index < 10; index = index + 2) {
             int i1 = arrayOfIndexes[0][index];
             int j1 = arrayOfIndexes[1][index];
             int i2 = arrayOfIndexes[0][index + 1];
             int j2 = arrayOfIndexes[1][index + 1];
-            if(i1 == i2) {
-                g.drawImage(shipImageHorizontal, x + (width * j1), y + (height * i1), width * 2, height, null);
-            } else {
-                g.drawImage(shipImageVertical, x + (width * j1), y + (height * i1), width, height * 2, null);
-            }
+            boolean horizontal = (i1 == i2);
+            drawChristmasShip(g, x + (width * j1), y + (height * i1),
+                    horizontal ? width * 2 : width,
+                    horizontal ? height : height * 2,
+                    2, !horizontal);
         }
 
-        // draw 3
+        // Рисуем корабли размера 3
         int i1 = arrayOfIndexes[0][10];
         int j1 = arrayOfIndexes[1][10];
         int i3 = arrayOfIndexes[0][12];
         int j3 = arrayOfIndexes[1][12];
-
-        if(i1 == i3) {
-            g.drawImage(shipThreeShipImageHorizontal, x + (width * j1), y + (height * i1), width * 3, height, null);
-        } else {
-            g.drawImage(shipThreeShipImageVertical, x + (width * j1), y + (height * i1), width, height * 3, null);
-        }
+        boolean horizontal = (i1 == i3);
+        drawChristmasShip(g, x + (width * j1), y + (height * i1),
+                horizontal ? width * 3 : width,
+                horizontal ? height : height * 3,
+                3, !horizontal);
 
         i1 = arrayOfIndexes[0][13];
         j1 = arrayOfIndexes[1][13];
         i3 = arrayOfIndexes[0][15];
         j3 = arrayOfIndexes[1][15];
+        horizontal = (i1 == i3);
+        drawChristmasShip(g, x + (width * j1), y + (height * i1),
+                horizontal ? width * 3 : width,
+                horizontal ? height : height * 3,
+                3, !horizontal);
 
-        if(i1 == i3) {
-            g.drawImage(shipThreeShipImageHorizontal, x + (width * j1), y + (height * i1), width * 3, height, null);
-        } else {
-            g.drawImage(shipThreeShipImageVertical, x + (width * j1), y + (height * i1), width, height * 3, null);
-        }
-
-        // draw 4
+        // Рисуем корабль размера 4
         i1 = arrayOfIndexes[0][16];
         j1 = arrayOfIndexes[1][16];
         i3 = arrayOfIndexes[0][19];
         j3 = arrayOfIndexes[1][19];
-
-        if(i1 == i3) {
-            g.drawImage(shipFourShipImageHorizontal, x + (width * j1), y + (height * i1), width * 4, height, null);
-        } else {
-            g.drawImage(shipFourShipImageVertical, x + (width * j1), y + (height * i1), width, height * 4, null);
-        }
+        horizontal = (i1 == i3);
+        drawChristmasShip(g, x + (width * j1), y + (height * i1),
+                horizontal ? width * 4 : width,
+                horizontal ? height : height * 4,
+                4, !horizontal);
 
         g.setColor(Color.WHITE);
-        g.drawRect(x - 10, y - 10, width * 10 + 50, height * 10 + 50);
-
+        g.setStroke(new BasicStroke(3));
+        g.drawRect(x - 10, y - 10, width * 10 + 20, height * 10 + 20);
     }
 
-    private void drawDesktopComputer(Graphics g) {
+    private void drawDesktopComputer(Graphics2D g) {
         int[][] desktopComputer = model.getDesktopComputer();
 
         int width = Coordinates.WIDTH;
@@ -176,25 +143,25 @@ public class Canvas extends JPanel {
                 int element = desktopComputer[i][j];
 
                 if(element == -1) {
-                    g.setColor(Color.BLACK);
+                    g.setColor(new Color(30, 60, 100));
                     g.fillRect(x, y, width, height);
                     g.setColor(Color.WHITE);
                     g.drawLine(x, y, x + width, y + height);
                     g.drawLine(x + width, y, x, y + height);
-                    g.setColor(Color.WHITE);
-                    g.drawRect(x, y, width, height);
                 } else if(element == -9){
-                    g.setColor(Color.RED);
+                    g.setColor(new Color(200, 50, 50));
                     g.fillRect(x, y, width, height);
-                    g.setColor(Color.WHITE);
+                    g.setColor(Color.YELLOW);
+                    int cx = x + width / 2;
+                    int cy = y + height / 2;
+                    g.fillOval(cx - 8, cy - 8, 16, 16);
+                    g.setColor(Color.RED);
                     g.drawLine(x, y, x + width, y + height);
                     g.drawLine(x + width, y, x, y + height);
-                    g.setColor(Color.WHITE);
-                    g.drawRect(x, y, width, height);
-                } else {
-                    g.setColor(Color.WHITE);
-                    g.drawRect(x, y, width, height);
                 }
+
+                g.setColor(Color.WHITE);
+                g.drawRect(x, y, width, height);
                 x = x + width;
             }
             x = centerPos.x;
@@ -202,7 +169,7 @@ public class Canvas extends JPanel {
         }
     }
 
-    private void drawDesktopPlayer(Graphics g) {
+    private void drawDesktopPlayer(Graphics2D g) {
         int width = Coordinates.WIDTH;
         int height = Coordinates.HEIGHT;
 
@@ -215,35 +182,41 @@ public class Canvas extends JPanel {
 
         int[][] desktopPlayer = model.getDesktopPlayer();
 
+        g.setFont(new Font("Arial", Font.BOLD, 30));
+        g.setColor(Color.WHITE);
+        FontMetrics fm = g.getFontMetrics();
+        String label = "Your Board";
+        int labelWidth = fm.stringWidth(label);
+        int labelX = boardX + (width * 10 - labelWidth) / 2;
+        g.drawString(label, labelX, boardY - 20);
 
         int x = boardX;
         int y = boardY;
 
         for(int i = 0; i < desktopPlayer.length; i++) {
             for(int j = 0; j < desktopPlayer[i].length; j++) {
-
                 int element = desktopPlayer[i][j];
 
                 if(element == -1) {
-                    g.setColor(Color.BLACK);
+                    g.setColor(new Color(30, 60, 100));
                     g.fillRect(x, y, width, height);
                     g.setColor(Color.WHITE);
                     g.drawLine(x, y, x + width, y + height);
                     g.drawLine(x + width, y, x, y + height);
-                    g.setColor(Color.WHITE);
-                    g.drawRect(x, y, width, height);
                 } else if(element == -9){
-                    g.setColor(Color.RED);
+                    g.setColor(new Color(200, 50, 50));
                     g.fillRect(x, y, width, height);
-                    g.setColor(Color.WHITE);
+                    g.setColor(Color.YELLOW);
+                    int cx = x + width / 2;
+                    int cy = y + height / 2;
+                    g.fillOval(cx - 8, cy - 8, 16, 16);
+                    g.setColor(Color.RED);
                     g.drawLine(x, y, x + width, y + height);
                     g.drawLine(x + width, y, x, y + height);
-                    g.setColor(Color.WHITE);
-                    g.drawRect(x, y, width, height);
-                } else {
-                    g.setColor(Color.WHITE);
-                    g.drawRect(x, y, width, height);
                 }
+
+                g.setColor(Color.WHITE);
+                g.drawRect(x, y, width, height);
                 x = x + width;
             }
             x = boardX;
@@ -251,9 +224,8 @@ public class Canvas extends JPanel {
         }
 
         for (Ship ship : model.getPlayerShips()) {
-            Image shipImageToDraw = getShipImage(ship);
-
             int shipDrawX, shipDrawY;
+            int drawWidth, drawHeight;
 
             if (ship.isDragging()) {
                 shipDrawX = ship.getX();
@@ -265,29 +237,92 @@ public class Canvas extends JPanel {
                     g.setColor(new Color(255, 0, 0, 100));
                 }
 
-                int sw = ship.isVertical() ? width : width * ship.getSize();
-                int sh = ship.isVertical() ? height * ship.getSize() : height;
-                g.fillRect(shipDrawX, shipDrawY, sw, sh);
+                drawWidth = ship.isVertical() ? width : width * ship.getSize();
+                drawHeight = ship.isVertical() ? height * ship.getSize() : height;
+                g.fillRect(shipDrawX, shipDrawY, drawWidth, drawHeight);
 
             } else {
                 shipDrawX = boardX + ship.getX() * width;
                 shipDrawY = boardY + ship.getY() * height;
+                drawWidth = ship.isVertical() ? width : width * ship.getSize();
+                drawHeight = ship.isVertical() ? height * ship.getSize() : height;
             }
 
-            int drawWidth = ship.isVertical() ? width : width * ship.getSize();
-            int drawHeight = ship.isVertical() ? height * ship.getSize() : height;
-
-            g.drawImage(shipImageToDraw, shipDrawX, shipDrawY, drawWidth, drawHeight, null);
+            drawChristmasShip(g, shipDrawX, shipDrawY, drawWidth, drawHeight, ship.getSize(), ship.isVertical());
         }
     }
 
+    private void drawChristmasShip(Graphics2D g, int x, int y, int w, int h, int size, boolean vertical) {
+        g.setColor(new Color(200, 30, 30));
+        g.fillRoundRect(x + 2, y + 2, w - 4, h - 4, 8, 8);
+
+        g.setColor(new Color(255, 215, 0));
+        g.setStroke(new BasicStroke(2));
+        g.drawRoundRect(x + 2, y + 2, w - 4, h - 4, 8, 8);
+
+        g.setColor(Color.WHITE);
+        if (vertical) {
+            for (int i = 0; i < size; i++) {
+                int segY = y + (h / size) * i;
+                g.fillRoundRect(x + 4, segY + 4, w - 8, 6, 4, 4);
+            }
+        } else {
+            for (int i = 0; i < size; i++) {
+                int segX = x + (w / size) * i;
+                g.fillRoundRect(segX + 4, y + 4, 6, h - 8, 4, 4);
+            }
+        }
+
+        Color[] ornamentColors = {
+                new Color(255, 215, 0),    // Золотой
+                new Color(0, 191, 255),    // Голубой
+                new Color(255, 105, 180),  // Розовый
+                new Color(50, 205, 50),    // Зеленый
+                new Color(255, 140, 0)     // Оранжевый
+        };
+
+        int cellWidth = vertical ? w : (w / size);
+        int cellHeight = vertical ? (h / size) : h;
+
+        for (int i = 0; i < size; i++) {
+            int ornX, ornY;
+            if (vertical) {
+                ornX = x + w / 2;
+                ornY = y + (cellHeight * i) + cellHeight / 2;
+            } else {
+                ornX = x + (cellWidth * i) + cellWidth / 2;
+                ornY = y + h / 2;
+            }
+
+            Color ornamentColor = ornamentColors[i % ornamentColors.length];
+
+            g.setColor(ornamentColor);
+            g.fillOval(ornX - 5, ornY - 5, 10, 10);
+
+            g.setColor(new Color(255, 255, 255, 200));
+            g.fillOval(ornX - 3, ornY - 3, 4, 4);
+
+            g.setColor(new Color(180, 180, 180));
+            g.fillRect(ornX - 1, ornY - 7, 2, 3);
+        }
+    }
+
+
+
     private void drawSnowflakes(Graphics2D g) {
         g.setColor(new Color(255, 255, 255, 180));
+        snowRandom.setSeed(42);
+
         for (int i = 0; i < 100; i++) {
-            int x = (int)(Math.random() * getWidth());
-            int y = (int)(Math.random() * getHeight());
-            int size = (int)(2 + Math.random() * 4);
+            int x = snowRandom.nextInt(getWidth());
+            int y = snowRandom.nextInt(getHeight());
+            int size = 2 + snowRandom.nextInt(4);
             g.fillOval(x, y, size, size);
+
+            if (size > 3) {
+                g.drawLine(x - 2, y + size/2, x + size + 2, y + size/2);
+                g.drawLine(x + size/2, y - 2, x + size/2, y + size + 2);
+            }
         }
     }
 
@@ -299,20 +334,6 @@ public class Canvas extends JPanel {
         int y = (panelHeight - totalHeight) / 2;
 
         return new Point(x, y);
-    }
-
-    private Image getShipImage(Ship ship) {
-        if (ship.getSize() == 1) return shipImage;
-        if (ship.getSize() == 2) {
-            return ship.isVertical() ? shipImageVertical : shipImageHorizontal;
-        }
-        if (ship.getSize() == 3) {
-            return ship.isVertical() ? shipThreeShipImageVertical : shipThreeShipImageHorizontal;
-        }
-        if (ship.getSize() == 4) {
-            return ship.isVertical() ? shipFourShipImageVertical : shipFourShipImageHorizontal;
-        }
-        return null;
     }
 
     public Point getPlayerBoardPosition() {
@@ -363,7 +384,6 @@ public class Canvas extends JPanel {
         timer.start();
     }
 
-
     private void drawLevelWindow(Graphics g) {
         int state = model.getLevelWindow();
         if (state == 0) {
@@ -398,12 +418,9 @@ public class Canvas extends JPanel {
         String text;
         if (state == 1) {
             text = "LEVEL " + model.getCurrentLevel();
-        }
-
-        else if (state == 2) {
+        } else if (state == 2) {
             text = "LEVEL " + model.getCurrentLevel() + " COMPLETED!";
-        }
-        else {
+        } else {
             text = "CONGRATULATIONS!";
         }
 
@@ -416,20 +433,4 @@ public class Canvas extends JPanel {
 
         g2.dispose();
     }
-
-    public void drawShips(Graphics g) {
-        int[][] desktopComputer = model.getDesktopComputer();
-        Graphics2D g2 = (Graphics2D) g.create();
-        Ship[] ships = model.getShips();
-
-        for (Ship s : ships) {
-            int dx = s.getX();
-            int dy = s.getY();
-            int size = s.getSize();
-            boolean vertical = s.isVertical();
-
-    //        drawing(desktopComputer, dx, dy, size, vertical);
-        }
-    }
-
 }
