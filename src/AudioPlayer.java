@@ -19,9 +19,22 @@ public class AudioPlayer {
         }
     }
 
+    public void playSound(String filename) {
+        try {
+            AudioInputStream audio = AudioSystem.getAudioInputStream(new File(filename));
+            Clip soundClip = AudioSystem.getClip();
+            soundClip.open(audio);
+            soundClip.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void stop() {
         if (clip != null && clip.isRunning()) {
             clip.stop();
         }
     }
+
+
 }

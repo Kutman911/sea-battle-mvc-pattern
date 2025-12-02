@@ -71,4 +71,9 @@ public class Viewer {
     public Model getModel() {
         return model;
     }
+
+    public AudioPlayer getAudioPlayer() {
+        return audioPlayer;
+    }
+
 }

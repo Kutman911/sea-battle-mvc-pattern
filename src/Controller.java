@@ -167,6 +167,8 @@ public class Controller implements MouseListener, MouseMotionListener {
 
                 model.updateDesktopPlayer();
 
+                viewer.getAudioPlayer().playSound("src/sounds/laughSound.wav");
+
                 if (!model.isSetupPhase()) {
                     model.startBattlePhase();
                 }
