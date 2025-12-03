@@ -203,6 +203,13 @@ public class Model {
                 }
             }
         }
+        generateBoard();
+        for (int i = 0; i < desktopComputer.length; i++) {
+            for (int j = 0; j < desktopComputer[i].length; j++) {
+                System.out.print(desktopComputer[i][j] + " ");
+            }
+            System.out.println();
+        }
     }
 
     private boolean square(int x, int y, int i, int y1) {
@@ -255,34 +262,39 @@ public class Model {
     }
 
     public boolean isValidPlacement(Ship s) {
-        if (s.isVertical()) {
-            if (s.getX() + s.getSize() > 10) return false;
+        int x = s.getX();
+        int y = s.getY();
+        int size = s.getSize();
+        boolean vertical = s.isVertical();
+
+        // Проверка выхода за границы
+        if (vertical) {
+            if (x + size > 10) return false;
         } else {
-            if (s.getY() + s.getSize() > 10) return false;
+            if (y + size > 10) return false;
         }
 
-        for (Ship other : playerShips) {
-            if (other == s || !other.isPlaced()) continue;
-            for (int i = 0; i < s.getSize(); i++) {
-                int cx = s.getX() + (s.isVertical() ? i : 0);
-                int cy = s.getY() + (s.isVertical() ? 0 : i);
+        for (int i = 0; i < size; i++) {
+            int cx = x + (vertical ? i : 0);
+            int cy = y + (vertical ? 0 : i);
 
-                for (int dx = -1; dx <= 1; dx++) {
-                    for (int dy = -1; dy <= 1; dy++) {
-                        int nx = cx + dx;
-                        int ny = cy + dy;
-
-                        if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10) {
-                            if (desktopComputer[nx][ny] == 1) {
-                                return false;
-                            }
+            // Проверяем соседние клетки
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dy = -1; dy <= 1; dy++) {
+                    int nx = cx + dx;
+                    int ny = cy + dy;
+                    if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10) {
+                        if (desktopComputer[nx][ny] == 1) {
+                            return false; // уже занят кораблём
                         }
                     }
                 }
             }
         }
+
         return true;
     }
+
 
     public static boolean touches(Ship s, int col, int row) {
         int dx = s.isVertical() ? 0 : 1;

@@ -39,6 +39,7 @@ public class Canvas extends JPanel {
         drawDesktopPlayer(g2);
         drawSnowflakes(g2);
         drawLevelWindow(g2);
+        drawShipsDesktopComputer(g2);
     }
 
     public Point getComputerBoardPosition() {
@@ -163,6 +164,8 @@ public class Canvas extends JPanel {
                 g.setColor(Color.WHITE);
                 g.drawRect(x, y, width, height);
                 x = x + width;
+
+
             }
             x = centerPos.x;
             y = y + height;
@@ -251,6 +254,51 @@ public class Canvas extends JPanel {
             drawChristmasShip(g, shipDrawX, shipDrawY, drawWidth, drawHeight, ship.getSize(), ship.isVertical());
         }
     }
+
+    private void drawShipsDesktopComputer(Graphics2D g) {
+        int[][] board = model.getDesktopComputer();
+        int width = Coordinates.WIDTH;
+        int height = Coordinates.HEIGHT;
+
+        Point boardPos = getComputerBoardPosition();
+        int startX = boardPos.x;
+        int startY = boardPos.y;
+
+        boolean[][] drawn = new boolean[10][10];
+
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
+                int val = board[i][j];
+                if (val > 0 && !drawn[i][j]) {
+                    // Определяем ориентацию корабля
+                    boolean vertical = false;
+                    int size = val;
+
+                    if (i + 1 < 10 && board[i + 1][j] == val) {
+                        vertical = true;
+                    }
+
+                    // Рисуем корабль
+                    int shipX = startX + j * width;
+                    int shipY = startY + i * height;
+                    int drawWidth = vertical ? width : width * size;
+                    int drawHeight = vertical ? height * size : height;
+
+                    drawChristmasShip(g, shipX, shipY, drawWidth, drawHeight, size, vertical);
+
+                    // Отмечаем все клетки корабля как нарисованные
+                    for (int k = 0; k < size; k++) {
+                        int di = i + (vertical ? k : 0);
+                        int dj = j + (vertical ? 0 : k);
+                        if (di < 10 && dj < 10) {
+                            drawn[di][dj] = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     private void drawChristmasShip(Graphics2D g, int x, int y, int w, int h, int size, boolean vertical) {
         g.setColor(new Color(200, 30, 30));
