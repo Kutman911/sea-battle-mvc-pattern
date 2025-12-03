@@ -38,8 +38,8 @@ public class Canvas extends JPanel {
 
         drawDesktopPlayer(g2);
         drawSnowflakes(g2);
-        drawLevelWindow(g2);
         drawShipsDesktopComputer(g2);
+        drawLevelWindow(g2);
     }
 
     public Point getComputerBoardPosition() {
@@ -396,7 +396,7 @@ public class Canvas extends JPanel {
         return new Point(x, y);
     }
 
-    public void startLevelWindowAnimation() {
+    public void startLevelWindowAnimationFadeIn() {
         levelAlpha = 0f;
         Timer timer = new Timer(15, null);
 
@@ -414,7 +414,7 @@ public class Canvas extends JPanel {
         timer.start();
     }
 
-    public void startLevelWindowFadeOut() {
+    public void startLevelWindowAnimationFadeOut() {
         levelAlpha = 1f;
         Timer timer = new Timer(15, null);
 

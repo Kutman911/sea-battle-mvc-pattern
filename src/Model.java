@@ -405,7 +405,7 @@ public class Model {
             levelWindow = 3;
 
             if (canvas != null) {
-                canvas.startLevelWindowAnimation();
+                canvas.startLevelWindowAnimationFadeIn();
             }
 
             viewer.update();
@@ -420,7 +420,7 @@ public class Model {
         levelWindow = 1;
 
         if (canvas != null) {
-            canvas.startLevelWindowAnimation();
+            canvas.startLevelWindowAnimationFadeIn();
         }
 
         viewer.update();
@@ -429,7 +429,7 @@ public class Model {
                 new TimerTask() {
                     public void run() {
                         if (canvas != null) {
-                            canvas.startLevelWindowFadeOut();
+                            canvas.startLevelWindowAnimationFadeOut();
                         }
 
                         new Timer().schedule(new TimerTask() {
@@ -448,7 +448,7 @@ public class Model {
         levelWindow = 2;
 
         if (canvas != null) {
-            canvas.startLevelWindowAnimation();
+            canvas.startLevelWindowAnimationFadeIn();
         }
 
         viewer.update();
@@ -457,7 +457,7 @@ public class Model {
                 new TimerTask() {
                     public void run() {
                         if (canvas != null) {
-                            canvas.startLevelWindowFadeOut();
+                            canvas.startLevelWindowAnimationFadeOut();
                         }
 
                         new Timer().schedule(new TimerTask() {
