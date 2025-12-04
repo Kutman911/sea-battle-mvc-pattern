@@ -81,7 +81,7 @@ public class ShipPlacementHandler {
                 model.updateDesktopPlayer();
 
                 if (viewer.getAudioPlayer() != null) {
-                    viewer.getAudioPlayer().playSound("laughSound.wav");
+                    viewer.getAudioPlayer().playSound("src/sounds/laughSound.wav");
                 }
 
                 if (!model.isSetupPhase()) {

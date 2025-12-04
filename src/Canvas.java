@@ -67,7 +67,6 @@ public class Canvas extends JPanel {
             // ФАЗА БОЯ: рисуем обе доски
             drawDesktopPlayer(g2, false);
             drawDesktopComputer(g2);
-            drawShipsDesktopComputer(g2);
         }
 
         drawLevelWindow(g2);
@@ -161,7 +160,7 @@ public class Canvas extends JPanel {
     }
 
     private void drawDesktopComputer(Graphics2D g) {
-        int[][] desktopComputer = model.getDesktopComputer();
+        int[][] desktopComputer = model.getComputerPlayer().getBoard();
 
         int width = Coordinates.WIDTH;
         int height = Coordinates.HEIGHT;
@@ -316,67 +315,6 @@ public class Canvas extends JPanel {
             drawChristmasShip(g, shipDrawX, shipDrawY, drawWidth, drawHeight, ship.getSize(), ship.isVertical());
         }
     }
-
-    private void drawShipsDesktopComputer(Graphics2D g) {
-        int[][] board = model.getDesktopComputer();
-        int width = Coordinates.WIDTH;
-        int height = Coordinates.HEIGHT;
-
-        Point boardPos = getComputerBoardPosition();
-        int startX = boardPos.x;
-        int startY = boardPos.y;
-
-        boolean[][] drawn = new boolean[10][10];
-
-        for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < 10; j++) {
-                int val = board[i][j];
-
-                if (val > 0 && !drawn[i][j]) {
-                    boolean vertical = false;
-                    int size = val;
-
-                    if (i + 1 < 10 && board[i + 1][j] == val) {
-                        vertical = true;
-                    } else if (j + 1 < 10 && board[i][j + 1] == val) {
-                        vertical = false;
-                    }
-
-                    if (val == 1) {
-                        size = 1;
-                    } else {
-                        if (vertical) {
-                            size = 0;
-                            while (i + size < 10 && board[i + size][j] == val) {
-                                size++;
-                            }
-                        } else {
-                            size = 0;
-                            while (j + size < 10 && board[i][j + size] == val) {
-                                size++;
-                            }
-                        }
-                    }
-
-                    int shipX = startX + j * width;
-                    int shipY = startY + i * height;
-                    int drawWidth = vertical ? width : width * size;
-                    int drawHeight = vertical ? height * size : height;
-
-                    drawChristmasShip(g, shipX, shipY, drawWidth, drawHeight, size, vertical);
-
-                    for (int k = 0; k < size; k++) {
-                        int di = i + (vertical ? k : 0);
-                        int dj = j + (vertical ? 0 : k);
-                        if (di < 10 && dj < 10) {
-                            drawn[di][dj] = true;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
 
     private void drawChristmasShip(Graphics2D g, int x, int y, int w, int h, int size, boolean vertical) {
         g.setColor(new Color(200, 30, 30));

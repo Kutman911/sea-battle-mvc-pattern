@@ -17,6 +17,7 @@ public class Model {
     private List<Ship> playerShips;
     private int[][] arrayOfIndexes;
     private ComputerLogic computerLogic;
+    private ComputerPlayer computerPlayer;
 
     private Ship[] ships;
 
@@ -27,6 +28,8 @@ public class Model {
         this.viewer = viewer;
         cell = new Cell();
         arrayOfIndexes = new int[2][20];
+        computerPlayer = new ComputerPlayer();
+        desktopComputer = computerPlayer.getBoard();
         initializationDesktopComputer();
         initializationPlayerShips();
         stepX = 0;
@@ -144,20 +147,11 @@ public class Model {
         return true;
     }
 
-    private void initializationDesktopComputer() {
-        desktopComputer = new int[][] {
-                {1, 0, 0, 2, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 2, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                {0, 1, 0, 2, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 2, 0, 0, 4, 4, 4, 4},
-                {0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                {0, 1, 0, 0, 3, 3, 3, 0, 3, 0},
-                {0, 0, 0, 0, 0, 0, 0, 0, 3, 0},
-                {2, 2, 0, 0, 0, 0, 0, 0, 3, 0}
-        };
+    public ComputerPlayer getComputerPlayer() {
+        return computerPlayer;
+    }
 
+    private void initializationDesktopComputer() {
         int column = 0;
 
         for(int i = 0; i < desktopComputer.length; i++) {
