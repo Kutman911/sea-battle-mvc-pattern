@@ -12,7 +12,7 @@ public class Viewer {
     public Viewer() {
 
         audioPlayer = new AudioPlayer();
-        audioPlayer.playBackgroundMusic("src/sounds/background_music.wav");
+        audioPlayer.playBackgroundMusic("sea-battle-mvc-pattern/src/sounds/background_music.wav");
 
         controller = new Controller(this);
         model = controller.getModel();

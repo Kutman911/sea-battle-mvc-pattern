@@ -26,6 +26,7 @@ public class Canvas extends JPanel {
     }
 
     public void paint(Graphics g) {
+        System.out.println("kdkdkdkd");
         super.paint(g);
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -40,6 +41,15 @@ public class Canvas extends JPanel {
         drawSnowflakes(g2);
         drawShipsDesktopComputer(g2);
         drawLevelWindow(g2);
+
+        int[][] s = model.getDesktopComputer();
+
+        for (int i = 0; i < s.length; i++) {
+            for (int j = 0; j < s[i].length; j++) {
+                System.out.print(s[i][j] + " ");
+            }
+            System.out.println();
+        }
     }
 
     public Point getComputerBoardPosition() {

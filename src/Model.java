@@ -203,13 +203,6 @@ public class Model {
                 }
             }
         }
-        generateBoard();
-        for (int i = 0; i < desktopComputer.length; i++) {
-            for (int j = 0; j < desktopComputer[i].length; j++) {
-                System.out.print(desktopComputer[i][j] + " ");
-            }
-            System.out.println();
-        }
     }
 
     private boolean square(int x, int y, int i, int y1) {
@@ -242,60 +235,6 @@ public class Model {
         return arrayOfIndexes;
     }
 
-    private void printDesktopComputer() {
-        for (int i = 0; i < desktopComputer.length; i++) {
-            for (int j = 0; j < desktopComputer[i].length; j++) {
-                int element = desktopComputer[i][j];
-                System.out.print(element + " ");
-            }
-            System.out.println();
-        }
-        System.out.println();
-    }
-
-    public void placeShip(Ship s) {
-        for (int i = 0; i < s.getSize(); i++) {
-            int cx = s.getX() + (s.isVertical() ? i : 0);
-            int cy = s.getY() + (s.isVertical() ? 0 : i);
-            desktopComputer[cx][cy] = 1;
-        }
-    }
-
-    public boolean isValidPlacement(Ship s) {
-        int x = s.getX();
-        int y = s.getY();
-        int size = s.getSize();
-        boolean vertical = s.isVertical();
-
-        // Проверка выхода за границы
-        if (vertical) {
-            if (x + size > 10) return false;
-        } else {
-            if (y + size > 10) return false;
-        }
-
-        for (int i = 0; i < size; i++) {
-            int cx = x + (vertical ? i : 0);
-            int cy = y + (vertical ? 0 : i);
-
-            // Проверяем соседние клетки
-            for (int dx = -1; dx <= 1; dx++) {
-                for (int dy = -1; dy <= 1; dy++) {
-                    int nx = cx + dx;
-                    int ny = cy + dy;
-                    if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10) {
-                        if (desktopComputer[nx][ny] == 1) {
-                            return false; // уже занят кораблём
-                        }
-                    }
-                }
-            }
-        }
-
-        return true;
-    }
-
-
     public static boolean touches(Ship s, int col, int row) {
         int dx = s.isVertical() ? 0 : 1;
         int dy = s.isVertical() ? 1 : 0;
@@ -308,32 +247,6 @@ public class Model {
                 return true;
         }
         return false;
-    }
-
-    public void generateBoard() {
-        Random rnd = new Random();
-
-        int[] sizes = {4, 3, 3, 2, 2, 2, 1, 1, 1, 1};
-        int shipIndex = 0;
-        ships = new Ship[10];
-
-        for (int size : sizes) {
-            boolean placed = false;
-
-            while (!placed) {
-                boolean vertical = rnd.nextBoolean();
-                int x = rnd.nextInt(10);
-                int y = rnd.nextInt(10);
-
-                Ship s = new Ship(x, y, vertical, size);
-
-                if (isValidPlacement(s)) {
-                    placeShip(s);
-                    ships[shipIndex++] = s;
-                    placed = true;
-                }
-            }
-        }
     }
 
     private void initializationPlayerShips() {
