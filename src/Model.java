@@ -1,5 +1,4 @@
 import java.awt.*;
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.ArrayList;
@@ -11,12 +10,11 @@ public class Model {
     private Cell cell;
     private int[][] desktopComputer;
     private int[][] desktopPlayer;
-    private int stepX;
-    private int stepY;
     private Canvas canvas;
     private List<Ship> playerShips;
     private int[][] arrayOfIndexes;
     private ComputerLogic computerLogic;
+
     private ComputerPlayer computerPlayer;
 
     private Ship[] ships;
@@ -32,8 +30,6 @@ public class Model {
         desktopComputer = computerPlayer.getBoard();
         initializationDesktopComputer();
         initializationPlayerShips();
-        stepX = 0;
-        stepY = 0;
         computerLogic = new ComputerLogic();
         computerLogic.reset();
     }
@@ -57,23 +53,6 @@ public class Model {
                     desktopComputer[cell.getRow()][cell.getColumn()] = -1;
                 } else {
                     desktopComputer[cell.getRow()][cell.getColumn()] = -9;
-                }
-
-                if (stepY < 10 && stepX < 10) {
-
-                    if (desktopPlayer[stepY][stepX] > 0) {
-                        desktopPlayer[stepY][stepX] = -9;
-                    } else if (desktopPlayer[stepY][stepX] == 0) {
-                        desktopPlayer[stepY][stepX] = -1;
-                    }
-
-                    do {
-                        stepX = stepX + 1;
-                        if (stepX >= 10) {
-                            stepX = 0;
-                            stepY = stepY + 1;
-                        }
-                    } while (stepY < 10 && (desktopPlayer[stepY][stepX] == -1 || desktopPlayer[stepY][stepX] == -9));
                 }
 
                 viewer.update();
@@ -146,10 +125,10 @@ public class Model {
         }
         return true;
     }
-
     public ComputerPlayer getComputerPlayer() {
         return computerPlayer;
     }
+
 
     private void initializationDesktopComputer() {
         int column = 0;
@@ -199,14 +178,12 @@ public class Model {
         }
     }
 
-    private boolean square(int x, int y, int i, int y1) {
-        if((Coordinates.X <= x) && (Coordinates.Y <= y) &&
-                (x <= (Coordinates.X + (Coordinates.WIDTH * 10))) &&
-                (y <= (Coordinates.Y + (Coordinates.HEIGHT * 10)))) {
-            return true;
-        } else {
-            return false;
-        }
+    private boolean square(int mouseX, int mouseY, int boardX, int boardY) {
+        int right  = boardX + Coordinates.WIDTH * 10;
+        int bottom = boardY + Coordinates.HEIGHT * 10;
+
+        return mouseX >= boardX && mouseX < right &&
+                mouseY >= boardY && mouseY < bottom;
     }
 
     private Cell getRowAndColumn(int x, int y, int width, int height) {
@@ -408,46 +385,33 @@ public class Model {
         }
     }
 
-    private boolean isShipSunk(int row, int col) {
-        if (desktopPlayer == null) {
-            return false;
-        }
+    private boolean isShipSunk(int hitRow, int hitCol) {
+        for (Ship s : playerShips) {
+            if (!s.isPlaced()) continue;
 
-        if (desktopPlayer[row][col] != -9) {
-            return false;
-        }
+            int dx = s.isVertical() ? 0 : 1;
+            int dy = s.isVertical() ? 1 : 0;
 
-        int[][] dirs = {
-                {-1, 0}, 
-                {1, 0},
-                {0, -1},
-                {0, 1}
-        };
+            for (int k = 0; k < s.getSize(); k++) {
+                int row = s.getY() + dy * k;
+                int col = s.getX() + dx * k;
 
-        for (int d = 0; d < dirs.length; d++) {
-            int dr = dirs[d][0];
-            int dc = dirs[d][1];
+                if (row == hitRow && col == hitCol) {
+                    for (int j = 0; j < s.getSize(); j++) {
+                        int rr = s.getY() + dy * j;
+                        int cc = s.getX() + dx * j;
 
-            int r = row + dr;
-            int c = col + dc;
+                        if (desktopPlayer[rr][cc] != -9) {
+                            return false;
+                        }
+                    }
 
-            while (r >= 0 && r < 10 && c >= 0 && c < 10) {
-                int val = desktopPlayer[r][c];
-
-                if (val == 0 || val == -1) {
-                    break;
+                    return true;
                 }
-
-                if (val > 0) {
-                    return false;
-                }
-
-                r += dr;
-                c += dc;
             }
         }
 
-        return true;
+        return false;
     }
 
     private void computerTurn() {
