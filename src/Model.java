@@ -497,6 +497,40 @@ public class Model {
         }
     }
 
+    public boolean isValidPlacement(Ship ship) {
+        int startX = ship.getX();
+        int startY = ship.getY();
+        int size = ship.getSize();
+        boolean isVertical = ship.isVertical();
+
+        if (startX < 0 || startY < 0) return false;
+        if (isVertical) {
+            if (startY + size > 10 || startX >= 10) return false;
+        } else {
+            if (startX + size > 10 || startY >= 10) return false;
+        }
+
+        for (Ship otherShip : playerShips) {
+            if (otherShip != ship && otherShip.isPlaced()) {
+
+                int dx = isVertical ? 0 : 1;
+                int dy = isVertical ? 1 : 0;
+
+                for (int k = 0; k < size; k++) {
+                    int col = startX + dx * k;
+                    int row = startY + dy * k;
+
+
+                    if (touches(otherShip, col, row)) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
 
     public Viewer getViewer() {
         return viewer;

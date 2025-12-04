@@ -12,7 +12,7 @@ public class AudioPlayer {
             clip = AudioSystem.getClip();
             clip.open(audio);
 
-            clip.loop(Clip.LOOP_CONTINUOUSLY); // Зацикливание
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
             clip.start();
         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
             e.printStackTrace();
