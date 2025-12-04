@@ -1,6 +1,6 @@
 import java.awt.Point;
 import java.awt.event.MouseEvent;
-
+import java.util.Optional;
 
 public class ShipPlacementHandler {
 
@@ -22,63 +22,36 @@ public class ShipPlacementHandler {
         int py = event.getY();
 
         if (event.getButton() == MouseEvent.BUTTON3) {
-            for (Ship ship : model.getPlayerShips()) {
-                if (ship.isPlaced()) {
-                    int shipScreenX = getPlayerBoardX() + ship.getX() * Coordinates.WIDTH;
-                    int shipScreenY = getPlayerBoardY() + ship.getY() * Coordinates.HEIGHT;
+            Optional<Ship> clickedShip = findClickedShip(px, py);
 
-                    int width = ship.isVertical() ? Coordinates.WIDTH : ship.getSize() * Coordinates.WIDTH;
-                    int height = ship.isVertical() ? ship.getSize() * Coordinates.HEIGHT : Coordinates.HEIGHT;
+            if (clickedShip.isPresent()) {
+                Ship ship = clickedShip.get();
+                ship.rotate();
 
-                    if (px >= shipScreenX && px < shipScreenX + width &&
-                            py >= shipScreenY && py < shipScreenY + height)
-                    {
-                        ship.rotate();
-                        if (model.isValidPlacement(ship)) {
-                            model.updateDesktopPlayer();
-                        } else {
-                            ship.rotate();
-                        }
-                        viewer.update();
-                        return;
-                    }
+                if (ship.isPlaced() && !model.isValidPlacement(ship)) {
+                    ship.rotate();
+                } else if (ship.isPlaced()) {
+                    model.updateDesktopPlayer();
                 }
+                viewer.update();
+                return;
             }
         }
+        Optional<Ship> clickedShip = findClickedShip(px, py);
 
-        for (Ship ship : model.getPlayerShips()) {
-            int shipScreenX, shipScreenY;
+        if (clickedShip.isPresent()) {
+            selectedShip = clickedShip.get();
+            Point currentScreenPos = getShipScreenPosition(selectedShip);
+            initialGridX = selectedShip.getX();
+            initialGridY = selectedShip.getY();
+            selectedShip.setPlaced(false);
+            selectedShip.setDragging(true);
+            offsetX = px - currentScreenPos.x;
+            offsetY = py - currentScreenPos.y;
+            selectedShip.setX(currentScreenPos.x);
+            selectedShip.setY(currentScreenPos.y);
 
-            if (ship.isPlaced()) {
-                shipScreenX = getPlayerBoardX() + ship.getX() * Coordinates.WIDTH;
-                shipScreenY = getPlayerBoardY() + ship.getY() * Coordinates.HEIGHT;
-            } else {
-                Point offBoardPos = getScreenPositionFromGrid(ship.getX(), ship.getY());
-                shipScreenX = offBoardPos.x;
-                shipScreenY = offBoardPos.y;
-            }
-
-            int width = ship.isVertical() ? Coordinates.WIDTH : ship.getSize() * Coordinates.WIDTH;
-            int height = ship.isVertical() ? ship.getSize() * Coordinates.HEIGHT : Coordinates.HEIGHT;
-
-            if (px >= shipScreenX && px < shipScreenX + width &&
-                    py >= shipScreenY && py < shipScreenY + height)
-            {
-                selectedShip = ship;
-
-                initialGridX = selectedShip.getX();
-                initialGridY = selectedShip.getY();
-
-                selectedShip.setPlaced(false);
-                selectedShip.setDragging(true);
-
-                // Рассчитываем смещение курсора
-                offsetX = px - shipScreenX;
-                offsetY = py - shipScreenY;
-
-                viewer.update();
-                break;
-            }
+            viewer.update();
         }
     }
 
@@ -98,30 +71,18 @@ public class ShipPlacementHandler {
 
     public void mouseReleased(MouseEvent event) {
         if (selectedShip != null) {
+            selectedShip.setDragging(false);
 
-            int boardX = getPlayerBoardX();
-            int boardY = getPlayerBoardY();
+            boolean snapped = snapShipToGrid(selectedShip);
 
-            int shipScreenX = selectedShip.getX();
-            int shipScreenY = selectedShip.getY();
-
-            int width = selectedShip.isVertical() ? Coordinates.WIDTH : selectedShip.getSize() * Coordinates.WIDTH;
-            int height = selectedShip.isVertical() ? selectedShip.getSize() * Coordinates.HEIGHT : Coordinates.HEIGHT;
-
-            int shipCenterX = shipScreenX + width / 2;
-            int shipCenterY = shipScreenY + height / 2;
-
-            int cellCol = (shipCenterX - boardX) / Coordinates.WIDTH;
-            int cellRow = (shipCenterY - boardY) / Coordinates.HEIGHT;
-
-            selectedShip.setX(cellCol);
-            selectedShip.setY(cellRow);
-
-            if (cellRow >= 0 && cellRow < 10 && cellCol >= 0 && cellCol < 10 && model.isValidPlacement(selectedShip)) {
+            if (snapped && model.isValidPlacement(selectedShip)) {
                 selectedShip.setPlaced(true);
 
                 model.updateDesktopPlayer();
-                viewer.getAudioPlayer().playSound("sea-battle-mvc-pattern/src/sounds/laughSound.wav");
+
+                if (viewer.getAudioPlayer() != null) {
+                    viewer.getAudioPlayer().playSound("laughSound.wav");
+                }
 
                 if (!model.isSetupPhase()) {
                     model.startBattlePhase();
@@ -132,15 +93,81 @@ public class ShipPlacementHandler {
 
                 if (initialGridX >= 0 && initialGridX < 10 && initialGridY >= 0 && initialGridY < 10) {
                     selectedShip.setPlaced(true);
+                    model.updateDesktopPlayer();
                 } else {
                     selectedShip.setPlaced(false);
                 }
             }
 
-            selectedShip.setDragging(false);
             selectedShip = null;
             viewer.update();
         }
+    }
+
+    private Optional<Ship> findClickedShip(int mouseX, int mouseY) {
+        for (Ship ship : model.getPlayerShips()) {
+            Point screenPos = getShipScreenPosition(ship);
+
+            int width = ship.isVertical() ? Coordinates.WIDTH : ship.getSize() * Coordinates.WIDTH;
+            int height = ship.isVertical() ? ship.getSize() * Coordinates.HEIGHT : Coordinates.HEIGHT;
+
+            if (mouseX >= screenPos.x && mouseX < screenPos.x + width &&
+                    mouseY >= screenPos.y && mouseY < screenPos.y + height)
+            {
+                return Optional.of(ship);
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Point getShipScreenPosition(Ship ship) {
+        if (ship.isPlaced()) {
+            return getScreenPositionFromGrid(ship.getX(), ship.getY());
+        }
+
+        if (ship.isDragging()) {
+            return new Point(ship.getX(), ship.getY());
+        }
+
+        return new Point(ship.getX(), ship.getY());
+    }
+
+    private Point getScreenPositionFromOffBoardGrid(int offBoardGridX, int offBoardGridY) {
+        return getScreenPositionFromGrid(offBoardGridX, offBoardGridY);
+    }
+
+    private boolean snapShipToGrid(Ship ship) {
+        int boardX = getPlayerBoardX();
+        int boardY = getPlayerBoardY();
+        int cellW = Coordinates.WIDTH;
+        int cellH = Coordinates.HEIGHT;
+        int boardSize = 10;
+        int relX = ship.getX() - boardX;
+        int relY = ship.getY() - boardY;
+        int gridX = Math.round((float)relX / cellW);
+        int gridY = Math.round((float)relY / cellH);
+
+        if (gridX < 0 || gridX >= boardSize || gridY < 0 || gridY >= boardSize) {
+            return false;
+        }
+
+        int size = ship.getSize();
+        if (ship.isVertical()) {
+            if (gridY + size > boardSize) {
+                gridY = boardSize - size;
+            }
+        } else {
+            if (gridX + size > boardSize) {
+                gridX = boardX - size;
+            }
+        }
+
+        gridX = Math.max(0, gridX);
+        gridY = Math.max(0, gridY);
+        ship.setX(gridX);
+        ship.setY(gridY);
+
+        return true;
     }
 
 

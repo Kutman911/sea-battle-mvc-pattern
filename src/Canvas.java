@@ -9,11 +9,17 @@ public class Canvas extends JPanel {
     private Point computerBoardPosition;
     private float levelAlpha = 0f;
     private Random snowRandom = new Random(42);
+    private final int PADDING = 50;
+    private final int BOARD_SPACING = 50;
+    private final int TOP_Y = 150;
+    private final int BOARD_WIDTH_PX = Coordinates.WIDTH * 10;
+    private int playerBoardX;
+    private int computerBoardX;
+    private final int OFF_BOARD_X_START = 800;
 
     public Canvas(Model model) {
         this.model = model;
         setBackground(new Color(75, 139, 181));
-
         int[][] array = model.getArrayOfIndexes();
         arrayOfIndexes = new int[2][array[0].length];
 
@@ -25,44 +31,75 @@ public class Canvas extends JPanel {
         }
     }
 
+    private void calculateBoardPositions() {
+        int panelWidth = getWidth();
+        int totalSetupWidth = BOARD_WIDTH_PX + BOARD_SPACING + (BOARD_WIDTH_PX / 2);
+
+        if (model.isSetupPhase()) {
+            playerBoardX = (panelWidth - BOARD_WIDTH_PX) / 2 - BOARD_SPACING - BOARD_WIDTH_PX / 4;
+            computerBoardX = playerBoardX + BOARD_WIDTH_PX + BOARD_SPACING;
+        } else {
+            int totalBattleWidth = BOARD_WIDTH_PX * 2 + BOARD_SPACING;
+            int startX = (panelWidth - totalBattleWidth) / 2;
+
+            playerBoardX = startX;
+            computerBoardX = startX + BOARD_WIDTH_PX + BOARD_SPACING;
+        }
+    }
+
+
     public void paint(Graphics g) {
-        System.out.println("kdkdkdkd");
         super.paint(g);
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        if(model.won()) {
-            drawWon(g2);
-        } else {
-            drawDesktopComputer(g2);
-        }
+        calculateBoardPositions();
 
-        drawDesktopPlayer(g2);
         drawSnowflakes(g2);
-        drawShipsDesktopComputer(g2);
-        drawLevelWindow(g2);
 
-        int[][] s = model.getDesktopComputer();
+        if (model.won()) {
+            drawWon(g2);
 
-        for (int i = 0; i < s.length; i++) {
-            for (int j = 0; j < s[i].length; j++) {
-                System.out.print(s[i][j] + " ");
-            }
-            System.out.println();
+        } else if (model.isSetupPhase()) {
+            drawDesktopPlayer(g2, true);
+
+        } else {
+            // ФАЗА БОЯ: рисуем обе доски
+            drawDesktopPlayer(g2, false);
+            drawDesktopComputer(g2);
+            drawShipsDesktopComputer(g2);
         }
+
+        drawLevelWindow(g2);
     }
 
     public Point getComputerBoardPosition() {
-        return computerBoardPosition;
+        return new Point(computerBoardX, TOP_Y);
     }
+
+    public Point getPlayerBoardPosition() {
+        return new Point(playerBoardX, TOP_Y);
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        int totalBattleWidth = BOARD_WIDTH_PX * 2 + BOARD_SPACING + PADDING * 2;
+        int maxSetupWidth = BOARD_WIDTH_PX + PADDING +
+                Coordinates.WIDTH + PADDING + PADDING;
+
+        int width = Math.max(totalBattleWidth, maxSetupWidth + 50);
+        int height = TOP_Y + BOARD_WIDTH_PX + PADDING;
+        return new Dimension(width, height);
+    }
+
 
     private void drawWon(Graphics2D g) {
         int width = Coordinates.WIDTH;
         int height = Coordinates.HEIGHT;
 
         int totalWidth = width * 10;
-        int totalHeight = height * 10;
-        Point centerPos = getCenteredPosition(totalWidth, totalHeight);
+
+        Point centerPos = getCenteredPosition(totalWidth, width * 10);
         int x = centerPos.x;
         int y = centerPos.y;
 
@@ -70,14 +107,12 @@ public class Canvas extends JPanel {
         g.setColor(Color.GREEN);
         g.drawString("You won!", x + (width * 2), y - 40);
 
-        // Рисуем корабли размера 1
         for(int index = 0; index < 4; index++) {
             int i = arrayOfIndexes[0][index];
             int j = arrayOfIndexes[1][index];
             drawChristmasShip(g, x + (width * j), y + (height * i), width, height, 1, false);
         }
 
-        // Рисуем корабли размера 2
         for(int index = 4; index < 10; index = index + 2) {
             int i1 = arrayOfIndexes[0][index];
             int j1 = arrayOfIndexes[1][index];
@@ -90,7 +125,6 @@ public class Canvas extends JPanel {
                     2, !horizontal);
         }
 
-        // Рисуем корабли размера 3
         int i1 = arrayOfIndexes[0][10];
         int j1 = arrayOfIndexes[1][10];
         int i3 = arrayOfIndexes[0][12];
@@ -111,7 +145,6 @@ public class Canvas extends JPanel {
                 horizontal ? height : height * 3,
                 3, !horizontal);
 
-        // Рисуем корабль размера 4
         i1 = arrayOfIndexes[0][16];
         j1 = arrayOfIndexes[1][16];
         i3 = arrayOfIndexes[0][19];
@@ -132,12 +165,9 @@ public class Canvas extends JPanel {
 
         int width = Coordinates.WIDTH;
         int height = Coordinates.HEIGHT;
-        int totalWidth = width * 10 + 100 + width * 10;
-        int totalHeight = height * 10;
-        Point centerPos = getCenteredPosition(totalWidth, totalHeight);
 
-        int x = centerPos.x;
-        int y = centerPos.y;
+        int x = computerBoardX;
+        int y = TOP_Y;
 
         computerBoardPosition = new Point(x, y);
 
@@ -149,56 +179,54 @@ public class Canvas extends JPanel {
         int labelX = x + (width * 10 - labelWidth) / 2;
         g.drawString(label, labelX, y - 20);
 
+        int currentX = x;
+        int currentY = y;
+
         for(int i = 0; i < desktopComputer.length; i++) {
             for(int j = 0; j < desktopComputer[i].length; j++) {
                 int element = desktopComputer[i][j];
 
                 if(element == -1) {
                     g.setColor(new Color(30, 60, 100));
-                    g.fillRect(x, y, width, height);
+                    g.fillRect(currentX, currentY, width, height);
                     g.setColor(Color.WHITE);
-                    g.drawLine(x, y, x + width, y + height);
-                    g.drawLine(x + width, y, x, y + height);
+                    g.drawLine(currentX, currentY, currentX + width, currentY + height);
+                    g.drawLine(currentX + width, currentY, currentX, currentY + height);
                 } else if(element == -9){
                     g.setColor(new Color(200, 50, 50));
-                    g.fillRect(x, y, width, height);
+                    g.fillRect(currentX, currentY, width, height);
                     g.setColor(Color.YELLOW);
-                    int cx = x + width / 2;
-                    int cy = y + height / 2;
+                    int cx = currentX + width / 2;
+                    int cy = currentY + height / 2;
                     g.fillOval(cx - 8, cy - 8, 16, 16);
                     g.setColor(Color.RED);
-                    g.drawLine(x, y, x + width, y + height);
-                    g.drawLine(x + width, y, x, y + height);
+                    g.drawLine(currentX, currentY, currentX + width, currentY + height);
+                    g.drawLine(currentX + width, currentY, currentX, currentY + height);
                 }
 
                 g.setColor(Color.WHITE);
-                g.drawRect(x, y, width, height);
-                x = x + width;
-
-
+                g.drawRect(currentX, currentY, width, height);
+                currentX = currentX + width;
             }
-            x = centerPos.x;
-            y = y + height;
+            currentX = x;
+
+            currentY = currentY + height;
         }
     }
 
-    private void drawDesktopPlayer(Graphics2D g) {
+    private void drawDesktopPlayer(Graphics2D g, boolean drawOffBoardShips) {
         int width = Coordinates.WIDTH;
         int height = Coordinates.HEIGHT;
 
-        int totalWidth = width * 10 + 100 + width * 10;
-        int totalHeight = height * 10;
-        Point centerPos = getCenteredPosition(totalWidth, totalHeight);
-
-        int boardX = centerPos.x + (width * 10) + 100;
-        int boardY = centerPos.y;
+        int boardX = playerBoardX;
+        int boardY = TOP_Y;
 
         int[][] desktopPlayer = model.getDesktopPlayer();
 
         g.setFont(new Font("Arial", Font.BOLD, 30));
         g.setColor(Color.WHITE);
         FontMetrics fm = g.getFontMetrics();
-        String label = "Your Board";
+        String label = drawOffBoardShips ? "Your Board (Setup)" : "Your Board";
         int labelWidth = fm.stringWidth(label);
         int labelX = boardX + (width * 10 - labelWidth) / 2;
         g.drawString(label, labelX, boardY - 20);
@@ -216,6 +244,7 @@ public class Canvas extends JPanel {
                     g.setColor(Color.WHITE);
                     g.drawLine(x, y, x + width, y + height);
                     g.drawLine(x + width, y, x, y + height);
+                    // -9: Попадание (кружок)
                 } else if(element == -9){
                     g.setColor(new Color(200, 50, 50));
                     g.fillRect(x, y, width, height);
@@ -236,6 +265,15 @@ public class Canvas extends JPanel {
             y = y + height;
         }
 
+        int offBoardDrawX = boardX + BOARD_WIDTH_PX + PADDING * 2;
+        int offBoardCurrentY = TOP_Y;
+
+        if (drawOffBoardShips) {
+            g.setFont(new Font("Arial", Font.BOLD, 24));
+            g.setColor(Color.WHITE);
+            g.drawString("Drag Ships", offBoardDrawX, TOP_Y - 20);
+        }
+
         for (Ship ship : model.getPlayerShips()) {
             int shipDrawX, shipDrawY;
             int drawWidth, drawHeight;
@@ -254,11 +292,25 @@ public class Canvas extends JPanel {
                 drawHeight = ship.isVertical() ? height * ship.getSize() : height;
                 g.fillRect(shipDrawX, shipDrawY, drawWidth, drawHeight);
 
-            } else {
+            } else if (ship.isPlaced()) {
                 shipDrawX = boardX + ship.getX() * width;
                 shipDrawY = boardY + ship.getY() * height;
                 drawWidth = ship.isVertical() ? width : width * ship.getSize();
                 drawHeight = ship.isVertical() ? height * ship.getSize() : height;
+            } else if (drawOffBoardShips) {
+                shipDrawX = offBoardDrawX;
+                shipDrawY = offBoardCurrentY;
+
+                ship.setX(offBoardDrawX);
+                ship.setY(offBoardCurrentY);
+                ship.setVertical(true);
+
+                drawWidth = width;
+                drawHeight = height * ship.getSize();
+
+                offBoardCurrentY += drawHeight + PADDING / 2;
+            } else {
+                continue;
             }
 
             drawChristmasShip(g, shipDrawX, shipDrawY, drawWidth, drawHeight, ship.getSize(), ship.isVertical());
@@ -279,16 +331,33 @@ public class Canvas extends JPanel {
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
                 int val = board[i][j];
+
                 if (val > 0 && !drawn[i][j]) {
-                    // Определяем ориентацию корабля
                     boolean vertical = false;
                     int size = val;
 
                     if (i + 1 < 10 && board[i + 1][j] == val) {
                         vertical = true;
+                    } else if (j + 1 < 10 && board[i][j + 1] == val) {
+                        vertical = false;
                     }
 
-                    // Рисуем корабль
+                    if (val == 1) {
+                        size = 1;
+                    } else {
+                        if (vertical) {
+                            size = 0;
+                            while (i + size < 10 && board[i + size][j] == val) {
+                                size++;
+                            }
+                        } else {
+                            size = 0;
+                            while (j + size < 10 && board[i][j + size] == val) {
+                                size++;
+                            }
+                        }
+                    }
+
                     int shipX = startX + j * width;
                     int shipY = startY + i * height;
                     int drawWidth = vertical ? width : width * size;
@@ -296,7 +365,6 @@ public class Canvas extends JPanel {
 
                     drawChristmasShip(g, shipX, shipY, drawWidth, drawHeight, size, vertical);
 
-                    // Отмечаем все клетки корабля как нарисованные
                     for (int k = 0; k < size; k++) {
                         int di = i + (vertical ? k : 0);
                         int dj = j + (vertical ? 0 : k);
@@ -332,11 +400,11 @@ public class Canvas extends JPanel {
         }
 
         Color[] ornamentColors = {
-                new Color(255, 215, 0),    // Золотой
-                new Color(0, 191, 255),    // Голубой
-                new Color(255, 105, 180),  // Розовый
-                new Color(50, 205, 50),    // Зеленый
-                new Color(255, 140, 0)     // Оранжевый
+                new Color(255, 215, 0),
+                new Color(0, 191, 255),
+                new Color(255, 105, 180),
+                new Color(50, 205, 50),
+                new Color(255, 140, 0)
         };
 
         int cellWidth = vertical ? w : (w / size);
@@ -354,12 +422,15 @@ public class Canvas extends JPanel {
 
             Color ornamentColor = ornamentColors[i % ornamentColors.length];
 
+            // Основной шар
             g.setColor(ornamentColor);
             g.fillOval(ornX - 5, ornY - 5, 10, 10);
 
+            // Блик
             g.setColor(new Color(255, 255, 255, 200));
             g.fillOval(ornX - 3, ornY - 3, 4, 4);
 
+            // Крючок
             g.setColor(new Color(180, 180, 180));
             g.fillRect(ornX - 1, ornY - 7, 2, 3);
         }
@@ -386,23 +457,10 @@ public class Canvas extends JPanel {
 
     private Point getCenteredPosition(int totalWidth, int totalHeight) {
         int panelWidth = getWidth();
-        int panelHeight = getHeight();
 
         int x = (panelWidth - totalWidth) / 2;
-        int y = (panelHeight - totalHeight) / 2;
+        int y = TOP_Y;
 
-        return new Point(x, y);
-    }
-
-    public Point getPlayerBoardPosition() {
-        int width = Coordinates.WIDTH;
-        int height = Coordinates.HEIGHT;
-        int totalWidth = width * 10 + 100 + width * 10;
-        int totalHeight = height * 10;
-        Point centerPos = getCenteredPosition(totalWidth, totalHeight);
-
-        int x = centerPos.x + (width * 10) + 100;
-        int y = centerPos.y;
         return new Point(x, y);
     }
 
@@ -455,6 +513,7 @@ public class Canvas extends JPanel {
         int panelWidth = getWidth();
         int panelHeight = getHeight();
 
+        // Затемненный фон
         g2.setColor(new Color(10, 20, 60, 122));
         g2.fillRect(0, 0, panelWidth, panelHeight);
 
@@ -463,9 +522,11 @@ public class Canvas extends JPanel {
         int x = (panelWidth - boxWidth) / 2;
         int y = (panelHeight - boxHeight) / 2;
 
+        // Белый/кремовый фон окна
         g2.setColor(new Color(255, 250, 245));
         g2.fillRoundRect(x, y, boxWidth, boxHeight, 35, 35);
 
+        // Красная рамка
         g2.setColor(new Color(200, 0, 0));
         g2.setStroke(new BasicStroke(5));
         g2.drawRoundRect(x, y, boxWidth, boxHeight, 35, 35);

@@ -1,4 +1,3 @@
-import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -11,7 +10,7 @@ public class Controller implements MouseListener, MouseMotionListener {
 
     public Controller(Viewer viewer) {
         this.viewer = viewer;
-        model = new Model(viewer);
+        this.model = new Model(viewer);
         this.shipPlacementHandler = new ShipPlacementHandler(model, viewer);
     }
 
@@ -32,10 +31,13 @@ public class Controller implements MouseListener, MouseMotionListener {
         System.out.println("Игра успешно перезапущена.");
     }
 
+    /**
+     * Обработка клика мыши. Используется только для выстрелов в фазе боя.
+     */
     @Override
     public void mouseClicked(MouseEvent event) {
+        // Выстрелы возможны только после завершения фазы расстановки
         if (!model.isSetupPhase()) {
-
             model.doAction(event.getX(), event.getY());
 
             if (model.lost()) {
@@ -56,7 +58,6 @@ public class Controller implements MouseListener, MouseMotionListener {
     public void mousePressed(MouseEvent event) {
         if (model.isSetupPhase()) {
             shipPlacementHandler.mousePressed(event);
-        } else {
         }
     }
 
