@@ -30,6 +30,17 @@ public class AudioPlayer {
         }
     }
 
+    public void playLevelSound(String filename) {
+        try {
+            AudioInputStream audio = AudioSystem.getAudioInputStream(new File(filename));
+            Clip levelClip = AudioSystem.getClip();
+            levelClip.open(audio);
+            levelClip.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void stop() {
         if (clip != null && clip.isRunning()) {
             clip.stop();

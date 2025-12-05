@@ -9,9 +9,12 @@ public class LevelWindow {
     private final Canvas canvas;
     private float alpha = 0f;
 
+    private final AudioPlayer audioPlayer;
+
     public LevelWindow(Viewer viewer, Canvas canvas) {
         this.viewer = viewer;
         this.canvas = canvas;
+        this.audioPlayer = viewer.getAudioPlayer();
     }
 
     public int getCurrentLevel() {
@@ -28,6 +31,9 @@ public class LevelWindow {
 
     public void showLevelStartWindow() {
         windowState = 1;
+
+        audioPlayer.playLevelSound("src/sounds/levelSound.wav");
+
         fadeIn();
 
         new Timer().schedule(new TimerTask() {
