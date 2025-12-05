@@ -7,7 +7,6 @@ public class Canvas extends JPanel {
     private Model model;
     private int[][] arrayOfIndexes;
     private Point computerBoardPosition;
-    private float levelAlpha = 0f;
     private Random snowRandom = new Random(42);
     private final int PADDING = 50;
     private final int BOARD_SPACING = 50;
@@ -409,56 +408,22 @@ public class Canvas extends JPanel {
         return new Point(x, y);
     }
 
-    public void startLevelWindowAnimationFadeIn() {
-        levelAlpha = 0f;
-        Timer timer = new Timer(15, null);
-
-        timer.addActionListener(e -> {
-            levelAlpha += 0.03f;
-
-            if (levelAlpha >= 1f) {
-                levelAlpha = 1f;
-                timer.stop();
-            }
-
-            repaint();
-        });
-
-        timer.start();
-    }
-
-    public void startLevelWindowAnimationFadeOut() {
-        levelAlpha = 1f;
-        Timer timer = new Timer(15, null);
-
-        timer.addActionListener(e -> {
-            levelAlpha -= 0.03f;
-
-            if (levelAlpha <= 0f) {
-                levelAlpha = 0f;
-                timer.stop();
-            }
-
-            repaint();
-        });
-
-        timer.start();
-    }
 
     private void drawLevelWindow(Graphics g) {
-        int state = model.getLevelWindow();
-        if (state == 0) {
-            return;
-        }
+
+        LevelWindow manager = model.getLevelWindow();
+
+        int state = manager.getWindowState();
+        if (state == 0) return;
+
+        float alpha = manager.getAlpha();
 
         Graphics2D g2 = (Graphics2D) g.create();
-
-        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, levelAlpha));
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
 
         int panelWidth = getWidth();
         int panelHeight = getHeight();
 
-        // Затемненный фон
         g2.setColor(new Color(10, 20, 60, 122));
         g2.fillRect(0, 0, panelWidth, panelHeight);
 
@@ -467,11 +432,9 @@ public class Canvas extends JPanel {
         int x = (panelWidth - boxWidth) / 2;
         int y = (panelHeight - boxHeight) / 2;
 
-        // Белый/кремовый фон окна
         g2.setColor(new Color(255, 250, 245));
         g2.fillRoundRect(x, y, boxWidth, boxHeight, 35, 35);
 
-        // Красная рамка
         g2.setColor(new Color(200, 0, 0));
         g2.setStroke(new BasicStroke(5));
         g2.drawRoundRect(x, y, boxWidth, boxHeight, 35, 35);
@@ -480,10 +443,11 @@ public class Canvas extends JPanel {
         g2.setFont(new Font("Comic Sans MS", Font.BOLD, 38));
 
         String text;
+
         if (state == 1) {
-            text = "LEVEL " + model.getCurrentLevel();
+            text = "LEVEL " + manager.getCurrentLevel();
         } else if (state == 2) {
-            text = "LEVEL " + model.getCurrentLevel() + " COMPLETED!";
+            text = "LEVEL " + manager.getCurrentLevel() + " COMPLETED!";
         } else {
             text = "CONGRATULATIONS!";
         }
@@ -494,7 +458,7 @@ public class Canvas extends JPanel {
         int textY = y + boxHeight / 2 + 12;
 
         g2.drawString(text, textX, textY);
-
         g2.dispose();
     }
+
 }
