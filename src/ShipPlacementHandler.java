@@ -21,18 +21,22 @@ public class ShipPlacementHandler {
         int px = event.getX();
         int py = event.getY();
 
-        if (event.getButton() == MouseEvent.BUTTON3) {
+        if (event.getButton() == MouseEvent.BUTTON3 || event.getClickCount() == 2) {
             Optional<Ship> clickedShip = findClickedShip(px, py);
 
             if (clickedShip.isPresent()) {
                 Ship ship = clickedShip.get();
+
                 ship.rotate();
 
-                if (ship.isPlaced() && !model.isValidPlacement(ship)) {
-                    ship.rotate();
-                } else if (ship.isPlaced()) {
-                    model.updateDesktopPlayer();
+                if (ship.isPlaced()) {
+                    if (!model.isValidPlacement(ship)) {
+                        ship.rotate();
+                    } else {
+                        model.updateDesktopPlayer();
+                    }
                 }
+
                 viewer.update();
                 return;
             }
@@ -129,6 +133,22 @@ public class ShipPlacementHandler {
             return new Point(ship.getX(), ship.getY());
         }
 
+
+        int boardX = getPlayerBoardX();
+        int boardY = getPlayerBoardY();
+        int offBoardX = boardX + Coordinates.WIDTH * 10 + 50;
+        int offBoardY = boardY;
+
+        for (Ship s : model.getPlayerShips()) {
+            if (s == ship) {
+                return new Point(offBoardX, offBoardY);
+            }
+            if (!s.isPlaced() && !s.isDragging()) {
+                int drawHeight = s.isVertical() ? s.getSize() * Coordinates.HEIGHT : Coordinates.HEIGHT;
+                offBoardY += drawHeight + 25;
+            }
+        }
+
         return new Point(ship.getX(), ship.getY());
     }
 
@@ -158,7 +178,7 @@ public class ShipPlacementHandler {
             }
         } else {
             if (gridX + size > boardSize) {
-                gridX = boardX - size;
+                gridX = boardSize - size;
             }
         }
 

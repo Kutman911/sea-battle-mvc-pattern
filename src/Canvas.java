@@ -15,7 +15,6 @@ public class Canvas extends JPanel {
     private final int BOARD_WIDTH_PX = Coordinates.WIDTH * 10;
     private int playerBoardX;
     private int computerBoardX;
-    private final int OFF_BOARD_X_START = 800;
 
     public Canvas(Model model) {
         this.model = model;
@@ -33,11 +32,17 @@ public class Canvas extends JPanel {
 
     private void calculateBoardPositions() {
         int panelWidth = getWidth();
-        int totalSetupWidth = BOARD_WIDTH_PX + BOARD_SPACING + (BOARD_WIDTH_PX / 2);
 
         if (model.isSetupPhase()) {
-            playerBoardX = (panelWidth - BOARD_WIDTH_PX) / 2 - BOARD_SPACING - BOARD_WIDTH_PX / 4;
-            computerBoardX = playerBoardX + BOARD_WIDTH_PX + BOARD_SPACING;
+
+            int offBoardShipAreaWidth = BOARD_WIDTH_PX / 2 + BOARD_WIDTH_PX / 5;
+            int totalSetupWidth = BOARD_WIDTH_PX + BOARD_SPACING + offBoardShipAreaWidth;
+
+            int startX = (panelWidth - totalSetupWidth) / 2;
+
+            playerBoardX = startX;
+            computerBoardX = startX + BOARD_WIDTH_PX + BOARD_SPACING;
+
         } else {
             int totalBattleWidth = BOARD_WIDTH_PX * 2 + BOARD_SPACING;
             int startX = (panelWidth - totalBattleWidth) / 2;
@@ -264,13 +269,16 @@ public class Canvas extends JPanel {
             y = y + height;
         }
 
-        int offBoardDrawX = boardX + BOARD_WIDTH_PX + PADDING * 2;
+        int offBoardDrawX = computerBoardX;;
         int offBoardCurrentY = TOP_Y;
 
         if (drawOffBoardShips) {
             g.setFont(new Font("Arial", Font.BOLD, 24));
             g.setColor(Color.WHITE);
-            g.drawString("Drag Ships", offBoardDrawX, TOP_Y - 20);
+            FontMetrics fm2 = g.getFontMetrics();
+            String instructionLabel = "Drag Ships (Double-Click to Rotate)";
+            int instructionWidth = fm2.stringWidth(instructionLabel);
+            g.drawString(instructionLabel, offBoardDrawX + (BOARD_WIDTH_PX / 4 - instructionWidth / 2), TOP_Y - 20);
         }
 
         for (Ship ship : model.getPlayerShips()) {
@@ -300,14 +308,13 @@ public class Canvas extends JPanel {
                 shipDrawX = offBoardDrawX;
                 shipDrawY = offBoardCurrentY;
 
-                ship.setX(offBoardDrawX);
-                ship.setY(offBoardCurrentY);
-                ship.setVertical(true);
+                drawWidth = ship.isVertical() ? width : width * ship.getSize();
+                drawHeight = ship.isVertical() ? height * ship.getSize() : height;
 
-                drawWidth = width;
-                drawHeight = height * ship.getSize();
+                drawChristmasShip(g, shipDrawX, shipDrawY, drawWidth, drawHeight, ship.getSize(), ship.isVertical());
 
                 offBoardCurrentY += drawHeight + PADDING / 2;
+                continue;
             } else {
                 continue;
             }
