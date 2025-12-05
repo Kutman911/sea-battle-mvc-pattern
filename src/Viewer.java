@@ -38,7 +38,7 @@ public class Viewer {
         frame.setVisible(true);
 
         SwingUtilities.invokeLater(() -> {
-            model.showLevelStartWindow(model.getCurrentLevel());
+            model.getLevelWindow().showLevelStartWindow();
         });
     }
 

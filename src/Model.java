@@ -19,8 +19,7 @@ public class Model {
 
     private Ship[] ships;
 
-    private int currentLevel = 1;
-    private int levelWindow = 0;
+    private LevelWindow levelWindow;
 
     public Model(Viewer viewer) {
         this.viewer = viewer;
@@ -58,11 +57,11 @@ public class Model {
                 viewer.update();
 
                 if(won()) {
-                    if (currentLevel >= 3) {
+                    if (levelWindow.getCurrentLevel() >= 3) {
                         viewer.showResult(true);
                         return;
                     }
-                    showLevelCompletedWindow();
+                    levelWindow.showLevelCompletedWindow();
                 }
                 computerTurn();
 
@@ -112,6 +111,7 @@ public class Model {
 
     public void setCanvas(Canvas canvas) {
         this.canvas = canvas;
+        this.levelWindow = new LevelWindow(viewer, canvas);
     }
 
     public boolean won() {
@@ -257,7 +257,7 @@ public class Model {
                 return true;
             }
         }
-        if (currentLevel == 1 && levelWindow == 0) {
+        if (levelWindow.getCurrentLevel() == 1 && levelWindow.getWindowState() == 0) {
 
         }
         return false;
@@ -265,94 +265,6 @@ public class Model {
 
     public void startBattlePhase() {
         System.out.println("Setup phase complete. Starting battle!");
-    }
-
-    public int getCurrentLevel() {
-        return currentLevel;
-    }
-
-    public int getLevelWindow() {
-        return levelWindow;
-    }
-
-    public void setLevelWindow(int state) {
-        this.levelWindow = state;
-        viewer.update();
-    }
-
-    public void nextLevel() {
-        currentLevel = currentLevel + 1;
-
-        if (currentLevel > 3) {
-            viewer.showResult(true);
-
-            levelWindow = 3;
-
-            if (canvas != null) {
-                canvas.startLevelWindowAnimationFadeIn();
-            }
-
-            viewer.update();
-            return;
-        }
-
-        showLevelStartWindow(currentLevel);
-    }
-
-    public void showLevelStartWindow(int level) {
-        currentLevel = level;
-        levelWindow = 1;
-
-        if (canvas != null) {
-            canvas.startLevelWindowAnimationFadeIn();
-        }
-
-        viewer.update();
-
-        new Timer().schedule(
-                new TimerTask() {
-                    public void run() {
-                        if (canvas != null) {
-                            canvas.startLevelWindowAnimationFadeOut();
-                        }
-
-                        new Timer().schedule(new TimerTask() {
-                            public void run() {
-                                levelWindow = 0;
-                                viewer.update();
-                            }
-                        }, 400);
-                    }
-                },
-                2400
-        );
-    }
-
-    public void showLevelCompletedWindow() {
-        levelWindow = 2;
-
-        if (canvas != null) {
-            canvas.startLevelWindowAnimationFadeIn();
-        }
-
-        viewer.update();
-
-        new Timer().schedule(
-                new TimerTask() {
-                    public void run() {
-                        if (canvas != null) {
-                            canvas.startLevelWindowAnimationFadeOut();
-                        }
-
-                        new Timer().schedule(new TimerTask() {
-                            public void run() {
-                                nextLevel();
-                            }
-                        }, 400);
-                    }
-                },
-                2400
-        );
     }
 
     public void updateDesktopPlayer() {
@@ -500,6 +412,10 @@ public class Model {
 
     public Ship[] getShips() {
         return ships;
+    }
+
+    public LevelWindow getLevelWindow() {
+        return levelWindow;
     }
 
 }
