@@ -23,6 +23,7 @@ public class Viewer {
         model.setCanvas(canvas);
 
         frame = new JFrame("Sea Battle MVC Pattern");
+        frame.setIconImage(new ImageIcon(Viewer.class.getResource("/images/appIcon.jpg")).getImage());
         frame.setSize(1500, 900);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.add("Center", canvas);
