@@ -48,6 +48,10 @@ public class Viewer {
             audioPlayer.stop();
         }
 
+        if (!isWin) {
+            audioPlayer.playSound("src/sounds/loseSound.wav");
+        }
+
         SwingUtilities.invokeLater(() -> {
             ResultDialog dialog = new ResultDialog(
                     (Frame) frame,
