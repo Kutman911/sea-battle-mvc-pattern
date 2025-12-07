@@ -233,50 +233,6 @@ public class Canvas extends JPanel {
         int labelX = boardX + (width * 10 - labelWidth) / 2;
         g.drawString(label, labelX, boardY - 20);
 
-        int x = boardX;
-        int y = boardY;
-
-        for(int i = 0; i < desktopPlayer.length; i++) {
-            for(int j = 0; j < desktopPlayer[i].length; j++) {
-                int element = desktopPlayer[i][j];
-
-                if(element == -1) {
-                    g.setColor(new Color(30, 60, 100));
-                    g.fillRect(x, y, width, height);
-                    g.setColor(Color.WHITE);
-                    int cx = x + width / 2;
-                    int cy = y + height / 2;
-                    g.fillOval(cx - 6, cy - 6, 12, 12);
-                } else if(element == -9){
-                    g.setColor(new Color(200, 50, 50));
-                    g.fillRect(x, y, width, height);
-                    g.setColor(Color.GREEN);
-                    g.setStroke(new BasicStroke(3));
-                    g.drawLine(x, y, x + width, y + height);
-                    g.drawLine(x + width, y, x, y + height);
-                }
-
-                g.setColor(Color.WHITE);
-                g.setStroke(new BasicStroke(1));
-                g.drawRect(x, y, width, height);
-                x = x + width;
-            }
-            x = boardX;
-            y = y + height;
-        }
-
-        int offBoardDrawX = computerBoardX;;
-        int offBoardCurrentY = TOP_Y;
-
-        if (drawOffBoardShips) {
-            g.setFont(new Font("Arial", Font.BOLD, 24));
-            g.setColor(Color.WHITE);
-            FontMetrics fm2 = g.getFontMetrics();
-            String instructionLabel = "Drag Ships (Double-Click to Rotate)";
-            int instructionWidth = fm2.stringWidth(instructionLabel);
-            g.drawString(instructionLabel, offBoardDrawX + (BOARD_WIDTH_PX / 4 - instructionWidth / 2), TOP_Y - 20);
-        }
-
         for (Ship ship : model.getPlayerShips()) {
             int shipDrawX, shipDrawY;
             int drawWidth, drawHeight;
@@ -301,21 +257,68 @@ public class Canvas extends JPanel {
                 drawWidth = ship.isVertical() ? width : width * ship.getSize();
                 drawHeight = ship.isVertical() ? height * ship.getSize() : height;
             } else if (drawOffBoardShips) {
-                shipDrawX = offBoardDrawX;
-                shipDrawY = offBoardCurrentY;
-
-                drawWidth = ship.isVertical() ? width : width * ship.getSize();
-                drawHeight = ship.isVertical() ? height * ship.getSize() : height;
-
-                drawChristmasShip(g, shipDrawX, shipDrawY, drawWidth, drawHeight, ship.getSize(), ship.isVertical());
-
-                offBoardCurrentY += drawHeight + PADDING / 2;
-                continue;
+                continue; // Отложим отрисовку боковых кораблей
             } else {
                 continue;
             }
 
             drawChristmasShip(g, shipDrawX, shipDrawY, drawWidth, drawHeight, ship.getSize(), ship.isVertical());
+        }
+
+        int x = boardX;
+        int y = boardY;
+
+        for(int i = 0; i < desktopPlayer.length; i++) {
+            for(int j = 0; j < desktopPlayer[i].length; j++) {
+                int element = desktopPlayer[i][j];
+
+                if(element == -1) {
+                    g.setColor(new Color(30, 60, 100));
+                    g.fillRect(x, y, width, height);
+                    g.setColor(Color.WHITE);
+                    int cx = x + width / 2;
+                    int cy = y + height / 2;
+                    g.fillOval(cx - 6, cy - 6, 12, 12);
+                } else if(element == -9){
+                    // Крестик рисуется поверх корабля
+                    g.setColor(Color.GREEN);
+                    g.setStroke(new BasicStroke(3));
+                    g.drawLine(x, y, x + width, y + height);
+                    g.drawLine(x + width, y, x, y + height);
+                }
+
+                g.setColor(Color.WHITE);
+                g.setStroke(new BasicStroke(1));
+                g.drawRect(x, y, width, height);
+                x = x + width;
+            }
+            x = boardX;
+            y = y + height;
+        }
+
+        if (drawOffBoardShips) {
+            int offBoardDrawX = computerBoardX;
+            int offBoardCurrentY = TOP_Y;
+
+            g.setFont(new Font("Arial", Font.BOLD, 24));
+            g.setColor(Color.WHITE);
+            FontMetrics fm2 = g.getFontMetrics();
+            String instructionLabel = "Drag Ships (Double-Click to Rotate)";
+            int instructionWidth = fm2.stringWidth(instructionLabel);
+            g.drawString(instructionLabel, offBoardDrawX + (BOARD_WIDTH_PX / 4 - instructionWidth / 2), TOP_Y - 20);
+
+            for (Ship ship : model.getPlayerShips()) {
+                if (!ship.isPlaced() && !ship.isDragging()) {
+                    int shipDrawX = offBoardDrawX;
+                    int shipDrawY = offBoardCurrentY;
+                    int drawWidth = ship.isVertical() ? width : width * ship.getSize();
+                    int drawHeight = ship.isVertical() ? height * ship.getSize() : height;
+
+                    drawChristmasShip(g, shipDrawX, shipDrawY, drawWidth, drawHeight, ship.getSize(), ship.isVertical());
+
+                    offBoardCurrentY += drawHeight + PADDING / 2;
+                }
+            }
         }
     }
 
