@@ -1,7 +1,5 @@
 import java.awt.*;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
 
 public class Model {
@@ -26,6 +24,7 @@ public class Model {
         cell = new Cell();
         arrayOfIndexes = new int[2][20];
         computerPlayer = new ComputerPlayer();
+        computerPlayer.generateBoard();
         desktopComputer = computerPlayer.getBoard();
         initializationDesktopComputer();
         initializationPlayerShips();
@@ -40,40 +39,83 @@ public class Model {
 
         if(canvas != null) {
             Point boardPos = canvas.getComputerBoardPosition();
-            if(boardPos != null && square(x, y, boardPos.x, boardPos.y)) {
-                Cell cell = getRowAndColumn(x - boardPos.x, y - boardPos.y, Coordinates.WIDTH, Coordinates.HEIGHT);
+            if (boardPos != null && square(x, y, boardPos.x, boardPos.y)) {
+                Cell cell = getRowAndColumn(x - boardPos.x,y - boardPos.y, Coordinates.WIDTH, Coordinates.HEIGHT);
 
-                if (desktopComputer[cell.getRow()][cell.getColumn()] == -1 ||
-                        desktopComputer[cell.getRow()][cell.getColumn()] == -9) {
+                int row = cell.getRow();
+                int col = cell.getColumn();
+
+                Boolean isHit = playerTurn(row, col);
+                if (isHit == null) {
                     return;
                 }
-
-                if(desktopComputer[cell.getRow()][cell.getColumn()] == 0) {
-                    desktopComputer[cell.getRow()][cell.getColumn()] = -1;
-                } else {
-                    desktopComputer[cell.getRow()][cell.getColumn()] = -9;
-                }
-
                 viewer.update();
 
-                if(won()) {
+                if (won()) {
                     if (levelWindow.getCurrentLevel() >= 3) {
                         viewer.showResult(true);
                         return;
                     }
                     levelWindow.showLevelCompletedWindow();
                 }
-                computerTurn();
+                if (!isHit) {
+                    computerTurn();
 
-                viewer.update();
-                if (lost()) {
-                    viewer.showResult(false);
-                    return;
+
+                    viewer.update();
+                    if (lost()) {
+                        viewer.showResult(false);
+                    }
                 }
-
             }
+
         }
     }
+
+    private Boolean playerTurn(int row, int col) {
+        if (desktopComputer[row][col] == -1 ||
+                desktopComputer[row][col] == -9) {
+            return null;
+        }
+        boolean isHit = desktopComputer[row][col] > 0;
+
+        if (!isHit) {
+            desktopComputer[row][col] = -1;
+        } else {
+            desktopComputer[row][col] = -9;
+        }
+        return isHit;
+
+    }
+    private void computerTurn() {
+        boolean canShoot = true;
+
+        while (canShoot) {
+            int[] shot = computerLogic.getNextShot(desktopPlayer);
+            if (shot == null) {
+                break;
+            }
+
+            int row = shot[0];
+            int col = shot[1];
+
+            boolean isHit = desktopPlayer[row][col] > 0;
+
+            if (!isHit) {
+                desktopPlayer[row][col] = -1;
+            } else {
+                desktopPlayer[row][col] = -9;
+            }
+
+            computerLogic.onShotResult(row, col, isHit,desktopPlayer);
+
+            if (!isHit) {
+                canShoot = false;
+            }
+
+        }
+    }
+
 
     public boolean lost() {
         if (isSetupPhase()) {
@@ -294,76 +336,6 @@ public class Model {
                     }
                 }
             }
-        }
-    }
-
-    private boolean isShipSunk(int hitRow, int hitCol) {
-        for (Ship s : playerShips) {
-            if (!s.isPlaced()) continue;
-
-            int dx = s.isVertical() ? 0 : 1;
-            int dy = s.isVertical() ? 1 : 0;
-
-            for (int k = 0; k < s.getSize(); k++) {
-                int row = s.getY() + dy * k;
-                int col = s.getX() + dx * k;
-
-                if (row == hitRow && col == hitCol) {
-                    for (int j = 0; j < s.getSize(); j++) {
-                        int rr = s.getY() + dy * j;
-                        int cc = s.getX() + dx * j;
-
-                        if (desktopPlayer[rr][cc] != -9) {
-                            return false;
-                        }
-                    }
-
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    private void computerTurn() {
-        if (desktopPlayer == null) {
-            return;
-        }
-
-        if (computerLogic == null) {
-            computerLogic = new ComputerLogic();
-            computerLogic.reset();
-        }
-
-        boolean canShoot = true;
-
-        while (canShoot) {
-            int[] shot = computerLogic.getNextShot(desktopPlayer);
-            if (shot == null) {
-                break;
-            }
-
-            int row = shot[0];
-            int col = shot[1];
-
-            int cellValue = desktopPlayer[row][col];
-            boolean isHit = cellValue > 0;
-            boolean sunk = false;
-
-            if (!isHit) {
-                desktopPlayer[row][col] = -1;
-            } else {
-                desktopPlayer[row][col] = -9;
-                sunk = isShipSunk(row, col);
-            }
-
-            computerLogic.onShotResult(row, col, isHit, sunk, desktopPlayer);
-
-            if (!isHit) {
-                canShoot = false;
-            }
-
         }
     }
 

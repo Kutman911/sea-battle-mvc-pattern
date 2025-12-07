@@ -61,20 +61,24 @@ public class ComputerLogic {
         return candidates.get(idx);
     }
 
-    public void onShotResult(int row, int col, boolean isHit, boolean sunk, int[][] desktopPlayer) {
+    public void onShotResult(int row, int col, boolean isHit, int[][] desktopPlayer) {
+
         tried[row][col] = true;
 
-        if (!isHit) {
-            return;
+        if (isHit) {
+            hitsCurrentShip.add(new int[]{row, col});
         }
 
-        hitsCurrentShip.add(new int[]{row, col});
-
-        if (sunk) {
+        if (!hitsCurrentShip.isEmpty() && isCurrentShipCertainlySunk()) {
+            System.out.println("Sunk");
             markAroundSunkShip(desktopPlayer);
             hitsCurrentShip.clear();
             targetQueue.clear();
             mode = Mode.HUNT;
+            return;
+        }
+
+        if (!isHit) {
             return;
         }
 
@@ -169,12 +173,94 @@ public class ComputerLogic {
                         continue;
                     }
 
-                    if (desktopPlayer[nr][nc] == 0) {
-                        desktopPlayer[nr][nc] = -1;
+                    if (!tried[nr][nc]) {
                         tried[nr][nc] = true;
+                        if (desktopPlayer[nr][nc] == 0) {
+                            desktopPlayer[nr][nc] = -1;
+                        }
                     }
                 }
             }
         }
     }
+    private boolean couldBeShipContinuation(int row, int col) {
+        if (row < 0 || row >= BOARD_SIZE || col < 0 || col >= BOARD_SIZE) {
+            return false;
+        }
+
+        if (!tried[row][col]) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isCurrentShipCertainlySunk() {
+        if (hitsCurrentShip.isEmpty()) {
+            return false;
+        }
+
+        if (hitsCurrentShip.size() == 1) {
+            int[] h = hitsCurrentShip.get(0);
+            int row = h[0];
+            int col = h[1];
+
+            if (couldBeShipContinuation(row - 1, col)) return false;
+            if (couldBeShipContinuation(row + 1, col)) return false;
+            if (couldBeShipContinuation(row, col - 1)) return false;
+            if (couldBeShipContinuation(row, col + 1)) return false;
+
+            return true;
+        }
+
+        int[] h0 = hitsCurrentShip.get(0);
+        int[] h1 = hitsCurrentShip.get(1);
+
+        boolean vertical = (h0[0] != h1[0]);
+
+        if (vertical) {
+            int col = h0[1];
+
+            int minRow = h0[0];
+            int maxRow = h0[0];
+
+            for (int[] h : hitsCurrentShip) {
+                if (h[0] < minRow) minRow = h[0];
+                if (h[0] > maxRow) maxRow = h[0];
+            }
+            int len = maxRow - minRow + 1;
+
+            if (len >= 4) {
+                return true;
+            }
+
+            if (couldBeShipContinuation(minRow - 1, col)) return false;
+            if (couldBeShipContinuation(maxRow + 1, col)) return false;
+
+            return true;
+        } else {
+            int row = h0[0];
+
+            int minCol = h0[1];
+            int maxCol = h0[1];
+
+            for (int[] h : hitsCurrentShip) {
+                if (h[1] < minCol) minCol = h[1];
+                if (h[1] > maxCol) maxCol = h[1];
+            }
+
+            int len = maxCol - minCol + 1;
+
+            if (len >= 4) {
+                return true;
+            }
+
+            if (couldBeShipContinuation(row, minCol - 1)) return false;
+            if (couldBeShipContinuation(row, maxCol + 1)) return false;
+
+            return true;
+        }
+    }
+
+
+
 }
