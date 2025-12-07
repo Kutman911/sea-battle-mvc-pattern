@@ -54,20 +54,25 @@ public class Viewer {
 
         SwingUtilities.invokeLater(() -> {
             ResultDialog dialog = new ResultDialog(
-                    (Frame) frame,
+                    frame,
                     isWin,
                     () -> {
-                        if (controller != null) {
-                            controller.restartGame();
-                        }
+                        model.resetGame();
+
+                        SwingUtilities.invokeLater(() -> {
+                            model.getLevelWindow().showLevelStartWindow();
+                        });
+
                         if (audioPlayer != null) {
                             audioPlayer.playBackgroundMusic("src/sounds/background_music.wav");
                         }
                     }
             );
+
             dialog.setVisible(true);
         });
     }
+
 
     public Canvas getCanvas() {
         return canvas;

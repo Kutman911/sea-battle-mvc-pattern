@@ -7,13 +7,15 @@ public class LevelWindow {
     private int windowState = 0;
     private final Viewer viewer;
     private final Canvas canvas;
+    private final Model model;
     private float alpha = 0f;
 
     private final AudioPlayer audioPlayer;
 
-    public LevelWindow(Viewer viewer, Canvas canvas) {
+    public LevelWindow(Viewer viewer, Canvas canvas, Model model) {
         this.viewer = viewer;
         this.canvas = canvas;
+        this.model = model;
         this.audioPlayer = viewer.getAudioPlayer();
     }
 
@@ -81,6 +83,12 @@ public class LevelWindow {
 
         if (currentLevel > 3) {
             showFinalWindow();
+
+            new Timer().schedule(new TimerTask() {
+                public void run() {
+                    model.resetGame();
+                }
+            }, 3000);
             return;
         }
 

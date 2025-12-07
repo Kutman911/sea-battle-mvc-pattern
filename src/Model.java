@@ -19,6 +19,7 @@ public class Model {
 
     private LevelWindow levelWindow;
 
+
     public Model(Viewer viewer) {
         this.viewer = viewer;
         cell = new Cell();
@@ -60,8 +61,6 @@ public class Model {
                 }
                 if (!isHit) {
                     computerTurn();
-
-
                     viewer.update();
                     if (lost()) {
                         viewer.showResult(false);
@@ -153,7 +152,7 @@ public class Model {
 
     public void setCanvas(Canvas canvas) {
         this.canvas = canvas;
-        this.levelWindow = new LevelWindow(viewer, canvas);
+        this.levelWindow = new LevelWindow(viewer, canvas, this);
     }
 
     public boolean won() {
@@ -388,6 +387,28 @@ public class Model {
 
     public LevelWindow getLevelWindow() {
         return levelWindow;
+    }
+
+    public void resetGame() {
+        levelWindow = new LevelWindow(viewer, canvas, this);
+
+        computerPlayer = new ComputerPlayer();
+        computerPlayer.generateBoard();
+        desktopComputer = computerPlayer.getBoard();
+        initializationDesktopComputer();
+
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
+                desktopPlayer[i][j] = 0;
+            }
+        }
+
+        initializationPlayerShips();
+
+        computerLogic = new ComputerLogic();
+        computerLogic.reset();
+
+        viewer.update();
     }
 
 }
