@@ -7,7 +7,7 @@ public class Canvas extends JPanel {
     private Model model;
     private int[][] arrayOfIndexes;
     private Point computerBoardPosition;
-    private Random snowRandom = new Random(42);
+    private Random snowRandom;
     private final int PADDING = 50;
     private final int BOARD_SPACING = 50;
     private final int TOP_Y = 150;
@@ -20,6 +20,7 @@ public class Canvas extends JPanel {
         setBackground(new Color(75, 139, 181));
         int[][] array = model.getArrayOfIndexes();
         arrayOfIndexes = new int[2][array[0].length];
+        snowRandom = new Random(42);
 
         for(int index = 0; index < array[0].length; index++) {
             int i = array[0][index];
@@ -68,7 +69,6 @@ public class Canvas extends JPanel {
             drawDesktopPlayer(g2, true);
 
         } else {
-            // ФАЗА БОЯ: рисуем обе доски
             drawDesktopPlayer(g2, false);
             drawDesktopComputer(g2);
         }
@@ -193,21 +193,20 @@ public class Canvas extends JPanel {
                     g.setColor(new Color(30, 60, 100));
                     g.fillRect(currentX, currentY, width, height);
                     g.setColor(Color.WHITE);
-                    g.drawLine(currentX, currentY, currentX + width, currentY + height);
-                    g.drawLine(currentX + width, currentY, currentX, currentY + height);
+                    int cx = currentX + width / 2;
+                    int cy = currentY + height / 2;
+                    g.fillOval(cx - 6, cy - 6, 12, 12);
                 } else if(element == -9){
                     g.setColor(new Color(200, 50, 50));
                     g.fillRect(currentX, currentY, width, height);
-                    g.setColor(Color.YELLOW);
-                    int cx = currentX + width / 2;
-                    int cy = currentY + height / 2;
-                    g.fillOval(cx - 8, cy - 8, 16, 16);
-                    g.setColor(Color.RED);
+                    g.setColor(Color.GREEN);
+                    g.setStroke(new BasicStroke(3));
                     g.drawLine(currentX, currentY, currentX + width, currentY + height);
                     g.drawLine(currentX + width, currentY, currentX, currentY + height);
                 }
 
                 g.setColor(Color.WHITE);
+                g.setStroke(new BasicStroke(1));
                 g.drawRect(currentX, currentY, width, height);
                 currentX = currentX + width;
             }
@@ -245,22 +244,20 @@ public class Canvas extends JPanel {
                     g.setColor(new Color(30, 60, 100));
                     g.fillRect(x, y, width, height);
                     g.setColor(Color.WHITE);
-                    g.drawLine(x, y, x + width, y + height);
-                    g.drawLine(x + width, y, x, y + height);
-                    // -9: Попадание (кружок)
+                    int cx = x + width / 2;
+                    int cy = y + height / 2;
+                    g.fillOval(cx - 6, cy - 6, 12, 12);
                 } else if(element == -9){
                     g.setColor(new Color(200, 50, 50));
                     g.fillRect(x, y, width, height);
-                    g.setColor(Color.YELLOW);
-                    int cx = x + width / 2;
-                    int cy = y + height / 2;
-                    g.fillOval(cx - 8, cy - 8, 16, 16);
-                    g.setColor(Color.RED);
+                    g.setColor(Color.GREEN);
+                    g.setStroke(new BasicStroke(3));
                     g.drawLine(x, y, x + width, y + height);
                     g.drawLine(x + width, y, x, y + height);
                 }
 
                 g.setColor(Color.WHITE);
+                g.setStroke(new BasicStroke(1));
                 g.drawRect(x, y, width, height);
                 x = x + width;
             }
