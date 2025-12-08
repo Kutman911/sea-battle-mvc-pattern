@@ -164,6 +164,7 @@ public class Canvas extends JPanel {
     }
 
     private void drawDesktopComputer(Graphics2D g) {
+        drawGridLabels(g, "Desktop");
         int[][] desktopComputer = model.getComputerPlayer().getBoard();
 
         int width = Coordinates.WIDTH;
@@ -174,13 +175,13 @@ public class Canvas extends JPanel {
 
         computerBoardPosition = new Point(x, y);
 
-        g.setFont(new Font("Arial", Font.BOLD, 30));
+        g.setFont(new Font("Bernard MT Condensed", Font.BOLD, 30));
         g.setColor(Color.WHITE);
         FontMetrics fm = g.getFontMetrics();
         String label = "Computer's Board";
         int labelWidth = fm.stringWidth(label);
         int labelX = x + (width * 10 - labelWidth) / 2;
-        g.drawString(label, labelX, y - 20);
+        g.drawString(label, labelX, y - 70);
 
         int currentX = x;
         int currentY = y;
@@ -216,7 +217,50 @@ public class Canvas extends JPanel {
         }
     }
 
+    private void drawGridLabels(Graphics2D g, String state) {
+        int width = Coordinates.WIDTH;
+        int height = Coordinates.HEIGHT;
+
+        int x;
+        int y;
+
+        if (state.equals("Desktop")) {
+            x = computerBoardX + 510;
+            y = TOP_Y + 40;
+        } else if (state.equals("Player")) {
+            x = playerBoardX - 35;
+            y = TOP_Y + 40;
+        } else {
+            return;
+        }
+
+        g.setFont(new Font("Bernard MT Condensed", Font.BOLD, 35));
+        g.setColor(Color.WHITE);
+
+        final String row = "12345678910";
+        final String column = "ABCDEFGHIJ";
+
+        for (int i = 0; i < row.length(); i++) {
+            if (i == row.length() - 2) {
+                String text = ("" + row.charAt(i)) + row.charAt(i + 1);
+                g.drawString(text, x, y);
+                break;
+            }
+            g.drawString(String.valueOf(row.charAt(i)), x, y);
+            y = y + height;
+        }
+
+        x = state.equals("Player") ? playerBoardX + 15 : computerBoardX + 15;
+        y = TOP_Y - 10;
+
+        for (int i = 0; i < column.length(); i++) {
+            g.drawString(String.valueOf(column.charAt(i)), x, y);
+            x = x + width;
+        }
+    }
+
     private void drawDesktopPlayer(Graphics2D g, boolean drawOffBoardShips) {
+        drawGridLabels(g, "Player");
         int width = Coordinates.WIDTH;
         int height = Coordinates.HEIGHT;
 
@@ -225,13 +269,13 @@ public class Canvas extends JPanel {
 
         int[][] desktopPlayer = model.getDesktopPlayer();
 
-        g.setFont(new Font("Arial", Font.BOLD, 30));
+        g.setFont(new Font("Bernard MT Condensed", Font.BOLD, 30));
         g.setColor(Color.WHITE);
         FontMetrics fm = g.getFontMetrics();
         String label = drawOffBoardShips ? "Your Board (Setup)" : "Your Board";
         int labelWidth = fm.stringWidth(label);
         int labelX = boardX + (width * 10 - labelWidth) / 2;
-        g.drawString(label, labelX, boardY - 20);
+        g.drawString(label, labelX, boardY - 70);
 
         for (Ship ship : model.getPlayerShips()) {
             int shipDrawX, shipDrawY;
