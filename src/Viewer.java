@@ -57,6 +57,15 @@ public class Viewer {
                     frame,
                     isWin,
                     () -> {
+
+                        if (isWin) {
+                            if (model.getLevelWindow().getCurrentLevel() >= 3) {
+                                model.getLevelWindow().resetToLevelOne();   // ← сброс только здесь!
+                            }
+                        } else {
+                            model.getLevelWindow().resetToLevelOne();       // проиграл → всегда Level 1
+                        }
+
                         model.resetGame();
 
                         SwingUtilities.invokeLater(() -> {
