@@ -80,8 +80,25 @@ public class Model {
 
         if (!isHit) {
             desktopComputer[row][col] = -1;
+
+            if (viewer.getAudioPlayer() != null) {
+                viewer.getAudioPlayer().playSound("src/sounds/waterSound.wav");
+            }
+            
         } else {
             desktopComputer[row][col] = -9;
+
+            boolean sunk = markSunkIfComplete(desktopComputer, row, col);
+
+            if (sunk) {
+                if (viewer.getAudioPlayer() != null) {
+                    viewer.getAudioPlayer().playSound("src/sounds/crashSound.wav");
+                }
+            } else {
+                if (viewer.getAudioPlayer() != null) {
+                    viewer.getAudioPlayer().playSound("src/sounds/shotSound.wav");
+                }
+            }
             // If the whole ship is destroyed, convert its parts to SUNK (-8)
             markSunkIfComplete(desktopComputer, row, col);
         }
