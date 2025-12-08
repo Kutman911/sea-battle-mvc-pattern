@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -91,6 +92,8 @@ public class LevelWindow {
             }, 3000);
             return;
         }
+
+        model.resetGame();
 
         showLevelStartWindow();
     }

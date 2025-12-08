@@ -63,7 +63,7 @@ public class Canvas extends JPanel {
 
         drawSnowflakes(g2);
 
-        if (model.won()) {
+        if (model.won() && model.getLevelWindow().getCurrentLevel() >= 3) {
             drawWon(g2);
 
         } else if (model.isSetupPhase()) {

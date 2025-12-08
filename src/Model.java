@@ -396,9 +396,6 @@ public class Model {
                 return true;
             }
         }
-        if (levelWindow.getCurrentLevel() == 1 && levelWindow.getWindowState() == 0) {
-
-        }
         return false;
     }
 
@@ -488,8 +485,6 @@ public class Model {
     }
 
     public void resetGame() {
-        levelWindow = new LevelWindow(viewer, canvas, this);
-
         computerPlayer = new ComputerPlayer();
         computerPlayer.generateBoard();
         desktopComputer = computerPlayer.getBoard();
@@ -507,6 +502,9 @@ public class Model {
         computerLogic.reset();
 
         viewer.update();
+
+        canvas.revalidate();
+        canvas.repaint();
     }
 
 }
