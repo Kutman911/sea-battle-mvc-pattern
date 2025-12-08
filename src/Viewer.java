@@ -2,7 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Viewer {
-
     private Canvas canvas;
     private JFrame frame;
     private Model model;
@@ -10,7 +9,6 @@ public class Viewer {
     private Controller controller;
 
     public Viewer() {
-
         audioPlayer = new AudioPlayer();
         audioPlayer.playBackgroundMusic("src/sounds/background_music.wav");
 
@@ -28,29 +26,22 @@ public class Viewer {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.add("Center", canvas);
         frame.setLocationRelativeTo(null);
-
     }
 
     public void update() {
         canvas.repaint();
     }
 
-    public void setVisibleFrame(){
+    public void setVisibleFrame() {
         frame.setVisible(true);
-
-        SwingUtilities.invokeLater(() -> {
-            model.getLevelWindow().showLevelStartWindow();
-        });
+        SwingUtilities.invokeLater(() -> model.getLevelWindow().showLevelStartWindow());
     }
 
     public void showResult(boolean isWin) {
         if (audioPlayer != null) {
             audioPlayer.stop();
         }
-
-        if (isWin) {
-            audioPlayer.playSound("src/sounds/winSound.wav");
-        } else {
+        if (!isWin) {
             audioPlayer.playSound("src/sounds/loseSound.wav");
         }
 
@@ -59,31 +50,30 @@ public class Viewer {
                     frame,
                     isWin,
                     () -> {
-
                         if (isWin) {
                             if (model.getLevelWindow().getCurrentLevel() >= 3) {
-                                model.getLevelWindow().resetToLevelOne();   // ← сброс только здесь!
+                                model.getLevelWindow().resetToLevelOne();
                             }
                         } else {
-                            model.getLevelWindow().resetToLevelOne();       // проиграл → всегда Level 1
+                            model.getLevelWindow().resetToLevelOne();
                         }
-
                         model.resetGame();
-
-                        SwingUtilities.invokeLater(() -> {
-                            model.getLevelWindow().showLevelStartWindow();
-                        });
-
+                        SwingUtilities.invokeLater(() -> model.getLevelWindow().showLevelStartWindow());
                         if (audioPlayer != null) {
                             audioPlayer.playBackgroundMusic("src/sounds/background_music.wav");
                         }
-                    }
+                    },
+                    () -> {
+                        model.getLevelWindow().nextLevel();
+                        if (audioPlayer != null) {
+                            audioPlayer.playBackgroundMusic("src/sounds/background_music.wav");
+                        }
+                    },
+                    () -> System.exit(0)
             );
-
             dialog.setVisible(true);
         });
     }
-
 
     public Canvas getCanvas() {
         return canvas;
@@ -96,5 +86,4 @@ public class Viewer {
     public AudioPlayer getAudioPlayer() {
         return audioPlayer;
     }
-
 }

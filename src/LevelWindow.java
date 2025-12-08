@@ -1,10 +1,11 @@
 import javax.swing.*;
+import java.awt.*;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class LevelWindow {
     private int currentLevel = 1;
-//  0 = hidden, 1 = start, 2 = completed, 3 = final
+    //  0 = hidden, 1 = start, 2 = completed, 3 = final
     private int windowState = 0;
     private final Viewer viewer;
     private final Canvas canvas;
@@ -46,7 +47,7 @@ public class LevelWindow {
                 new Timer().schedule(new TimerTask() {
                     public void run() {
                         windowState = 0;
-                        viewer.update();
+                        SwingUtilities.invokeLater(viewer::update);
                     }
                 }, 400);
 
@@ -65,7 +66,7 @@ public class LevelWindow {
 
                 new Timer().schedule(new TimerTask() {
                     public void run() {
-                        nextLevel();
+                        SwingUtilities.invokeLater(() -> showResultDialog(true));
                     }
                 }, 400);
 
@@ -130,10 +131,39 @@ public class LevelWindow {
         }, 0, 15);
     }
 
-
     public void resetToLevelOne() {
         currentLevel = 1;
         windowState = 0;
         alpha = 0f;
+    }
+
+    public void showResultDialog(boolean playerWon) {
+        // Выполняем в EDT
+        SwingUtilities.invokeLater(() -> {
+            Window parent = SwingUtilities.getWindowAncestor(canvas);
+            String title = playerWon ? "Уровень пройден" : "Результат";
+            String message = playerWon ? "Поздравляем! Вы прошли уровень." : "Компьютер выиграл. Что делать дальше?";
+            String[] options = {"Играть снова", "Следующий уровень", "Выход"};
+
+            int choice = JOptionPane.showOptionDialog(
+                    parent,
+                    message,
+                    title,
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    options,
+                    options[0]
+            );
+
+            if (choice == 0) {
+                model.resetGame();
+                showLevelStartWindow();
+            } else if (choice == 1) {
+                nextLevel();
+            } else {
+                System.exit(0);
+            }
+        });
     }
 }
