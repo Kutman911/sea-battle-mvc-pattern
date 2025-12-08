@@ -137,15 +137,22 @@ public class ShipPlacementHandler {
         int boardX = getPlayerBoardX();
         int boardY = getPlayerBoardY();
         int offBoardX = boardX + Coordinates.WIDTH * 10 + 50;
-        int offBoardY = boardY;
 
+        int colWidth = Coordinates.WIDTH * 5;
+        int colSpacing = 30;
+        int cellGapY = 20;
+
+        int index = 0;
         for (Ship s : model.getPlayerShips()) {
-            if (s == ship) {
-                return new Point(offBoardX, offBoardY);
-            }
             if (!s.isPlaced() && !s.isDragging()) {
-                int drawHeight = s.isVertical() ? s.getSize() * Coordinates.HEIGHT : Coordinates.HEIGHT;
-                offBoardY += drawHeight + 25;
+                if (s == ship) {
+                    int col = index % 2;
+                    int row = index / 2;
+                    int x = offBoardX + col * (colWidth + colSpacing);
+                    int y = boardY + row * (Coordinates.HEIGHT + cellGapY);
+                    return new Point(x, y);
+                }
+                index++;
             }
         }
 

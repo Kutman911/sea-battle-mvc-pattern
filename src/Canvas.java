@@ -35,13 +35,14 @@ public class Canvas extends JPanel {
 
         if (model.isSetupPhase()) {
 
-            int offBoardShipAreaWidth = BOARD_WIDTH_PX / 2 + BOARD_WIDTH_PX / 5;
+
+            int offBoardShipAreaWidth = (int)(BOARD_WIDTH_PX * 0.9);
             int totalSetupWidth = BOARD_WIDTH_PX + BOARD_SPACING + offBoardShipAreaWidth;
 
             int startX = (panelWidth - totalSetupWidth) / 2;
 
             playerBoardX = startX;
-            computerBoardX = startX + BOARD_WIDTH_PX + BOARD_SPACING;
+            computerBoardX = startX + BOARD_WIDTH_PX + BOARD_SPACING; // reuse as "off‑board" left X
 
         } else {
             int totalBattleWidth = BOARD_WIDTH_PX * 2 + BOARD_SPACING;
@@ -341,26 +342,37 @@ public class Canvas extends JPanel {
         }
 
         if (drawOffBoardShips) {
-            int offBoardDrawX = computerBoardX;
-            int offBoardCurrentY = TOP_Y;
+            // Off‑board area: two columns next to the player board for easier drag & drop
+            int offBoardX = computerBoardX; // left edge of off‑board area
+            int offBoardTopY = TOP_Y;       // align with board top
 
-            g.setFont(new Font("Arial", Font.BOLD, 24));
+            // Instruction label above the off‑board ships
+            g.setFont(new Font("Arial", Font.BOLD, 22));
             g.setColor(Color.WHITE);
             FontMetrics fm2 = g.getFontMetrics();
-            String instructionLabel = "Drag Ships (Double-Click to Rotate)";
-            int instructionWidth = fm2.stringWidth(instructionLabel);
-            g.drawString(instructionLabel, offBoardDrawX + (BOARD_WIDTH_PX / 4 - instructionWidth / 2), TOP_Y - 20);
+            String instructionLabel = "Drag ships (double-click to rotate)";
+            int colSpacing = 30;
+            int colWidth = Coordinates.WIDTH * 5;
+            int totalOffBoardWidth = colWidth * 2 + colSpacing;
+            int instructionX = offBoardX + (totalOffBoardWidth - fm2.stringWidth(instructionLabel)) / 2;
+            g.drawString(instructionLabel, Math.max(offBoardX, instructionX), TOP_Y - 20);
 
+            int cellGapY = 20;
+            int index = 0;
             for (Ship ship : model.getPlayerShips()) {
                 if (!ship.isPlaced() && !ship.isDragging()) {
-                    int shipDrawX = offBoardDrawX;
-                    int shipDrawY = offBoardCurrentY;
+                    int col = index % 2;
+                    int row = index / 2;
+
+                    int shipDrawX = offBoardX + col * (colWidth + colSpacing);
+                    int shipDrawY = offBoardTopY + row * (height + cellGapY);
+
                     int drawWidth = ship.isVertical() ? width : width * ship.getSize();
                     int drawHeight = ship.isVertical() ? height * ship.getSize() : height;
 
                     drawChristmasShip(g, shipDrawX, shipDrawY, drawWidth, drawHeight, ship.getSize(), ship.isVertical());
 
-                    offBoardCurrentY += drawHeight + PADDING / 2;
+                    index++;
                 }
             }
         }
