@@ -129,4 +129,11 @@ public class LevelWindow {
             }
         }, 0, 15);
     }
+
+
+    public void resetToLevelOne() {
+        currentLevel = 1;
+        windowState = 0;
+        alpha = 0f;
+    }
 }

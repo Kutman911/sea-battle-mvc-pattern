@@ -485,6 +485,8 @@ public class Model {
     }
 
     public void resetGame() {
+
+        levelWindow.resetToLevelOne();
         computerPlayer = new ComputerPlayer();
         computerPlayer.generateBoard();
         desktopComputer = computerPlayer.getBoard();
