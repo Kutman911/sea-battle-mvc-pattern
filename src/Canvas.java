@@ -199,12 +199,18 @@ public class Canvas extends JPanel {
                     int cy = currentY + height / 2;
                     g.fillOval(cx - 6, cy - 6, 12, 12);
                 } else if(element == -9){
+                    // Hit — show explosion emoji 💥
                     g.setColor(new Color(200, 50, 50));
                     g.fillRect(currentX, currentY, width, height);
-                    g.setColor(Color.GREEN);
+                    drawCenteredEmoji(g, "💥", currentX, currentY, width, height);
+                } else if (element == -8) {
+                    // Sunk — darker red with skull ☠
+                    g.setColor(new Color(160, 30, 30));
+                    g.fillRect(currentX, currentY, width, height);
+                    g.setColor(new Color(0, 200, 0));
                     g.setStroke(new BasicStroke(3));
-                    g.drawLine(currentX, currentY, currentX + width, currentY + height);
-                    g.drawLine(currentX + width, currentY, currentX, currentY + height);
+                    g.drawRect(currentX, currentY, width, height);
+                    drawCenteredEmoji(g, "☠", currentX, currentY, width, height);
                 }
 
                 g.setColor(Color.WHITE);
@@ -325,11 +331,14 @@ public class Canvas extends JPanel {
                     int cy = y + height / 2;
                     g.fillOval(cx - 6, cy - 6, 12, 12);
                 } else if(element == -9){
-                    // Крестик рисуется поверх корабля
-                    g.setColor(Color.GREEN);
+                    // Попадание — 💥 поверх клетки/корабля
+                    drawCenteredEmoji(g, "💥", x, y, width, height);
+                } else if (element == -8) {
+                    // Потоплен — ☠ и жирная рамка
+                    g.setColor(new Color(0, 200, 0));
                     g.setStroke(new BasicStroke(3));
-                    g.drawLine(x, y, x + width, y + height);
-                    g.drawLine(x + width, y, x, y + height);
+                    g.drawRect(x, y, width, height);
+                    drawCenteredEmoji(g, "☠", x, y, width, height);
                 }
 
                 g.setColor(Color.WHITE);
@@ -376,6 +385,26 @@ public class Canvas extends JPanel {
                 }
             }
         }
+    }
+
+    private void drawCenteredEmoji(Graphics2D g, String emoji, int x, int y, int w, int h) {
+        // Try an emoji-capable font; fallback will be automatic if missing
+        int fontSize = (int)(Math.min(w, h) * 0.8);
+        Font prev = g.getFont();
+        Color prevColor = g.getColor();
+        Font emojiFont = new Font("Segoe UI Emoji", Font.PLAIN, fontSize);
+        g.setFont(emojiFont);
+        g.setColor(Color.WHITE);
+
+        FontMetrics fm = g.getFontMetrics();
+        int textWidth = fm.stringWidth(emoji);
+        int textAscent = fm.getAscent();
+        int drawX = x + (w - textWidth) / 2;
+        int drawY = y + (h + textAscent) / 2 - 2;
+        g.drawString(emoji, drawX, drawY);
+
+        g.setFont(prev);
+        g.setColor(prevColor);
     }
 
     private void drawChristmasShip(Graphics2D g, int x, int y, int w, int h, int size, boolean vertical) {

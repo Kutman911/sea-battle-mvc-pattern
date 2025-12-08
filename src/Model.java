@@ -82,6 +82,8 @@ public class Model {
             desktopComputer[row][col] = -1;
         } else {
             desktopComputer[row][col] = -9;
+            // If the whole ship is destroyed, convert its parts to SUNK (-8)
+            markSunkIfComplete(desktopComputer, row, col);
         }
         return isHit;
 
@@ -104,6 +106,7 @@ public class Model {
                 desktopPlayer[row][col] = -1;
             } else {
                 desktopPlayer[row][col] = -9;
+                markSunkIfComplete(desktopPlayer, row, col);
             }
 
             computerLogic.onShotResult(row, col, isHit,desktopPlayer);
@@ -160,8 +163,103 @@ public class Model {
         for(int index = 0; index < arrayOfIndexes[0].length; index++) {
             int i = arrayOfIndexes[0][index];
             int j = arrayOfIndexes[1][index];
-            if(desktopComputer[i][j] != -9) {
+            int v = desktopComputer[i][j];
+            if(!(v == -9 || v == -8)) {
                 return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean markSunkIfComplete(int[][] board, int row, int col) {
+        final int SIZE = 10;
+
+        boolean horizontal = false;
+        boolean vertical = false;
+
+        if (col - 1 >= 0) {
+            int v = board[row][col - 1];
+            if (v > 0 || v == -9 || v == -8) horizontal = true;
+        }
+        if (col + 1 < SIZE) {
+            int v = board[row][col + 1];
+            if (v > 0 || v == -9 || v == -8) horizontal = true;
+        }
+        if (row - 1 >= 0) {
+            int v = board[row - 1][col];
+            if (v > 0 || v == -9 || v == -8) vertical = true;
+        }
+        if (row + 1 < SIZE) {
+            int v = board[row + 1][col];
+            if (v > 0 || v == -9 || v == -8) vertical = true;
+        }
+
+        boolean useHorizontal = horizontal && !vertical ? true : (!horizontal && vertical ? false : true);
+
+        java.util.List<int[]> cells = new java.util.ArrayList<>();
+        cells.add(new int[]{row, col});
+
+        if (useHorizontal) {
+            int c = col - 1;
+            while (c >= 0) {
+                int v = board[row][c];
+                if (v > 0 || v == -9 || v == -8) {
+                    cells.add(new int[]{row, c});
+                    c--;
+                } else {
+                    break;
+                }
+            }
+            c = col + 1;
+            while (c < SIZE) {
+                int v = board[row][c];
+                if (v > 0 || v == -9 || v == -8) {
+                    cells.add(new int[]{row, c});
+                    c++;
+                } else {
+                    break;
+                }
+            }
+        } else {
+            int r = row - 1;
+            while (r >= 0) {
+                int v = board[r][col];
+                if (v > 0 || v == -9 || v == -8) {
+                    cells.add(new int[]{r, col});
+                    r--;
+                } else {
+                    break;
+                }
+            }
+            r = row + 1;
+            while (r < SIZE) {
+                int v = board[r][col];
+                if (v > 0 || v == -9 || v == -8) {
+                    cells.add(new int[]{r, col});
+                    r++;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        boolean anyPositive = false;
+        boolean anyHit = false;
+        for (int[] p : cells) {
+            int v = board[p[0]][p[1]];
+            if (v > 0) anyPositive = true;
+            if (v == -9) anyHit = true;
+        }
+
+        if (anyPositive) {
+            return false;
+        }
+
+        if (anyHit) {
+            for (int[] p : cells) {
+                if (board[p[0]][p[1]] == -9) {
+                    board[p[0]][p[1]] = -8;
+                }
             }
         }
         return true;
