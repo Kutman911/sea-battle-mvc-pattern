@@ -48,7 +48,9 @@ public class Viewer {
             audioPlayer.stop();
         }
 
-        if (!isWin) {
+        if (isWin) {
+            audioPlayer.playSound("src/sounds/winSound.wav");
+        } else {
             audioPlayer.playSound("src/sounds/loseSound.wav");
         }
 
