@@ -1,5 +1,4 @@
 import javax.swing.*;
-import java.awt.*;
 
 public class Viewer {
     private Canvas canvas;
@@ -75,13 +74,21 @@ public class Viewer {
             dialog.setVisible(true);
         });
     }
+   public void scheduleComputerTurn() {
+        int delay = 400;
+
+        Timer timer = new Timer(delay, e -> {
+            model.computerTurn();
+            update();
+            ((Timer) e.getSource()).stop();
+        });
+
+        timer.setRepeats(false);
+        timer.start();
+    }
 
     public Canvas getCanvas() {
         return canvas;
-    }
-
-    public Model getModel() {
-        return model;
     }
 
     public AudioPlayer getAudioPlayer() {

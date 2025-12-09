@@ -64,7 +64,7 @@ public class Model {
                     return;
                 }
                 if (!isHit) {
-                    computerTurn();
+                    viewer.scheduleComputerTurn();
                     viewer.update();
                     if (lost()) {
                         viewer.showResult(false);
@@ -109,11 +109,11 @@ public class Model {
         return isHit;
 
     }
-    private void computerTurn() {
+    public void computerTurn() {
         boolean canShoot = true;
 
         while (canShoot) {
-            int[] shot = computerLogic.getNextShot(desktopPlayer);
+            int[] shot = computerLogic.getNextShot();
             if (shot == null) {
                 break;
             }
@@ -127,7 +127,6 @@ public class Model {
                 desktopPlayer[row][col] = -1;
             } else {
                 desktopPlayer[row][col] = -9;
-                markSunkIfComplete(desktopPlayer, row, col);
             }
 
             computerLogic.onShotResult(row, col, isHit,desktopPlayer);
@@ -375,9 +374,6 @@ public class Model {
         return cell;
     }
 
-    public int[][] getDesktopComputer() {
-        return desktopComputer;
-    }
     public int[][] getDesktopPlayer() {
         return desktopPlayer;
     }
@@ -509,17 +505,8 @@ public class Model {
         return true;
     }
 
-
-    public Viewer getViewer() {
-        return viewer;
-    }
-
     public Canvas getCanvas() {
         return canvas;
-    }
-
-    public Ship[] getShips() {
-        return ships;
     }
 
     public LevelWindow getLevelWindow() {
