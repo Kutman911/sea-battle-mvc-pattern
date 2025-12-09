@@ -6,7 +6,6 @@ public class Canvas extends JPanel {
 
     private Model model;
     private int[][] arrayOfIndexes;
-    private Point computerBoardPosition;
     private Random snowRandom;
     private final int PADDING = 50;
     private final int BOARD_SPACING = 50;
@@ -23,10 +22,8 @@ public class Canvas extends JPanel {
         snowRandom = new Random(42);
 
         for(int index = 0; index < array[0].length; index++) {
-            int i = array[0][index];
-            int j = array[1][index];
-            arrayOfIndexes[0][index] = i;
-            arrayOfIndexes[1][index] = j;
+            arrayOfIndexes[0][index] = array[0][index];
+            arrayOfIndexes[1][index] = array[1][index];
         }
     }
 
@@ -34,25 +31,18 @@ public class Canvas extends JPanel {
         int panelWidth = getWidth();
 
         if (model.isSetupPhase()) {
-
-
             int offBoardShipAreaWidth = (int)(BOARD_WIDTH_PX * 0.9);
             int totalSetupWidth = BOARD_WIDTH_PX + BOARD_SPACING + offBoardShipAreaWidth;
-
             int startX = (panelWidth - totalSetupWidth) / 2;
-
             playerBoardX = startX;
-            computerBoardX = startX + BOARD_WIDTH_PX + BOARD_SPACING; // reuse as "off‑board" left X
-
+            computerBoardX = startX + BOARD_WIDTH_PX + BOARD_SPACING;
         } else {
             int totalBattleWidth = BOARD_WIDTH_PX * 2 + BOARD_SPACING;
             int startX = (panelWidth - totalBattleWidth) / 2;
-
             playerBoardX = startX;
             computerBoardX = startX + BOARD_WIDTH_PX + BOARD_SPACING;
         }
     }
-
 
     public void paint(Graphics g) {
         super.paint(g);
@@ -60,15 +50,12 @@ public class Canvas extends JPanel {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         calculateBoardPositions();
-
         drawSnowflakes(g2);
 
         if (model.won() && model.getLevelWindow().getCurrentLevel() >= 3) {
             drawWon(g2);
-
         } else if (model.isSetupPhase()) {
             drawDesktopPlayer(g2, true);
-
         } else {
             drawDesktopPlayer(g2, false);
             drawDesktopComputer(g2);
@@ -88,19 +75,15 @@ public class Canvas extends JPanel {
     @Override
     public Dimension getPreferredSize() {
         int totalBattleWidth = BOARD_WIDTH_PX * 2 + BOARD_SPACING + PADDING * 2;
-        int maxSetupWidth = BOARD_WIDTH_PX + PADDING +
-                Coordinates.WIDTH + PADDING + PADDING;
-
+        int maxSetupWidth = BOARD_WIDTH_PX + PADDING + Coordinates.WIDTH + PADDING + PADDING;
         int width = Math.max(totalBattleWidth, maxSetupWidth + 50);
         int height = TOP_Y + BOARD_WIDTH_PX + PADDING;
         return new Dimension(width, height);
     }
 
-
     private void drawWon(Graphics2D g) {
         int width = Coordinates.WIDTH;
         int height = Coordinates.HEIGHT;
-
         int totalWidth = width * 10;
 
         Point centerPos = getCenteredPosition(totalWidth, width * 10);
@@ -112,125 +95,57 @@ public class Canvas extends JPanel {
         g.drawString("You won!", x + (width * 2), y - 40);
 
         for(int index = 0; index < 4; index++) {
-            int i = arrayOfIndexes[0][index];
-            int j = arrayOfIndexes[1][index];
-            drawChristmasShip(g, x + (width * j), y + (height * i), width, height, 1, false);
+            drawShipFromIndexes(g, x, y, width, height, index, index, 1);
         }
 
-        for(int index = 4; index < 10; index = index + 2) {
-            int i1 = arrayOfIndexes[0][index];
-            int j1 = arrayOfIndexes[1][index];
-            int i2 = arrayOfIndexes[0][index + 1];
-            int j2 = arrayOfIndexes[1][index + 1];
-            boolean horizontal = (i1 == i2);
-            drawChristmasShip(g, x + (width * j1), y + (height * i1),
-                    horizontal ? width * 2 : width,
-                    horizontal ? height : height * 2,
-                    2, !horizontal);
+        for(int index = 4; index < 10; index += 2) {
+            drawShipFromIndexes(g, x, y, width, height, index, index + 1, 2);
         }
 
-        int i1 = arrayOfIndexes[0][10];
-        int j1 = arrayOfIndexes[1][10];
-        int i3 = arrayOfIndexes[0][12];
-        int j3 = arrayOfIndexes[1][12];
-        boolean horizontal = (i1 == i3);
-        drawChristmasShip(g, x + (width * j1), y + (height * i1),
-                horizontal ? width * 3 : width,
-                horizontal ? height : height * 3,
-                3, !horizontal);
+        drawShipFromIndexes(g, x, y, width, height, 10, 12, 3);
+        drawShipFromIndexes(g, x, y, width, height, 13, 15, 3);
 
-        i1 = arrayOfIndexes[0][13];
-        j1 = arrayOfIndexes[1][13];
-        i3 = arrayOfIndexes[0][15];
-        j3 = arrayOfIndexes[1][15];
-        horizontal = (i1 == i3);
-        drawChristmasShip(g, x + (width * j1), y + (height * i1),
-                horizontal ? width * 3 : width,
-                horizontal ? height : height * 3,
-                3, !horizontal);
-
-        i1 = arrayOfIndexes[0][16];
-        j1 = arrayOfIndexes[1][16];
-        i3 = arrayOfIndexes[0][19];
-        j3 = arrayOfIndexes[1][19];
-        horizontal = (i1 == i3);
-        drawChristmasShip(g, x + (width * j1), y + (height * i1),
-                horizontal ? width * 4 : width,
-                horizontal ? height : height * 4,
-                4, !horizontal);
+        drawShipFromIndexes(g, x, y, width, height, 16, 19, 4);
 
         g.setColor(Color.WHITE);
         g.setStroke(new BasicStroke(3));
         g.drawRect(x - 10, y - 10, width * 10 + 20, height * 10 + 20);
     }
 
+    private void drawShipFromIndexes(Graphics2D g, int baseX, int baseY, int width, int height,
+                                     int startIndex, int endIndex, int size) {
+        int i1 = arrayOfIndexes[0][startIndex];
+        int j1 = arrayOfIndexes[1][startIndex];
+        int i2 = arrayOfIndexes[0][endIndex];
+        int j2 = arrayOfIndexes[1][endIndex];
+
+        boolean horizontal = (i1 == i2);
+
+        drawChristmasShip(g,
+                baseX + (width * j1),
+                baseY + (height * i1),
+                horizontal ? width * size : width,
+                horizontal ? height : height * size,
+                size,
+                !horizontal);
+    }
+
     private void drawDesktopComputer(Graphics2D g) {
         drawGridLabels(g, "Desktop");
-        int[][] desktopComputer = model.getComputerPlayer().getBoard();
-
-        int width = Coordinates.WIDTH;
-        int height = Coordinates.HEIGHT;
+        int[][] board = model.getComputerPlayer().getBoard();
 
         int x = computerBoardX;
         int y = TOP_Y;
 
-        computerBoardPosition = new Point(x, y);
-
-        g.setFont(new Font("Bernard MT Condensed", Font.BOLD, 30));
-        g.setColor(Color.WHITE);
-        FontMetrics fm = g.getFontMetrics();
-        String label = "Computer's Board";
-        int labelWidth = fm.stringWidth(label);
-        int labelX = x + (width * 10 - labelWidth) / 2;
-        g.drawString(label, labelX, y - 70);
-
-        int currentX = x;
-        int currentY = y;
-
-        for(int i = 0; i < desktopComputer.length; i++) {
-            for(int j = 0; j < desktopComputer[i].length; j++) {
-                int element = desktopComputer[i][j];
-
-                if(element == -1) {
-                    g.setColor(new Color(30, 60, 100));
-                    g.fillRect(currentX, currentY, width, height);
-                    g.setColor(Color.WHITE);
-                    int cx = currentX + width / 2;
-                    int cy = currentY + height / 2;
-                    g.fillOval(cx - 6, cy - 6, 12, 12);
-                } else if(element == -9){
-                    // Hit — show explosion emoji 💥
-                    g.setColor(new Color(200, 50, 50));
-                    g.fillRect(currentX, currentY, width, height);
-                    drawCenteredEmoji(g, "💥", currentX, currentY, width, height);
-                } else if (element == -8) {
-                    // Sunk — darker red with skull ☠
-                    g.setColor(new Color(160, 30, 30));
-                    g.fillRect(currentX, currentY, width, height);
-                    g.setColor(new Color(0, 200, 0));
-                    g.setStroke(new BasicStroke(3));
-                    g.drawRect(currentX, currentY, width, height);
-                    drawCenteredEmoji(g, "☠", currentX, currentY, width, height);
-                }
-
-                g.setColor(Color.WHITE);
-                g.setStroke(new BasicStroke(1));
-                g.drawRect(currentX, currentY, width, height);
-                currentX = currentX + width;
-            }
-            currentX = x;
-
-            currentY = currentY + height;
-        }
+        drawBoardLabel(g, "Computer's Board", x, y);
+        drawBoard(g, board, x, y, false);
     }
 
     private void drawGridLabels(Graphics2D g, String state) {
         int width = Coordinates.WIDTH;
         int height = Coordinates.HEIGHT;
 
-        int x;
-        int y;
-
+        int x, y;
         if (state.equals("Desktop")) {
             x = computerBoardX + 510;
             y = TOP_Y + 40;
@@ -249,12 +164,11 @@ public class Canvas extends JPanel {
 
         for (int i = 0; i < row.length(); i++) {
             if (i == row.length() - 2) {
-                String text = ("" + row.charAt(i)) + row.charAt(i + 1);
-                g.drawString(text, x, y);
+                g.drawString(row.substring(i), x, y);
                 break;
             }
             g.drawString(String.valueOf(row.charAt(i)), x, y);
-            y = y + height;
+            y += height;
         }
 
         x = state.equals("Player") ? playerBoardX + 15 : computerBoardX + 15;
@@ -262,7 +176,7 @@ public class Canvas extends JPanel {
 
         for (int i = 0; i < column.length(); i++) {
             g.drawString(String.valueOf(column.charAt(i)), x, y);
-            x = x + width;
+            x += width;
         }
     }
 
@@ -273,55 +187,70 @@ public class Canvas extends JPanel {
 
         int boardX = playerBoardX;
         int boardY = TOP_Y;
-
         int[][] desktopPlayer = model.getDesktopPlayer();
 
+        String label = drawOffBoardShips ? "Your Board (Setup)" : "Your Board";
+        drawBoardLabel(g, label, boardX, boardY);
+
+        for (Ship ship : model.getPlayerShips()) {
+            drawShip(g, ship, boardX, boardY, width, height, drawOffBoardShips);
+        }
+
+        drawBoard(g, desktopPlayer, boardX, boardY, true);
+
+        if (drawOffBoardShips) {
+            drawOffBoardShips(g, width, height);
+        }
+    }
+
+    private void drawBoardLabel(Graphics2D g, String label, int boardX, int boardY) {
+        int width = Coordinates.WIDTH;
         g.setFont(new Font("Bernard MT Condensed", Font.BOLD, 30));
         g.setColor(Color.WHITE);
         FontMetrics fm = g.getFontMetrics();
-        String label = drawOffBoardShips ? "Your Board (Setup)" : "Your Board";
         int labelWidth = fm.stringWidth(label);
         int labelX = boardX + (width * 10 - labelWidth) / 2;
         g.drawString(label, labelX, boardY - 70);
+    }
 
-        for (Ship ship : model.getPlayerShips()) {
-            int shipDrawX, shipDrawY;
-            int drawWidth, drawHeight;
+    private void drawShip(Graphics2D g, Ship ship, int boardX, int boardY, int width, int height, boolean isSetup) {
+        int shipDrawX, shipDrawY, drawWidth, drawHeight;
 
-            if (ship.isDragging()) {
-                shipDrawX = ship.getX();
-                shipDrawY = ship.getY();
+        if (ship.isDragging()) {
+            shipDrawX = ship.getX();
+            shipDrawY = ship.getY();
 
-                if (model.isValidPlacement(ship)) {
-                    g.setColor(new Color(0, 255, 0, 100));
-                } else {
-                    g.setColor(new Color(255, 0, 0, 100));
-                }
-
-                drawWidth = ship.isVertical() ? width : width * ship.getSize();
-                drawHeight = ship.isVertical() ? height * ship.getSize() : height;
-                g.fillRect(shipDrawX, shipDrawY, drawWidth, drawHeight);
-
-            } else if (ship.isPlaced()) {
-                shipDrawX = boardX + ship.getX() * width;
-                shipDrawY = boardY + ship.getY() * height;
-                drawWidth = ship.isVertical() ? width : width * ship.getSize();
-                drawHeight = ship.isVertical() ? height * ship.getSize() : height;
-            } else if (drawOffBoardShips) {
-                continue; // Отложим отрисовку боковых кораблей
+            if (model.isValidPlacement(ship)) {
+                g.setColor(new Color(0, 255, 0, 100));
             } else {
-                continue;
+                g.setColor(new Color(255, 0, 0, 100));
             }
 
-            drawChristmasShip(g, shipDrawX, shipDrawY, drawWidth, drawHeight, ship.getSize(), ship.isVertical());
+            drawWidth = ship.isVertical() ? width : width * ship.getSize();
+            drawHeight = ship.isVertical() ? height * ship.getSize() : height;
+            g.fillRect(shipDrawX, shipDrawY, drawWidth, drawHeight);
+
+        } else if (ship.isPlaced()) {
+            shipDrawX = boardX + ship.getX() * width;
+            shipDrawY = boardY + ship.getY() * height;
+            drawWidth = ship.isVertical() ? width : width * ship.getSize();
+            drawHeight = ship.isVertical() ? height * ship.getSize() : height;
+        } else {
+            return;
         }
 
-        int x = boardX;
-        int y = boardY;
+        drawChristmasShip(g, shipDrawX, shipDrawY, drawWidth, drawHeight, ship.getSize(), ship.isVertical());
+    }
 
-        for(int i = 0; i < desktopPlayer.length; i++) {
-            for(int j = 0; j < desktopPlayer[i].length; j++) {
-                int element = desktopPlayer[i][j];
+    private void drawBoard(Graphics2D g, int[][] board, int startX, int startY, boolean isPlayerBoard) {
+        int width = Coordinates.WIDTH;
+        int height = Coordinates.HEIGHT;
+        int x = startX;
+        int y = startY;
+
+        for(int i = 0; i < board.length; i++) {
+            for(int j = 0; j < board[i].length; j++) {
+                int element = board[i][j];
 
                 if(element == -1) {
                     g.setColor(new Color(30, 60, 100));
@@ -330,11 +259,17 @@ public class Canvas extends JPanel {
                     int cx = x + width / 2;
                     int cy = y + height / 2;
                     g.fillOval(cx - 6, cy - 6, 12, 12);
-                } else if(element == -9){
-                    // Попадание — 💥 поверх клетки/корабля
+                } else if(element == -9) {
+                    if (!isPlayerBoard) {
+                        g.setColor(new Color(200, 50, 50));
+                        g.fillRect(x, y, width, height);
+                    }
                     drawCenteredEmoji(g, "💥", x, y, width, height);
                 } else if (element == -8) {
-                    // Потоплен — ☠ и жирная рамка
+                    if (!isPlayerBoard) {
+                        g.setColor(new Color(160, 30, 30));
+                        g.fillRect(x, y, width, height);
+                    }
                     g.setColor(new Color(0, 200, 0));
                     g.setStroke(new BasicStroke(3));
                     g.drawRect(x, y, width, height);
@@ -344,51 +279,47 @@ public class Canvas extends JPanel {
                 g.setColor(Color.WHITE);
                 g.setStroke(new BasicStroke(1));
                 g.drawRect(x, y, width, height);
-                x = x + width;
+                x += width;
             }
-            x = boardX;
-            y = y + height;
+            x = startX;
+            y += height;
         }
+    }
 
-        if (drawOffBoardShips) {
-            // Off‑board area: two columns next to the player board for easier drag & drop
-            int offBoardX = computerBoardX; // left edge of off‑board area
-            int offBoardTopY = TOP_Y;       // align with board top
+    private void drawOffBoardShips(Graphics2D g, int width, int height) {
+        int offBoardX = computerBoardX;
+        int offBoardTopY = TOP_Y;
 
-            // Instruction label above the off‑board ships
-            g.setFont(new Font("Arial", Font.BOLD, 22));
-            g.setColor(Color.WHITE);
-            FontMetrics fm2 = g.getFontMetrics();
-            String instructionLabel = "Drag ships (double-click to rotate)";
-            int colSpacing = 30;
-            int colWidth = Coordinates.WIDTH * 5;
-            int totalOffBoardWidth = colWidth * 2 + colSpacing;
-            int instructionX = offBoardX + (totalOffBoardWidth - fm2.stringWidth(instructionLabel)) / 2;
-            g.drawString(instructionLabel, Math.max(offBoardX, instructionX), TOP_Y - 20);
+        g.setFont(new Font("Arial", Font.BOLD, 22));
+        g.setColor(Color.WHITE);
+        FontMetrics fm = g.getFontMetrics();
+        String instructionLabel = "Drag ships (double-click to rotate)";
+        int colSpacing = 30;
+        int colWidth = Coordinates.WIDTH * 5;
+        int totalOffBoardWidth = colWidth * 2 + colSpacing;
+        int instructionX = offBoardX + (totalOffBoardWidth - fm.stringWidth(instructionLabel)) / 2;
+        g.drawString(instructionLabel, Math.max(offBoardX, instructionX), TOP_Y - 20);
 
-            int cellGapY = 20;
-            int index = 0;
-            for (Ship ship : model.getPlayerShips()) {
-                if (!ship.isPlaced() && !ship.isDragging()) {
-                    int col = index % 2;
-                    int row = index / 2;
+        int cellGapY = 20;
+        int index = 0;
+        for (Ship ship : model.getPlayerShips()) {
+            if (!ship.isPlaced() && !ship.isDragging()) {
+                int col = index % 2;
+                int row = index / 2;
 
-                    int shipDrawX = offBoardX + col * (colWidth + colSpacing);
-                    int shipDrawY = offBoardTopY + row * (height + cellGapY);
+                int shipDrawX = offBoardX + col * (colWidth + colSpacing);
+                int shipDrawY = offBoardTopY + row * (height + cellGapY);
 
-                    int drawWidth = ship.isVertical() ? width : width * ship.getSize();
-                    int drawHeight = ship.isVertical() ? height * ship.getSize() : height;
+                int drawWidth = ship.isVertical() ? width : width * ship.getSize();
+                int drawHeight = ship.isVertical() ? height * ship.getSize() : height;
 
-                    drawChristmasShip(g, shipDrawX, shipDrawY, drawWidth, drawHeight, ship.getSize(), ship.isVertical());
-
-                    index++;
-                }
+                drawChristmasShip(g, shipDrawX, shipDrawY, drawWidth, drawHeight, ship.getSize(), ship.isVertical());
+                index++;
             }
         }
     }
 
     private void drawCenteredEmoji(Graphics2D g, String emoji, int x, int y, int w, int h) {
-        // Try an emoji-capable font; fallback will be automatic if missing
         int fontSize = (int)(Math.min(w, h) * 0.8);
         Font prev = g.getFont();
         Color prevColor = g.getColor();
@@ -440,32 +371,21 @@ public class Canvas extends JPanel {
         int cellHeight = vertical ? (h / size) : h;
 
         for (int i = 0; i < size; i++) {
-            int ornX, ornY;
-            if (vertical) {
-                ornX = x + w / 2;
-                ornY = y + (cellHeight * i) + cellHeight / 2;
-            } else {
-                ornX = x + (cellWidth * i) + cellWidth / 2;
-                ornY = y + h / 2;
-            }
+            int ornX = vertical ? x + w / 2 : x + (cellWidth * i) + cellWidth / 2;
+            int ornY = vertical ? y + (cellHeight * i) + cellHeight / 2 : y + h / 2;
 
             Color ornamentColor = ornamentColors[i % ornamentColors.length];
 
-            // Основной шар
             g.setColor(ornamentColor);
             g.fillOval(ornX - 5, ornY - 5, 10, 10);
 
-            // Блик
             g.setColor(new Color(255, 255, 255, 200));
             g.fillOval(ornX - 3, ornY - 3, 4, 4);
 
-            // Крючок
             g.setColor(new Color(180, 180, 180));
             g.fillRect(ornX - 1, ornY - 7, 2, 3);
         }
     }
-
-
 
     private void drawSnowflakes(Graphics2D g) {
         g.setColor(new Color(255, 255, 255, 180));
@@ -486,23 +406,17 @@ public class Canvas extends JPanel {
 
     private Point getCenteredPosition(int totalWidth, int totalHeight) {
         int panelWidth = getWidth();
-
         int x = (panelWidth - totalWidth) / 2;
         int y = TOP_Y;
-
         return new Point(x, y);
     }
 
-
     private void drawLevelWindow(Graphics g) {
-
         LevelWindow manager = model.getLevelWindow();
-
         int state = manager.getWindowState();
         if (state == 0) return;
 
         float alpha = manager.getAlpha();
-
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
 
@@ -528,7 +442,6 @@ public class Canvas extends JPanel {
         g2.setFont(new Font("Comic Sans MS", Font.BOLD, 38));
 
         String text;
-
         if (state == 1) {
             text = "LEVEL " + manager.getCurrentLevel();
         } else if (state == 2) {
@@ -545,5 +458,4 @@ public class Canvas extends JPanel {
         g2.drawString(text, textX, textY);
         g2.dispose();
     }
-
 }
