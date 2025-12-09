@@ -279,6 +279,27 @@ public class Model {
                 }
             }
         }
+        for (int[] p : cells) {
+            int r = p[0];
+            int c = p[1];
+
+            for (int dr = -1; dr <= 1; dr++) {
+                for (int dc = -1; dc <= 1; dc++) {
+
+                    int nr = r + dr;
+                    int nc = c + dc;
+
+                    if (nr < 0 || nr >= 10 || nc < 0 || nc >= 10)
+                        continue;
+
+                    int value = board[nr][nc];
+
+                    if (value == 0) {
+                        board[nr][nc] = -1;
+                    }
+                }
+            }
+        }
         return true;
     }
     public ComputerPlayer getComputerPlayer() {
