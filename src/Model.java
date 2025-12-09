@@ -52,12 +52,16 @@ public class Model {
                 }
                 viewer.update();
 
+//                if (won()) {
+//                    if (levelWindow.getCurrentLevel() >= 3) {
+//                        viewer.showResult(true);
+//                        return;
+//                    }
+//                    levelWindow.showLevelCompletedWindow();
+//                }
                 if (won()) {
-                    if (levelWindow.getCurrentLevel() >= 3) {
-                        viewer.showResult(true);
-                        return;
-                    }
                     levelWindow.showLevelCompletedWindow();
+                    return;
                 }
                 if (!isHit) {
                     computerTurn();

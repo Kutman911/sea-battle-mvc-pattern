@@ -63,9 +63,14 @@ public class Canvas extends JPanel {
 
         drawSnowflakes(g2);
 
-        if (model.won() && model.getLevelWindow().getCurrentLevel() >= 3) {
-            drawWon(g2);
+        boolean showFinalShips =
+                model.won() &&
+                        model.getLevelWindow().getCurrentLevel() < 3 &&
+                        model.getLevelWindow().getWindowState() == 0;
 
+
+        if (showFinalShips) {
+            drawWon(g2);
         } else if (model.isSetupPhase()) {
             drawDesktopPlayer(g2, true);
 

@@ -11,7 +11,7 @@ public class ResultDialog extends JDialog {
     private static final Color BUTTON_RED = new Color(180, 50, 50);
     private static final Color TEXT_WHITE = Color.WHITE;
 
-    public ResultDialog(Window parent, boolean playerWon, Runnable onReplay, Runnable onNext, Runnable onExit) {
+    public ResultDialog(Window parent, boolean playerWon, int level, Runnable onReplay, Runnable onNext, Runnable onExit) {
         super(parent, ModalityType.APPLICATION_MODAL);
         setUndecorated(true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -47,7 +47,7 @@ public class ResultDialog extends JDialog {
         title.setBorder(new EmptyBorder(6, 6, 6, 6));
 
         JLabel message = new JLabel(
-                playerWon ? "Congratulations! You sunk all enemy ships!" : "Компьютер выиграл. Попробовать ещё?"
+                playerWon ? "Congratulations! You sunk all enemy ships!" : "Computer has won. Try again?"
         );
         message.setForeground(new Color(220, 240, 230));
         message.setHorizontalAlignment(SwingConstants.CENTER);
@@ -64,7 +64,7 @@ public class ResultDialog extends JDialog {
         JButton nextBtn = createBigButton("NEXT LEVEL", buttonColor, borderColor);
         JButton exitBtn = createBigButton("EXIT", buttonColor, borderColor);
 
-        if (!playerWon) {
+        if (!playerWon || level >= 3) {
             nextBtn.setEnabled(false);
             nextBtn.setForeground(new Color(200, 200, 200));
         }

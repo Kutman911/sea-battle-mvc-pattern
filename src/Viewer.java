@@ -49,6 +49,7 @@ public class Viewer {
             ResultDialog dialog = new ResultDialog(
                     frame,
                     isWin,
+                    model.getLevelWindow().getCurrentLevel(),
                     () -> {
                         if (isWin) {
                             if (model.getLevelWindow().getCurrentLevel() >= 3) {
