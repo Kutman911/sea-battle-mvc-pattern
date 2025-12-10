@@ -40,10 +40,10 @@ public class Controller implements MouseListener, MouseMotionListener {
         if (!model.isSetupPhase()) {
             model.doAction(event.getX(), event.getY());
 
-            if (model.lost()) {
-                viewer.showResult(false);
-                return;
-            }
+//            if (model.lost()) {
+//                viewer.showResult(false);
+//                return;
+//            }
         }
     }
 

@@ -70,8 +70,7 @@ public class Model {
     }
 
     private Boolean playerTurn(int row, int col) {
-        if (desktopComputer[row][col] == -1 ||
-                desktopComputer[row][col] == -9) {
+        if (desktopComputer[row][col] < 0) {
             return null;
         }
         boolean isHit = desktopComputer[row][col] > 0;
