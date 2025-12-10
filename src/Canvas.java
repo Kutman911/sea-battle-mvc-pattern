@@ -68,7 +68,6 @@ public class Canvas extends JPanel {
                         model.getLevelWindow().getCurrentLevel() < 3 &&
                         model.getLevelWindow().getWindowState() == 0;
 
-
         if (showFinalShips) {
             drawWon(g2);
         } else if (model.isSetupPhase()) {
@@ -79,6 +78,7 @@ public class Canvas extends JPanel {
             drawDesktopComputer(g2);
         }
 
+        drawTurnHighlight(g2);
         drawLevelWindow(g2);
     }
 
@@ -550,5 +550,54 @@ public class Canvas extends JPanel {
         g2.drawString(text, textX, textY);
         g2.dispose();
     }
+
+    private void drawTurnHighlight(Graphics2D g) {
+        if (model.isSetupPhase()) {
+            return;
+        }
+
+        int width = Coordinates.WIDTH * 10;
+        int height = Coordinates.HEIGHT * 10;
+
+        int x;
+        int y;
+        Color glowColor;
+
+        if (model.isPlayerTurn()) {
+            x = computerBoardX;
+            y = TOP_Y;
+            glowColor = new Color(0, 255, 0, 100);
+        } else {
+            x = playerBoardX;
+            y = TOP_Y;
+            glowColor = new Color(255, 0, 0, 100);
+        }
+
+        for (int i = 0; i < 12; i++) {
+            float alpha = (12 - i) / 12f * 0.10f;
+            int glowSize = 6 + i;
+
+            g.setColor(new Color(
+                    glowColor.getRed(),
+                    glowColor.getGreen(),
+                    glowColor.getBlue(),
+                    (int)(glowColor.getAlpha() * alpha)
+            ));
+
+            g.setStroke(new BasicStroke(glowSize));
+            g.drawRect(
+                    x - glowSize,
+                    y - glowSize,
+                    width + glowSize * 2,
+                    height + glowSize * 2
+            );
+        }
+
+        g.setColor(glowColor);
+        g.setStroke(new BasicStroke(6));
+        g.drawRect(x - 3, y - 3, width + 6, height + 6);
+    }
+
+
 
 }

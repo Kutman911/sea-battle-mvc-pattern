@@ -12,12 +12,10 @@ public class Model {
     private List<Ship> playerShips;
     private int[][] arrayOfIndexes;
     private ComputerLogic computerLogic;
-
     private ComputerPlayer computerPlayer;
-
     private Ship[] ships;
-
     private LevelWindow levelWindow;
+    private boolean playerTurn;
 
 
     public Model(Viewer viewer) {
@@ -52,18 +50,12 @@ public class Model {
                 }
                 viewer.update();
 
-//                if (won()) {
-//                    if (levelWindow.getCurrentLevel() >= 3) {
-//                        viewer.showResult(true);
-//                        return;
-//                    }
-//                    levelWindow.showLevelCompletedWindow();
-//                }
                 if (won()) {
                     levelWindow.showLevelCompletedWindow();
                     return;
                 }
                 if (!isHit) {
+                    setPlayerTurn(false);
                     viewer.scheduleComputerTurn();
                     viewer.update();
                     if (lost()) {
@@ -136,6 +128,8 @@ public class Model {
             }
 
         }
+
+        setPlayerTurn(true);
     }
 
 
@@ -439,6 +433,7 @@ public class Model {
 
     public void startBattlePhase() {
         System.out.println("Setup phase complete. Starting battle!");
+        setPlayerTurn(true);
     }
 
     public void updateDesktopPlayer() {
@@ -534,6 +529,14 @@ public class Model {
 
         canvas.revalidate();
         canvas.repaint();
+    }
+
+    public boolean isPlayerTurn() {
+        return playerTurn;
+    }
+
+    public void setPlayerTurn(boolean playerTurn) {
+        this.playerTurn = playerTurn;
     }
 
 }
