@@ -118,20 +118,39 @@ public class Model {
 
             if (!isHit) {
                 desktopPlayer[row][col] = -1;
+
+                if (viewer.getAudioPlayer() != null) {
+                    viewer.getAudioPlayer().playSound("src/sounds/waterSound.wav");
+                }
+
             } else {
                 desktopPlayer[row][col] = -9;
+
+                boolean sunk = markSunkIfComplete(desktopPlayer, row, col);
+
+                if (sunk) {
+                    if (viewer.getAudioPlayer() != null) {
+                        viewer.getAudioPlayer().playSound("src/sounds/crashSound.wav");
+                    }
+                } else {
+                    if (viewer.getAudioPlayer() != null) {
+                        viewer.getAudioPlayer().playSound("src/sounds/shotSound.wav");
+                    }
+                }
+                
+                markSunkIfComplete(desktopPlayer, row, col);
             }
 
-            computerLogic.onShotResult(row, col, isHit,desktopPlayer);
+            computerLogic.onShotResult(row, col, isHit, desktopPlayer);
 
             if (!isHit) {
                 canShoot = false;
             }
-
         }
 
         setPlayerTurn(true);
     }
+
 
 
     public boolean lost() {
