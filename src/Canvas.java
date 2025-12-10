@@ -42,7 +42,7 @@ public class Canvas extends JPanel {
             int startX = (panelWidth - totalSetupWidth) / 2;
 
             playerBoardX = startX;
-            computerBoardX = startX + BOARD_WIDTH_PX + BOARD_SPACING; // reuse as "off‑board" left X
+            computerBoardX = startX + BOARD_WIDTH_PX + BOARD_SPACING;
 
         } else {
             int totalBattleWidth = BOARD_WIDTH_PX * 2 + BOARD_SPACING;
@@ -204,12 +204,10 @@ public class Canvas extends JPanel {
                     int cy = currentY + height / 2;
                     g.fillOval(cx - 6, cy - 6, 12, 12);
                 } else if(element == -9){
-                    // Hit — show explosion emoji 💥
                     g.setColor(new Color(200, 50, 50));
                     g.fillRect(currentX, currentY, width, height);
                     drawCenteredEmoji(g, "💥", currentX, currentY, width, height);
                 } else if (element == -8) {
-                    // Sunk — darker red with skull ☠
                     g.setColor(new Color(160, 30, 30));
                     g.fillRect(currentX, currentY, width, height);
                     g.setColor(new Color(0, 200, 0));
@@ -313,7 +311,7 @@ public class Canvas extends JPanel {
                 drawWidth = ship.isVertical() ? width : width * ship.getSize();
                 drawHeight = ship.isVertical() ? height * ship.getSize() : height;
             } else if (drawOffBoardShips) {
-                continue; // Отложим отрисовку боковых кораблей
+                continue;
             } else {
                 continue;
             }
@@ -336,10 +334,8 @@ public class Canvas extends JPanel {
                     int cy = y + height / 2;
                     g.fillOval(cx - 6, cy - 6, 12, 12);
                 } else if(element == -9){
-                    // Попадание — 💥 поверх клетки/корабля
                     drawCenteredEmoji(g, "💥", x, y, width, height);
                 } else if (element == -8) {
-                    // Потоплен — ☠ и жирная рамка
                     g.setColor(new Color(0, 200, 0));
                     g.setStroke(new BasicStroke(3));
                     g.drawRect(x, y, width, height);
@@ -356,11 +352,9 @@ public class Canvas extends JPanel {
         }
 
         if (drawOffBoardShips) {
-            // Off‑board area: two columns next to the player board for easier drag & drop
-            int offBoardX = computerBoardX; // left edge of off‑board area
-            int offBoardTopY = TOP_Y;       // align with board top
+            int offBoardX = computerBoardX;
+            int offBoardTopY = TOP_Y;
 
-            // Instruction label above the off‑board ships
             g.setFont(new Font("Arial", Font.BOLD, 22));
             g.setColor(Color.WHITE);
             FontMetrics fm2 = g.getFontMetrics();
@@ -393,7 +387,6 @@ public class Canvas extends JPanel {
     }
 
     private void drawCenteredEmoji(Graphics2D g, String emoji, int x, int y, int w, int h) {
-        // Try an emoji-capable font; fallback will be automatic if missing
         int fontSize = (int)(Math.min(w, h) * 0.8);
         Font prev = g.getFont();
         Color prevColor = g.getColor();
@@ -413,10 +406,10 @@ public class Canvas extends JPanel {
     }
 
     private void drawChristmasShip(Graphics2D g, int x, int y, int w, int h, int size, boolean vertical) {
-        g.setColor(new Color(200, 30, 30));
+        g.setColor(new Color(0, 150, 70));
         g.fillRoundRect(x + 2, y + 2, w - 4, h - 4, 8, 8);
 
-        g.setColor(new Color(255, 215, 0));
+        g.setColor(new Color(0, 100, 0));
         g.setStroke(new BasicStroke(2));
         g.drawRoundRect(x + 2, y + 2, w - 4, h - 4, 8, 8);
 
@@ -434,11 +427,11 @@ public class Canvas extends JPanel {
         }
 
         Color[] ornamentColors = {
-                new Color(255, 215, 0),
-                new Color(0, 191, 255),
-                new Color(255, 105, 180),
-                new Color(50, 205, 50),
-                new Color(255, 140, 0)
+                new Color(255, 150, 0),
+                new Color(0, 19, 255),
+                new Color(255, 10, 180),
+                new Color(255, 2, 2),
+                new Color(255, 255, 255)
         };
 
         int cellWidth = vertical ? w : (w / size);
@@ -456,15 +449,12 @@ public class Canvas extends JPanel {
 
             Color ornamentColor = ornamentColors[i % ornamentColors.length];
 
-            // Основной шар
             g.setColor(ornamentColor);
             g.fillOval(ornX - 5, ornY - 5, 10, 10);
 
-            // Блик
             g.setColor(new Color(255, 255, 255, 200));
             g.fillOval(ornX - 3, ornY - 3, 4, 4);
 
-            // Крючок
             g.setColor(new Color(180, 180, 180));
             g.fillRect(ornX - 1, ornY - 7, 2, 3);
         }
@@ -597,7 +587,5 @@ public class Canvas extends JPanel {
         g.setStroke(new BasicStroke(6));
         g.drawRect(x - 3, y - 3, width + 6, height + 6);
     }
-
-
 
 }
