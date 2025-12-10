@@ -88,9 +88,7 @@ public class ShipPlacementHandler {
                     viewer.getAudioPlayer().playSound("src/sounds/laughSound.wav");
                 }
 
-                if (!model.isSetupPhase()) {
-                    model.startBattlePhase();
-                }
+
             } else {
                 selectedShip.setX(initialGridX);
                 selectedShip.setY(initialGridY);

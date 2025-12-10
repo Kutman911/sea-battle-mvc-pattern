@@ -67,11 +67,8 @@ public class Controller implements MouseListener, MouseMotionListener {
             shipPlacementHandler.mouseReleased(event);
         }
 
-        if (!model.isSetupPhase()) {
-            model.setPlayerTurn(true);
-            model.startBattlePhase();
-            viewer.update();
-        }
+
+        viewer.update();
     }
 
 

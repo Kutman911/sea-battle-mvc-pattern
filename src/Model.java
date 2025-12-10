@@ -16,6 +16,7 @@ public class Model {
     private Ship[] ships;
     private LevelWindow levelWindow;
     private boolean playerTurn;
+    private boolean battleStarted;
 
 
     public Model(Viewer viewer) {
@@ -29,10 +30,11 @@ public class Model {
         initializationPlayerShips();
         computerLogic = new ComputerLogic();
         computerLogic.reset();
+        battleStarted = false;
     }
 
     public void doAction(int x, int y) {
-        if (isSetupPhase()) {
+        if (isSetupPhase() || !battleStarted) {
             return;
         }
 
@@ -422,18 +424,28 @@ public class Model {
         return playerShips;
     }
 
+
     public boolean isSetupPhase() {
+        return !battleStarted;
+    }
+
+
+    public boolean areAllShipsPlaced() {
         for (Ship ship : playerShips) {
             if (!ship.isPlaced()) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     public void startBattlePhase() {
+        if (!areAllShipsPlaced()) {
+            return;
+        }
         System.out.println("Setup phase complete. Starting battle!");
         setPlayerTurn(true);
+        battleStarted = true;
     }
 
     public void updateDesktopPlayer() {
@@ -524,7 +536,8 @@ public class Model {
 
         computerLogic = new ComputerLogic();
         computerLogic.reset();
-
+        battleStarted = false;
+        playerTurn = false;
         viewer.update();
 
         canvas.revalidate();
@@ -537,6 +550,10 @@ public class Model {
 
     public void setPlayerTurn(boolean playerTurn) {
         this.playerTurn = playerTurn;
+    }
+
+    public boolean isBattleStarted() {
+        return battleStarted;
     }
 
 }
