@@ -4,11 +4,10 @@ import java.util.List;
 
 public class Model {
 
-    private Viewer viewer;
+    private final Viewer viewer;
     private Cell cell;
     private int[][] desktopComputer;
     private int[][] desktopPlayer;
-    private Canvas canvas;
     private List<Ship> playerShips;
     private int[][] arrayOfIndexes;
     private ComputerLogic computerLogic;
@@ -52,8 +51,8 @@ public class Model {
             return;
         }
 
-        if(canvas != null) {
-            Point boardPos = canvas.getComputerBoardPosition();
+        if(viewer.getCanvas() != null) {
+            Point boardPos = viewer.getCanvas().getComputerBoardPosition();
             if (boardPos != null && square(x, y, boardPos.x, boardPos.y)) {
                 Cell cell = getRowAndColumn(x - boardPos.x,y - boardPos.y, Coordinates.WIDTH, Coordinates.HEIGHT);
 
@@ -72,10 +71,10 @@ public class Model {
                 }
                 if (!isHit) {
                     setPlayerTurn(false);
-                    viewer.scheduleComputerTurn();
+                    viewer.getCanvas().scheduleComputerTurn(viewer);
                     viewer.update();
                     if (lost()) {
-                        viewer.showResult(false);
+                        viewer.getCanvas().showResult(false, viewer);
                     }
                 }
             }
@@ -202,7 +201,6 @@ public class Model {
 
 
     public void setCanvas(Canvas canvas) {
-        this.canvas = canvas;
         this.levelWindow = new LevelWindow(viewer, canvas, this);
     }
 
@@ -545,7 +543,7 @@ public class Model {
     }
 
     public Canvas getCanvas() {
-        return canvas;
+        return viewer.getCanvas();
     }
 
     public LevelWindow getLevelWindow() {
@@ -572,8 +570,8 @@ public class Model {
         playerTurn = false;
         viewer.update();
 
-        canvas.revalidate();
-        canvas.repaint();
+        viewer.getCanvas().revalidate();
+        viewer.getCanvas().repaint();
     }
 
     public boolean isPlayerTurn() {
@@ -593,4 +591,8 @@ public class Model {
 
     public int getDestroyedPlayerShips() { return destroyedPlayerShipCells; }
     public int getTotalPlayerShipCells() { return totalPlayerShipCells; }
+
+    public Viewer getViewer() {
+        return viewer;
+    }
 }

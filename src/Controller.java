@@ -4,12 +4,10 @@ import java.awt.event.MouseMotionListener;
 
 public class Controller implements MouseListener, MouseMotionListener {
 
-    private Model model;
-    private Viewer viewer;
+    private final Model model;
     private final ShipPlacementHandler shipPlacementHandler;
 
     public Controller(Viewer viewer) {
-        this.viewer = viewer;
         this.model = new Model(viewer);
         this.shipPlacementHandler = new ShipPlacementHandler(model, viewer);
     }
@@ -18,18 +16,19 @@ public class Controller implements MouseListener, MouseMotionListener {
         return model;
     }
 
-    public void restartGame() {
-        Viewer currentViewer = this.viewer;
-        this.model = new Model(currentViewer);
-
-        if (currentViewer.getCanvas() != null) {
-            this.model.setCanvas(currentViewer.getCanvas());
-        }
-
-        currentViewer.update();
-        currentViewer.setVisibleFrame();
-        System.out.println("Игра успешно перезапущена.");
-    }
+    // Нарушает архитектуру MVC.
+//    public void restartGame() {
+//        Viewer currentViewer = this.viewer;
+//        this.model = new Model(currentViewer);
+//
+//        if (currentViewer.getCanvas() != null) {
+//            this.model.setCanvas(currentViewer.getCanvas());
+//        }
+//
+//        currentViewer.update();
+//        currentViewer.setVisibleFrame();
+//        System.out.println("Игра успешно перезапущена.");
+//    }
 
     /**
      * Обработка клика мыши. Используется только для выстрелов в фазе боя.
@@ -68,7 +67,7 @@ public class Controller implements MouseListener, MouseMotionListener {
         }
 
 
-        viewer.update();
+        model.getViewer().update();
     }
 
 
@@ -87,4 +86,6 @@ public class Controller implements MouseListener, MouseMotionListener {
     public void mouseMoved(MouseEvent event) {
 
     }
+
+
 }

@@ -9,6 +9,6 @@ public class Main {
         splashWindow.closeWindow();
 
         Viewer viewer = new Viewer();
-        viewer.showMainMenu();
+        viewer.showMainMenuFromCanvas();
     }
 }

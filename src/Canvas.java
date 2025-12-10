@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class Canvas extends JPanel {
 
-    private Model model;
+    private final Model model;
     private int[][] arrayOfIndexes;
     private Random snowRandom;
 
@@ -540,5 +540,104 @@ public class Canvas extends JPanel {
 
     private boolean isHorizontalShip(int index1, int index2) {
         return arrayOfIndexes[0][index1] == arrayOfIndexes[0][index2];
+    }
+
+    public void scheduleComputerTurn(Viewer viewer) {
+        int delay = 400;
+
+        Timer timer = new Timer(delay, e -> {
+            model.computerTurn();
+            viewer.update();
+            ((Timer) e.getSource()).stop();
+        });
+
+        timer.setRepeats(false);
+        timer.start();
+    }
+
+    public void attemptStart(Viewer viewer) {
+        if (!model.areAllShipsPlaced()) {
+            JOptionPane.showMessageDialog(
+                    viewer.getFrame(),
+                    "Please place all ships first",
+                    "Reminder",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+        if (!model.isBattleStarted()) {
+            model.startBattlePhase();
+            viewer.getStartButton().setEnabled(false);
+        }
+        viewer.update();
+    }
+
+    public void showMainMenu(Viewer viewer) {
+        SwingUtilities.invokeLater(() -> {
+            MainMenu menu = new MainMenu(
+                    viewer.getFrame(),
+                    () -> {
+                        setVisibleFrame(viewer.getFrame());
+                    },
+                    () -> JOptionPane.showMessageDialog(viewer.getFrame(), "Settings coming soon"),
+                    () -> JOptionPane.showMessageDialog(viewer.getFrame(), "Rules coming soon"),
+                    () -> System.exit(0)
+            );
+            menu.setVisible(true);
+        });
+    }
+
+    public void setVisibleFrame(JFrame jFrame) {
+        jFrame.setVisible(true);
+        SwingUtilities.invokeLater(() -> model.getLevelWindow().showLevelStartWindow());
+    }
+
+    public void showResult(boolean isWin, Viewer viewer) {
+        if (viewer.getAudioPlayer() != null) {
+            viewer.getAudioPlayer().stop();
+        }
+        if (!isWin) {
+            viewer.getAudioPlayer().playSound("src/sounds/loseSound.wav");
+        }
+
+        SwingUtilities.invokeLater(() -> {
+            ResultDialog dialog = new ResultDialog(
+                    viewer.getFrame(),
+                    isWin,
+                    model.getLevelWindow().getCurrentLevel(),
+                    () -> {
+                        if (isWin) {
+                            if (model.getLevelWindow().getCurrentLevel() >= 3) {
+                                model.getLevelWindow().resetToLevelOne();
+                            }
+                        } else {
+                            model.getLevelWindow().resetToLevelOne();
+                        }
+                        model.resetGame();
+                        if (viewer.getStartButton() != null) {
+                            viewer.getStartButton().setEnabled(true);
+                        }
+                        SwingUtilities.invokeLater(() -> model.getLevelWindow().showLevelStartWindow());
+                        if (viewer.getAudioPlayer() != null) {
+                            viewer.getAudioPlayer().playBackgroundMusic("src/sounds/background_music.wav");
+                        }
+                    },
+                    () -> {
+                        model.getLevelWindow().nextLevel();
+                        if (viewer.getStartButton() != null) {
+                            viewer.getStartButton().setEnabled(true);
+                        }
+                        if (viewer.getAudioPlayer() != null) {
+                            viewer.getAudioPlayer().playBackgroundMusic("src/sounds/background_music.wav");
+                        }
+                    },
+                    () -> System.exit(0)
+            );
+            dialog.setVisible(true);
+        });
+    }
+
+    public Model getModel() {
+        return model;
     }
 }
