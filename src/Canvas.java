@@ -6,7 +6,6 @@ public class Canvas extends JPanel {
 
     private Model model;
     private int[][] arrayOfIndexes;
-    private Point computerBoardPosition;
     private Random snowRandom;
     private final int PADDING = 50;
     private final int BOARD_SPACING = 50;
@@ -178,8 +177,6 @@ public class Canvas extends JPanel {
 
         int x = computerBoardX;
         int y = TOP_Y;
-
-        computerBoardPosition = new Point(x, y);
 
         g.setFont(new Font("Bernard MT Condensed", Font.BOLD, 30));
         g.setColor(Color.WHITE);
