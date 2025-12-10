@@ -18,6 +18,12 @@ public class Model {
     private boolean playerTurn;
     private boolean battleStarted;
 
+    private int totalComputerShipCells;
+    private int destroyedComputerShipCells;
+
+    private int totalPlayerShipCells;
+    private int destroyedPlayerShipCells;
+
 
     public Model(Viewer viewer) {
         this.viewer = viewer;
@@ -27,7 +33,15 @@ public class Model {
         computerPlayer.generateBoard();
         desktopComputer = computerPlayer.getBoard();
         initializationDesktopComputer();
+        initializationDesktopComputer();
+        totalComputerShipCells = arrayOfIndexes[0].length;
+        destroyedComputerShipCells = 0;
         initializationPlayerShips();
+        totalPlayerShipCells = 0;
+        for (Ship s : playerShips) {
+            totalPlayerShipCells += s.getSize();
+        }
+        destroyedPlayerShipCells = 0;
         computerLogic = new ComputerLogic();
         computerLogic.reset();
         battleStarted = false;
@@ -84,7 +98,7 @@ public class Model {
             
         } else {
             desktopComputer[row][col] = -9;
-
+            destroyedComputerShipCells++;
             boolean sunk = markSunkIfComplete(desktopComputer, row, col);
 
             if (sunk) {
@@ -125,7 +139,7 @@ public class Model {
 
             } else {
                 desktopPlayer[row][col] = -9;
-
+                destroyedPlayerShipCells++;
                 boolean sunk = markSunkIfComplete(desktopPlayer, row, col);
 
                 if (sunk) {
@@ -574,4 +588,9 @@ public class Model {
         return battleStarted;
     }
 
+    public int getDestroyedComputerShips() { return destroyedComputerShipCells; }
+    public int getTotalComputerShipCells() { return totalComputerShipCells; }
+
+    public int getDestroyedPlayerShips() { return destroyedPlayerShipCells; }
+    public int getTotalPlayerShipCells() { return totalPlayerShipCells; }
 }

@@ -92,6 +92,39 @@ public class Canvas extends JPanel {
 
         drawTurnHighlight(g2);
         drawLevelWindow(g2);
+        drawCount(g2);
+    }
+
+    private void drawCount(Graphics2D g2) {
+        g2.setFont(new Font("Arial", Font.BOLD, 18));
+        g2.setColor(Color.WHITE);
+
+        int panelX = 10;
+        int panelY = 10;
+        int panelW = 180;
+        int panelH = 130;
+
+        g2.setColor(new Color(0, 0, 0, 150));
+        g2.fillRoundRect(panelX, panelY, panelW, panelH, 20, 20);
+
+        g2.setColor(Color.WHITE);
+
+        g2.drawString("Statistics", panelX + 10, panelY + 30);
+
+        g2.drawString("Computer:", panelX + 10, panelY + 60);
+        g2.drawString(
+                model.getDestroyedComputerShips() + " / " + model.getTotalComputerShipCells(),
+                panelX + 110, panelY + 60);
+
+        g2.drawString("Player:", panelX + 10, panelY + 90);
+        g2.drawString(
+                model.getDestroyedPlayerShips() + " / " + model.getTotalPlayerShipCells(),
+                panelX + 110, panelY + 90);
+
+        g2.setColor(Color.YELLOW);
+        g2.drawString("Move: " + (model.isPlayerTurn() ? "Player" : "Computer"),
+                panelX + 10, panelY + 120);
+
     }
 
     public Point getComputerBoardPosition() {
