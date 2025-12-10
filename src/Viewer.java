@@ -150,7 +150,23 @@ public class Viewer {
         }
         update();
     }
-   public void scheduleComputerTurn() {
+
+    public void showMainMenu() {
+        SwingUtilities.invokeLater(() -> {
+            MainMenu menu = new MainMenu(
+                    frame,
+                    () -> {
+                        setVisibleFrame();
+                    },
+                    () -> JOptionPane.showMessageDialog(frame, "Settings coming soon"),
+                    () -> JOptionPane.showMessageDialog(frame, "Rules coming soon"),
+                    () -> System.exit(0)
+            );
+            menu.setVisible(true);
+        });
+    }
+
+    public void scheduleComputerTurn() {
         int delay = 400;
 
         Timer timer = new Timer(delay, e -> {
