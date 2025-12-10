@@ -66,13 +66,20 @@ public class LevelWindow {
 
                 new Timer().schedule(new TimerTask() {
                     public void run() {
-                        SwingUtilities.invokeLater(() -> showResultDialog(true));
+                        SwingUtilities.invokeLater(() -> {
+                            if (currentLevel < 3) {
+                                showResultDialog(true);
+                            } else {
+                                showCongratulationsWindow();
+                            }
+                        });
                     }
                 }, 400);
 
             }
         }, 2400);
     }
+
 
     private void showFinalWindow() {
         windowState = 3;
@@ -138,32 +145,47 @@ public class LevelWindow {
     }
 
     public void showResultDialog(boolean playerWon) {
-        // Выполняем в EDT
         SwingUtilities.invokeLater(() -> {
             Window parent = SwingUtilities.getWindowAncestor(canvas);
-            String title = playerWon ? "Уровень пройден" : "Результат";
-            String message = playerWon ? "Поздравляем! Вы прошли уровень." : "Компьютер выиграл. Что делать дальше?";
-            String[] options = {"Играть снова", "Следующий уровень", "Выход"};
 
-            int choice = JOptionPane.showOptionDialog(
+            ResultDialog dialog = new ResultDialog(
                     parent,
-                    message,
-                    title,
-                    JOptionPane.DEFAULT_OPTION,
-                    JOptionPane.PLAIN_MESSAGE,
-                    null,
-                    options,
-                    options[0]
+                    playerWon,
+                    currentLevel,
+
+                    () -> {
+                        model.resetGame();
+                        showLevelStartWindow();
+                    },
+
+                    () -> nextLevel(),
+
+                    () -> System.exit(0)
             );
 
-            if (choice == 0) {
-                model.resetGame();
-                showLevelStartWindow();
-            } else if (choice == 1) {
-                nextLevel();
-            } else {
-                System.exit(0);
-            }
+            dialog.setVisible(true);
         });
     }
+
+    public void showCongratulationsWindow() {
+        windowState = 3;
+        fadeIn();
+        viewer.update();
+
+        new Timer().schedule(new TimerTask() {
+            public void run() {
+                fadeOut();
+
+                new Timer().schedule(new TimerTask() {
+                    public void run() {
+                        SwingUtilities.invokeLater(() -> showResultDialog(true));
+                    }
+                }, 400);
+
+            }
+        }, 2000);
+    }
+
+
+
 }

@@ -13,11 +13,17 @@ public class ComputerLogic {
         TARGET
     }
 
-    private final Random rnd = new Random();
-    private Mode mode = Mode.HUNT;
-    private boolean[][] tried = new boolean[BOARD_SIZE][BOARD_SIZE];
-    private List<int[]> hitsCurrentShip = new ArrayList<>();
-    private Deque<int[]> targetQueue = new ArrayDeque<>();
+    private Mode mode;
+    private boolean[][] tried;
+    private List<int[]> hitsCurrentShip;
+    private Deque<int[]> targetQueue;
+
+    public ComputerLogic() {
+        mode = Mode.HUNT;
+        tried = new boolean[BOARD_SIZE][BOARD_SIZE];
+        hitsCurrentShip = new ArrayList<>();
+        targetQueue = new ArrayDeque<>();
+    }
 
     public void reset() {
         mode = Mode.HUNT;
@@ -30,7 +36,8 @@ public class ComputerLogic {
         }
     }
 
-    public int[] getNextShot(int[][] desktopPlayer) {
+    public int[] getNextShot() {
+        Random rnd = new Random();
         while (!targetQueue.isEmpty()) {
             int[] p = targetQueue.pollFirst();
             int row = p[0];
@@ -69,8 +76,7 @@ public class ComputerLogic {
             hitsCurrentShip.add(new int[]{row, col});
         }
 
-        if (!hitsCurrentShip.isEmpty() && isCurrentShipCertainlySunk()) {
-            System.out.println("Sunk");
+        if (!hitsCurrentShip.isEmpty() && isCurrentShipSunk()) {
             markAroundSunkShip(desktopPlayer);
             hitsCurrentShip.clear();
             targetQueue.clear();
@@ -83,10 +89,10 @@ public class ComputerLogic {
         }
 
         mode = Mode.TARGET;
-        rebuildTargetQueue(desktopPlayer);
+        rebuildTargetQueue();
     }
 
-    private void rebuildTargetQueue(int[][] desktopPlayer) {
+    private void rebuildTargetQueue() {
         targetQueue.clear();
 
         if (hitsCurrentShip.isEmpty()) {
@@ -194,7 +200,7 @@ public class ComputerLogic {
         return false;
     }
 
-    private boolean isCurrentShipCertainlySunk() {
+    private boolean isCurrentShipSunk() {
         if (hitsCurrentShip.isEmpty()) {
             return false;
         }
@@ -204,10 +210,18 @@ public class ComputerLogic {
             int row = h[0];
             int col = h[1];
 
-            if (couldBeShipContinuation(row - 1, col)) return false;
-            if (couldBeShipContinuation(row + 1, col)) return false;
-            if (couldBeShipContinuation(row, col - 1)) return false;
-            if (couldBeShipContinuation(row, col + 1)) return false;
+            if (couldBeShipContinuation(row - 1, col)) {
+                return false;
+            }
+            if (couldBeShipContinuation(row + 1, col)) {
+                return false;
+            }
+            if (couldBeShipContinuation(row, col - 1)) {
+                return false;
+            }
+            if (couldBeShipContinuation(row, col + 1)) {
+                return false;
+            }
 
             return true;
         }
@@ -233,8 +247,12 @@ public class ComputerLogic {
                 return true;
             }
 
-            if (couldBeShipContinuation(minRow - 1, col)) return false;
-            if (couldBeShipContinuation(maxRow + 1, col)) return false;
+            if (couldBeShipContinuation(minRow - 1, col)) {
+                return false;
+            }
+            if (couldBeShipContinuation(maxRow + 1, col)) {
+                return false;
+            }
 
             return true;
         } else {
@@ -254,13 +272,14 @@ public class ComputerLogic {
                 return true;
             }
 
-            if (couldBeShipContinuation(row, minCol - 1)) return false;
-            if (couldBeShipContinuation(row, maxCol + 1)) return false;
+            if (couldBeShipContinuation(row, minCol - 1)) {
+                return false;
+            }
+            if (couldBeShipContinuation(row, maxCol + 1)) {
+                return false;
+            }
 
             return true;
         }
     }
-
-
-
 }
