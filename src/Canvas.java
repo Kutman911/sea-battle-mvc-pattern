@@ -39,6 +39,11 @@ public class Canvas extends JPanel {
     private static final Color ORNAMENT_HIGHLIGHT = new Color(255, 255, 255, 200);
     private static final Color ORNAMENT_HOOK = new Color(180, 180, 180);
 
+    // Transient UI hint overlay
+    private String hintMessage = null;
+    private long hintExpireAt = 0L;
+    private javax.swing.Timer hintTimer;
+
     public Canvas(Model model) {
         this.model = model;
         setBackground(BACKGROUND_COLOR);
@@ -93,6 +98,8 @@ public class Canvas extends JPanel {
         drawTurnHighlight(g2);
         drawLevelWindow(g2);
         drawCount(g2);
+
+        drawHintOverlay(g2);
     }
 
     private void drawCount(Graphics2D g2) {
@@ -142,6 +149,65 @@ public class Canvas extends JPanel {
         int width = Math.max(totalBattleWidth, maxSetupWidth + 50);
         int height = TOP_Y + BOARD_WIDTH_PX + PADDING;
         return new Dimension(width, height);
+    }
+
+    public void showHint(String message, int durationMs) {
+        if (message == null || durationMs <= 0) return;
+        long now = System.currentTimeMillis();
+        this.hintMessage = message;
+        this.hintExpireAt = now + durationMs;
+
+        if (hintTimer == null) {
+            hintTimer = new javax.swing.Timer(50, e -> {
+                if (System.currentTimeMillis() >= hintExpireAt) {
+                    hintTimer.stop();
+                }
+                repaint();
+            });
+        }
+        if (!hintTimer.isRunning()) {
+            hintTimer.start();
+        }
+        repaint();
+    }
+
+    private void drawHintOverlay(Graphics2D g2) {
+        if (hintMessage == null) return;
+        long now = System.currentTimeMillis();
+        if (now >= hintExpireAt) {
+            hintMessage = null;
+            return;
+        }
+
+        // Style
+        g2.setFont(new Font("SansSerif", Font.BOLD, 16));
+        FontMetrics fm = g2.getFontMetrics();
+        int textW = fm.stringWidth(hintMessage);
+        int textH = fm.getAscent();
+
+        int paddingX = 18;
+        int paddingY = 12;
+
+        // Position: bottom center above padding (raised a bit for better visibility)
+        int boxW = textW + paddingX * 2;
+        int boxH = textH + paddingY * 2;
+        int x = (getWidth() - boxW) / 2;
+        // Use a responsive bottom margin so the hint sits slightly higher and is easier to notice
+        int bottomMargin = Math.max(80, getHeight() / 12);
+        int y = getHeight() - boxH - bottomMargin;
+
+        // Background
+        g2.setColor(new Color(0, 0, 0, 170));
+        g2.fillRoundRect(x, y, boxW, boxH, 12, 12);
+        g2.setColor(new Color(255, 255, 255, 220));
+        g2.setStroke(new BasicStroke(2f));
+        g2.drawRoundRect(x, y, boxW, boxH, 12, 12);
+
+        // Text
+        int tx = x + paddingX;
+        int ty = y + paddingY + fm.getAscent() - 2;
+        g2.setColor(Color.WHITE);
+        g2.drawString(hintMessage, tx, ty);
     }
 
     private void drawWon(Graphics2D g) {

@@ -87,6 +87,13 @@ public class Viewer {
         return canvas;
     }
 
+    // Transient UI hint for better UX
+    public void showHint(String message, int durationMs) {
+        if (canvas != null) {
+            canvas.showHint(message, durationMs);
+        }
+    }
+
     public AudioPlayer getAudioPlayer() {
         return audioPlayer;
     }

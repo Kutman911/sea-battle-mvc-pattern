@@ -27,6 +27,14 @@ public class ShipPlacementHandler {
             if (clickedShip.isPresent()) {
                 Ship ship = clickedShip.get();
 
+                // Prevent rotation for ships that are off the board and not being dragged.
+                // Rotating such ships causes them to overlap in the off-board pool.
+                if (!ship.isPlaced() && !ship.isDragging()) {
+                    // Show UX hint: rotation requires being inside the board
+                    viewer.showHint("Place the ship inside the board to rotate it", 1600);
+                    return;
+                }
+
                 ship.rotate();
 
                 if (ship.isPlaced()) {
