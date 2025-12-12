@@ -155,10 +155,20 @@ public class LevelWindow {
 
                     () -> {
                         model.resetGame();
+                        if (viewer.getStartButton() != null) {
+                            viewer.getStartButton().setEnabled(true);
+                            viewer.getStartButton().setVisible(true);
+                        }
                         showLevelStartWindow();
                     },
 
-                    () -> nextLevel(),
+                    () -> {
+                        nextLevel();
+                        if (viewer.getStartButton() != null) {
+                            viewer.getStartButton().setEnabled(true);
+                            viewer.getStartButton().setVisible(true);
+                        }
+                    },
 
                     () -> System.exit(0)
             );

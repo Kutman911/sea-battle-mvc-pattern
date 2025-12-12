@@ -567,7 +567,9 @@ public class Canvas extends JPanel {
         }
         if (!model.isBattleStarted()) {
             model.startBattlePhase();
+            // During the battle the START button should be hidden and disabled
             viewer.getStartButton().setEnabled(false);
+            viewer.getStartButton().setVisible(false);
         }
         viewer.update();
     }
@@ -616,6 +618,8 @@ public class Canvas extends JPanel {
                         model.resetGame();
                         if (viewer.getStartButton() != null) {
                             viewer.getStartButton().setEnabled(true);
+                            // Show the START button again when the battle is over
+                            viewer.getStartButton().setVisible(true);
                         }
                         SwingUtilities.invokeLater(() -> model.getLevelWindow().showLevelStartWindow());
                         if (viewer.getAudioPlayer() != null) {
@@ -626,6 +630,8 @@ public class Canvas extends JPanel {
                         model.getLevelWindow().nextLevel();
                         if (viewer.getStartButton() != null) {
                             viewer.getStartButton().setEnabled(true);
+                            // Also make it visible for the next level
+                            viewer.getStartButton().setVisible(true);
                         }
                         if (viewer.getAudioPlayer() != null) {
                             viewer.getAudioPlayer().playBackgroundMusic("src/sounds/background_music.wav");
