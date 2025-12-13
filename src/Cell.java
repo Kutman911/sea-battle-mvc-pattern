@@ -8,11 +8,6 @@ public class Cell {
         column = -1;
     }
 
-    public Cell(int row, int column) {
-        this.row = row;
-        this.column = column;
-    }
-
     public int getRow() {
         return row;
     }

@@ -1,5 +1,5 @@
 import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Model {
@@ -12,7 +12,6 @@ public class Model {
     private int[][] arrayOfIndexes;
     private ComputerLogic computerLogic;
     private ComputerPlayer computerPlayer;
-    private Ship[] ships;
     private LevelWindow levelWindow;
     private boolean playerTurn;
     private boolean battleStarted;

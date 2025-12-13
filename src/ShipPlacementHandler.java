@@ -165,10 +165,6 @@ public class ShipPlacementHandler {
         return new Point(ship.getX(), ship.getY());
     }
 
-    private Point getScreenPositionFromOffBoardGrid(int offBoardGridX, int offBoardGridY) {
-        return getScreenPositionFromGrid(offBoardGridX, offBoardGridY);
-    }
-
     private boolean snapShipToGrid(Ship ship) {
         int boardX = getPlayerBoardX();
         int boardY = getPlayerBoardY();

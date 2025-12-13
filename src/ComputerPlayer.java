@@ -80,10 +80,6 @@ public class ComputerPlayer {
         }
     }
 
-    public Ship[] getShips() {
-        return ships;
-    }
-
     public int[][] getBoard() {
         return board;
     }

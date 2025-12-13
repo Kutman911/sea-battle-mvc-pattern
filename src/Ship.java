@@ -39,10 +39,6 @@ public class Ship {
         this.y = y;
     }
 
-    public void setVertical(boolean vertical) {
-        this.vertical = vertical;
-    }
-
     public boolean isPlaced() {
         return isPlaced;
     }

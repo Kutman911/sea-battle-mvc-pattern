@@ -20,7 +20,6 @@ public class MainMenu extends JDialog {
         setUndecorated(true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        // Инициализация снежинок
         Random rand = new Random();
         for (int i = 0; i < 100; i++) {
             snowflakes.add(new Snowflake(
@@ -38,7 +37,6 @@ public class MainMenu extends JDialog {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                // Градиент синего фона как на скриншоте
                 GradientPaint gradient = new GradientPaint(
                         0, 0, new Color(70, 130, 180),
                         0, getHeight(), new Color(70, 130, 180)
@@ -46,7 +44,6 @@ public class MainMenu extends JDialog {
                 g2d.setPaint(gradient);
                 g2d.fillRect(0, 0, getWidth(), getHeight());
 
-                // Звёзды
                 g2d.setColor(Color.WHITE);
                 Random rand = new Random(42);
                 for (int i = 0; i < 100; i++) {
@@ -55,14 +52,12 @@ public class MainMenu extends JDialog {
                     int size = rand.nextInt(3) + 1;
                     g2d.fillOval(x, y, size, size);
 
-                    // Крестик на звезде
                     if (size > 1) {
                         g2d.drawLine(x - 2, y + size/2, x + size + 2, y + size/2);
                         g2d.drawLine(x + size/2, y - 2, x + size/2, y + size + 2);
                     }
                 }
 
-                // снежинки
                 for (Snowflake snowflake : snowflakes) {
                     snowflake.draw(g2d);
                 }
@@ -79,7 +74,6 @@ public class MainMenu extends JDialog {
                 Graphics2D g2d = (Graphics2D) g;
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                // Тень
                 g2d.setColor(new Color(0, 0, 0, 100));
                 g2d.setFont(getFont());
                 FontMetrics fm = g2d.getFontMetrics();
@@ -124,7 +118,6 @@ public class MainMenu extends JDialog {
         pack();
         setLocationRelativeTo(parent);
 
-        // Анимация снега
         animationTimer = new Timer(50, e -> {
             for (Snowflake snowflake : snowflakes) {
                 snowflake.fall(HEIGHT);
@@ -264,7 +257,6 @@ public class MainMenu extends JDialog {
             g2d.setColor(new Color(255, 255, 255, 200));
             g2d.fillOval((int)x, (int)y, size, size);
 
-            // Лучи снежинки
             g2d.setStroke(new BasicStroke(1));
             int centerX = (int)x + size/2;
             int centerY = (int)y + size/2;
