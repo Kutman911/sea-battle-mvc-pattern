@@ -66,6 +66,10 @@ public class Model {
 
                 if (won()) {
                     levelWindow.showLevelCompletedWindow();
+                    if (viewer.getAudioPlayer() != null) {
+                        viewer.getAudioPlayer().playSound("src/sounds/winSound.wav");
+                    }
+
                     return;
                 }
                 if (!isHit) {

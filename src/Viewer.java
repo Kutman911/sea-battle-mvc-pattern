@@ -53,7 +53,13 @@ public class Viewer {
                 if (startButton.isEnabled()) startButton.setBackground(btnGreen);
             }
         });
-        startButton.addActionListener(e -> canvas.attemptStart(this));
+
+        startButton.addActionListener(e -> {
+            if (audioPlayer != null) {
+                audioPlayer.playSound("src/sounds/buttonClick.wav");
+            }
+            canvas.attemptStart(this);
+        });
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0; gbc.gridy = 0;
