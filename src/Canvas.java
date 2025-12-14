@@ -609,7 +609,7 @@ public class Canvas extends JPanel {
     }
 
     public void scheduleComputerTurn(Viewer viewer) {
-        int delay = 400;
+        int delay = 600;
 
         Timer timer = new Timer(delay, e -> {
             model.computerTurn();

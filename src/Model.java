@@ -174,7 +174,7 @@ public class Model {
                     sunk
             ));
 
-            computerLogic.onShotResult(row, col, isHit, desktopPlayer);
+            computerLogic.onShotResult(row, col, isHit, desktopPlayer, sunk);
 
             if (!isHit) {
                 canShoot = false;
