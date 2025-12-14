@@ -8,6 +8,8 @@ public class Viewer {
     private final AudioPlayer audioPlayer;
     private final Controller controller;
     private final JButton startButton;
+    private HistoryPanel historyPanel;
+
 
     public Viewer() {
         audioPlayer = new AudioPlayer();
@@ -20,10 +22,13 @@ public class Viewer {
         canvas.addMouseMotionListener(controller);
         canvas.getModel().setCanvas(canvas);
 
+        historyPanel = new HistoryPanel();
+
         frame = new JFrame("Sea Battle MVC Pattern");
         frame.setIconImage(new ImageIcon(Viewer.class.getResource("/images/appIcon.jpg")).getImage());
         frame.setSize(1500, 900);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.add("East", historyPanel);
         // Top control panel with centered, styled START button
         JPanel topPanel = new JPanel(new GridBagLayout());
         topPanel.setBackground(new Color(15, 35, 60));
@@ -99,6 +104,16 @@ public class Viewer {
             canvas.showHint(message, durationMs);
         }
     }
+
+    public void addHistoryMove(Move move) {
+        historyPanel.addMove(move);
+    }
+
+    public void clearHistory() {
+        historyPanel.clear();
+    }
+
+
 
     public AudioPlayer getAudioPlayer() {
         return audioPlayer;

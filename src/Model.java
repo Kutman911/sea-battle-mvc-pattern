@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ public class Model {
     private ComputerPlayer computerPlayer;
     private LevelWindow levelWindow;
     private boolean playerTurn;
+    private final List<Move> moveHistory = new ArrayList<>();
     private boolean battleStarted;
 
     private int totalComputerShipCells;
@@ -90,6 +92,7 @@ public class Model {
             return null;
         }
         boolean isHit = desktopComputer[row][col] > 0;
+        boolean sunk = false;
 
         if (!isHit) {
             desktopComputer[row][col] = -1;
@@ -101,7 +104,7 @@ public class Model {
         } else {
             desktopComputer[row][col] = -9;
             destroyedComputerShipCells++;
-            boolean sunk = markSunkIfComplete(desktopComputer, row, col);
+            sunk = markSunkIfComplete(desktopComputer, row, col);
 
             if (sunk) {
                 if (viewer.getAudioPlayer() != null) {
@@ -113,8 +116,17 @@ public class Model {
                 }
             }
             // If the whole ship is destroyed, convert its parts to SUNK (-8)
-            markSunkIfComplete(desktopComputer, row, col);
+//            markSunkIfComplete(desktopComputer, row, col);
         }
+
+        addMove(new Move(
+                Move.Who.PLAYER,
+                row,
+                col,
+                isHit,
+                sunk
+        ));
+
         return isHit;
 
     }
@@ -131,6 +143,7 @@ public class Model {
             int col = shot[1];
 
             boolean isHit = desktopPlayer[row][col] > 0;
+            boolean sunk = false;
 
             if (!isHit) {
                 desktopPlayer[row][col] = -1;
@@ -142,20 +155,24 @@ public class Model {
             } else {
                 desktopPlayer[row][col] = -9;
                 destroyedPlayerShipCells++;
-                boolean sunk = markSunkIfComplete(desktopPlayer, row, col);
 
-                if (sunk) {
-                    if (viewer.getAudioPlayer() != null) {
-                        viewer.getAudioPlayer().playSound("src/sounds/crashSound.wav");
-                    }
-                } else {
-                    if (viewer.getAudioPlayer() != null) {
-                        viewer.getAudioPlayer().playSound("src/sounds/shotSound.wav");
-                    }
+                sunk = markSunkIfComplete(desktopPlayer, row, col);
+
+                if (viewer.getAudioPlayer() != null) {
+                    viewer.getAudioPlayer().playSound(
+                            sunk ? "src/sounds/crashSound.wav"
+                                    : "src/sounds/shotSound.wav"
+                    );
                 }
-                
-                markSunkIfComplete(desktopPlayer, row, col);
             }
+
+            addMove(new Move(
+                    Move.Who.COMPUTER,
+                    row,
+                    col,
+                    isHit,
+                    sunk
+            ));
 
             computerLogic.onShotResult(row, col, isHit, desktopPlayer);
 
@@ -166,6 +183,7 @@ public class Model {
 
         setPlayerTurn(true);
     }
+
 
 
 
@@ -571,6 +589,9 @@ public class Model {
         computerLogic.reset();
         battleStarted = false;
         playerTurn = false;
+        moveHistory.clear();
+        viewer.clearHistory();
+
         viewer.update();
 
         viewer.getCanvas().revalidate();
@@ -584,6 +605,17 @@ public class Model {
     public void setPlayerTurn(boolean playerTurn) {
         this.playerTurn = playerTurn;
     }
+
+    public List<Move> getMoveHistory() {
+        return moveHistory;
+    }
+
+    public void addMove(Move move) {
+        moveHistory.add(move);
+        viewer.addHistoryMove(move);
+    }
+
+
 
     public boolean isBattleStarted() {
         return battleStarted;
