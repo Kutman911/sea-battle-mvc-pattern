@@ -28,6 +28,7 @@ public class Viewer {
         frame.setIconImage(new ImageIcon(Viewer.class.getResource("/images/appIcon.jpg")).getImage());
         frame.setSize(1500, 900);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.add("East", historyPanel);
         // Top control panel with centered, styled START button
         JPanel topPanel = new JPanel(new GridBagLayout());
