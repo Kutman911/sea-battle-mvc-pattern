@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Model {
 
@@ -561,6 +562,62 @@ public class Model {
         }
 
         return true;
+    }
+
+    /**
+     * Randomly place all player's ships on the board.
+     * Can be called multiple times and also works if some ships are already placed.
+     * Only works during setup phase (before the battle starts).
+     */
+    public void randomizePlayerShips() {
+        if (!isSetupPhase()) {
+            return;
+        }
+
+        // Clear current placements
+        for (Ship s : playerShips) {
+            s.setPlaced(false);
+        }
+
+        // Place ships from largest to smallest to improve success chance
+        List<Ship> shipsToPlace = new ArrayList<>(playerShips);
+        shipsToPlace.sort((a, b) -> Integer.compare(b.getSize(), a.getSize()));
+
+        Random rand = new Random();
+        for (Ship ship : shipsToPlace) {
+            boolean placed = false;
+            // Try a reasonable number of times for each ship
+            for (int attempt = 0; attempt < 2000 && !placed; attempt++) {
+                boolean vertical = rand.nextBoolean();
+                int maxX = vertical ? 9 : 10 - ship.getSize();
+                int maxY = vertical ? 10 - ship.getSize() : 9;
+                int x = rand.nextInt(Math.max(1, maxX + 1));
+                int y = rand.nextInt(Math.max(1, maxY + 1));
+
+                // Temporarily set properties to validate
+                ship.setX(x);
+                ship.setY(y);
+                if (ship.isVertical() != vertical) {
+                    ship.rotate();
+                }
+
+                if (isValidPlacement(ship)) {
+                    ship.setPlaced(true);
+                    placed = true;
+                }
+            }
+
+            // Fallback: if for some reason not placed, reset off-board state
+            if (!placed) {
+                int x_offboard = 11;
+                ship.setX(x_offboard);
+                ship.setY(0);
+                ship.setPlaced(false);
+            }
+        }
+
+        updateDesktopPlayer();
+        viewer.update();
     }
 
     public Canvas getCanvas() {

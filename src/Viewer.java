@@ -8,6 +8,7 @@ public class Viewer {
     private final AudioPlayer audioPlayer;
     private final Controller controller;
     private final JButton startButton;
+    private final JButton randomButton;
     private HistoryPanel historyPanel;
 
 
@@ -72,6 +73,45 @@ public class Viewer {
         gbc.anchor = GridBagConstraints.CENTER;
         topPanel.add(startButton, gbc);
 
+        // Random Placement button
+        randomButton = new JButton("RANDOM");
+        randomButton.setToolTipText("Randomly place your ships");
+        randomButton.setFocusPainted(false);
+        randomButton.setFont(new Font("SansSerif", Font.BOLD, 18));
+        randomButton.setForeground(Color.WHITE);
+        Color btnBlue = new Color(36, 122, 237);
+        Color borderYellow2 = new Color(237, 176, 36);
+        randomButton.setBackground(btnBlue);
+        randomButton.setOpaque(true);
+        randomButton.setPreferredSize(new Dimension(220, 46));
+        randomButton.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(borderYellow2, 3),
+                BorderFactory.createEmptyBorder(6, 18, 6, 18)
+        ));
+        randomButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                if (randomButton.isEnabled()) randomButton.setBackground(btnBlue.darker());
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                if (randomButton.isEnabled()) randomButton.setBackground(btnBlue);
+            }
+        });
+        randomButton.addActionListener(e -> {
+            if (audioPlayer != null) {
+                audioPlayer.playSound("src/sounds/buttonClick.wav");
+            }
+            controller.getModel().randomizePlayerShips();
+            showHint("Ships randomly placed. You can press RANDOM again or adjust manually.", 1800);
+        });
+
+        GridBagConstraints gbc2 = new GridBagConstraints();
+        gbc2.gridx = 1; gbc2.gridy = 0;
+        gbc2.insets = new Insets(0, 12, 0, 0);
+        gbc2.anchor = GridBagConstraints.CENTER;
+        topPanel.add(randomButton, gbc2);
+
         frame.add("North", topPanel);
         frame.add("Center", canvas);
         frame.setLocationRelativeTo(null);
@@ -86,6 +126,18 @@ public class Viewer {
             public void actionPerformed(ActionEvent e) {
                 if (startButton.isEnabled()) {
                     canvas.attemptStart(Viewer.this);
+                }
+            }
+        });
+
+        // Keyboard shortcut: R to randomize placement (only during setup)
+        im.put(KeyStroke.getKeyStroke('R'), "randomizePlacement");
+        am.put("randomizePlacement", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!controller.getModel().isBattleStarted()) {
+                    controller.getModel().randomizePlayerShips();
+                    showHint("Ships randomly placed.", 1200);
                 }
             }
         });
@@ -131,4 +183,6 @@ public class Viewer {
     public JButton getStartButton() {
         return startButton;
     }
+
+    public JButton getRandomButton() { return randomButton; }
 }
