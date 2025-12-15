@@ -159,6 +159,10 @@ public class LevelWindow {
                             viewer.getStartButton().setEnabled(true);
                             viewer.getStartButton().setVisible(true);
                         }
+                        if (viewer.getRandomButton() != null) {
+                            viewer.getRandomButton().setEnabled(true);
+                            viewer.getRandomButton().setVisible(true);
+                        }
                         showLevelStartWindow();
                     },
 
@@ -167,6 +171,10 @@ public class LevelWindow {
                         if (viewer.getStartButton() != null) {
                             viewer.getStartButton().setEnabled(true);
                             viewer.getStartButton().setVisible(true);
+                        }
+                        if (viewer.getRandomButton() != null) {
+                            viewer.getRandomButton().setEnabled(true);
+                            viewer.getRandomButton().setVisible(true);
                         }
                     },
 
