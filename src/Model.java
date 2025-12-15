@@ -634,6 +634,9 @@ public class Model {
         desktopComputer = computerPlayer.getBoard();
         initializationDesktopComputer();
 
+        destroyedComputerShipCells = 0;
+        destroyedPlayerShipCells = 0;
+
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
                 desktopPlayer[i][j] = 0;
