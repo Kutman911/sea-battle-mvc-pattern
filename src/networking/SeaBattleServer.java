@@ -1,6 +1,4 @@
-package server;
-
-import client.ClientSeaBattle;
+package networking;
 
 import java.io.IOException;
 import java.net.ServerSocket;

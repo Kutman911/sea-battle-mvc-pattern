@@ -1,8 +1,7 @@
-package client;
+package networking;
 
 import java.io.*;
 import java.net.Socket;
-
 public class ClientSeaBattle implements Runnable {
 
     private Socket clientSocket;
@@ -17,7 +16,6 @@ public class ClientSeaBattle implements Runnable {
         try {
             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
-
             String message = in.readLine();
             System.out.println(message);
 

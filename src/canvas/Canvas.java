@@ -1,3 +1,9 @@
+package canvas;
+
+import common.*;
+import model.Model;
+import viewer.Viewer;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.Random;
@@ -124,9 +130,6 @@ public class Canvas extends JPanel {
                 panelX + 110, panelY + 60);
 
         g2.drawString("Player:", panelX + 10, panelY + 90);
-        g2.drawString(
-                model.getDestroyedPlayerShips() + " / " + model.getTotalPlayerShipCells(),
-                panelX + 110, panelY + 90);
 
         g2.setColor(Color.YELLOW);
         g2.drawString("Move: " + (model.isPlayerTurn() ? "Player" : "Computer"),

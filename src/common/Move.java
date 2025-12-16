@@ -1,3 +1,5 @@
+package common;
+
 public class Move {
 
     public enum Who {

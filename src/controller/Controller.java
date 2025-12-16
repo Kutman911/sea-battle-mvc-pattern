@@ -1,3 +1,9 @@
+package controller;
+
+import common.ShipPlacementHandler;
+import model.Model;
+import viewer.Viewer;
+
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -16,20 +22,6 @@ public class Controller implements MouseListener, MouseMotionListener {
         return model;
     }
 
-    // Нарушает архитектуру MVC.
-//    public void restartGame() {
-//        Viewer currentViewer = this.viewer;
-//        this.model = new Model(currentViewer);
-//
-//        if (currentViewer.getCanvas() != null) {
-//            this.model.setCanvas(currentViewer.getCanvas());
-//        }
-//
-//        currentViewer.update();
-//        currentViewer.setVisibleFrame();
-//        System.out.println("Игра успешно перезапущена.");
-//    }
-
     /**
      * Обработка клика мыши. Используется только для выстрелов в фазе боя.
      */
@@ -38,11 +30,6 @@ public class Controller implements MouseListener, MouseMotionListener {
         // Выстрелы возможны только после завершения фазы расстановки
         if (!model.isSetupPhase()) {
             model.doAction(event.getX(), event.getY());
-
-//            if (model.lost()) {
-//                viewer.showResult(false);
-//                return;
-//            }
         }
     }
 

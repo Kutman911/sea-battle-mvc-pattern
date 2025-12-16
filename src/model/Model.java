@@ -1,4 +1,9 @@
-import javax.swing.*;
+package model;
+
+import canvas.Canvas;
+import common.*;
+import viewer.Viewer;
+
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -222,7 +227,7 @@ public class Model {
     }
 
 
-    public void setCanvas(Canvas canvas) {
+    public void setCanvas(canvas.Canvas canvas) {
         this.levelWindow = new LevelWindow(viewer, canvas, this);
     }
 

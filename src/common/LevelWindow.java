@@ -1,3 +1,9 @@
+package common;
+
+import canvas.Canvas;
+import model.Model;
+import viewer.Viewer;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.Timer;
@@ -5,10 +11,9 @@ import java.util.TimerTask;
 
 public class LevelWindow {
     private int currentLevel = 1;
-    //  0 = hidden, 1 = start, 2 = completed, 3 = final
     private int windowState = 0;
     private final Viewer viewer;
-    private final Canvas canvas;
+    private final canvas.Canvas canvas;
     private final Model model;
     private float alpha = 0f;
 
@@ -203,7 +208,4 @@ public class LevelWindow {
             }
         }, 2000);
     }
-
-
-
 }

@@ -1,3 +1,5 @@
+package common;
+
 import javax.swing.*;
 import java.awt.*;
 

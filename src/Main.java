@@ -1,3 +1,6 @@
+import common.SplashWindow;
+import viewer.Viewer;
+
 public class Main {
     public static void main(String[] args) {
         SplashWindow splashWindow = new SplashWindow();

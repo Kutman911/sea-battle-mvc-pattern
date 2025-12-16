@@ -1,3 +1,9 @@
+package viewer;
+
+import canvas.Canvas;
+import common.*;
+import controller.Controller;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -9,7 +15,7 @@ public class Viewer {
     private final Controller controller;
     private final JButton startButton;
     private final JButton randomButton;
-    private HistoryPanel historyPanel;
+    private final HistoryPanel historyPanel;
 
 
     public Viewer() {
@@ -165,8 +171,6 @@ public class Viewer {
     public void clearHistory() {
         historyPanel.clear();
     }
-
-
 
     public AudioPlayer getAudioPlayer() {
         return audioPlayer;

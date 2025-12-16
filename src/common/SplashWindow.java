@@ -1,3 +1,5 @@
+package common;
+
 import javax.swing.JWindow;
 import javax.swing.JLabel;
 import javax.swing.ImageIcon;
