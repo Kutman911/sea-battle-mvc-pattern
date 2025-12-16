@@ -24,6 +24,19 @@ public class Canvas extends JPanel {
         });
     }
 
+    private void drawEmoji(Graphics g, String emoji, Rectangle r, float scale) {
+        Font base = g.getFont();
+        float size = Math.min(r.width, r.height) * scale;
+        Font f = base.deriveFont(Font.PLAIN, size);
+        g.setFont(f);
+        FontMetrics fm = g.getFontMetrics();
+        int textWidth = fm.stringWidth(emoji);
+        int textAscent = fm.getAscent();
+        int x = r.x + (r.width - textWidth) / 2;
+        int y = r.y + (r.height - fm.getHeight()) / 2 + textAscent;
+        g.drawString(emoji, x, y);
+    }
+
     private Rectangle cellRect(int startX, int startY, int col, int row) {
         int x = startX + col * (cellSize + gap);
         int y = startY + row * (cellSize + gap);
@@ -95,12 +108,14 @@ public class Canvas extends JPanel {
 
                 // Hits and misses
                 if (val == Model.HIT) {
-                    g.setColor(Color.RED);
-                    g.drawLine(r.x + 6, r.y + 6, r.x + r.width - 6, r.y + r.height - 6);
-                    g.drawLine(r.x + 6, r.y + r.height - 6, r.x + r.width - 6, r.y + 6);
+                    g.setColor(Color.WHITE);
+                    drawEmoji(g, "💥", r, 0.6f);
                 } else if (val == Model.MISS) {
-                    g.setColor(new Color(90, 180, 255));
-                    g.fillOval(r.x + r.width / 2 - 4, r.y + r.height / 2 - 4, 8, 8);
+                    g.setColor(Color.WHITE);
+                    drawEmoji(g, "💧", r, 0.6f);
+                } else if (val == Model.SUNK) {
+                    g.setColor(Color.WHITE);
+                    drawEmoji(g, "☠️", r, 0.6f);
                 }
 
                 // Cell border

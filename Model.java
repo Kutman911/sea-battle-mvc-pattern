@@ -8,6 +8,7 @@ public class Model {
     public static final int SHIP = 1;
     public static final int HIT = 2;
     public static final int MISS = 3;
+    public static final int SUNK = 4;
 
     private final int size = 10;
 
@@ -55,16 +56,18 @@ public class Model {
         if (res == ShotResult.REPEAT || res == ShotResult.IGNORED) return res;
         if (checkAllShipsSunk(computerBoard)) {
             gameOver = true;
-            statusText = "Вы победили!";
+            statusText = "Вы победили! ☺️";
             return res;
         }
         if (res == ShotResult.MISS) {
             playerTurn = false;
-            statusText = "Промах. Ход компьютера";
+            statusText = "Промах 💧. Ход компьютера";
             // Computer makes a move immediately (simple random AI)
             computerAutoMove();
         } else {
-            statusText = "Попадание! Стреляйте ещё";
+            statusText = (res == ShotResult.SUNK)
+                    ? "Корабль потоплен ☠️! Стреляйте ещё"
+                    : "Попадание 💥! Стреляйте ещё";
         }
         return res;
     }
@@ -79,17 +82,19 @@ public class Model {
             if (res == ShotResult.REPEAT || res == ShotResult.IGNORED) continue;
             if (checkAllShipsSunk(playerBoard)) {
                 gameOver = true;
-                statusText = "Компьютер победил";
+                statusText = "Компьютер победил ☠️";
                 playerTurn = false;
                 return;
             }
             if (res == ShotResult.MISS) {
-                statusText = "Компьютер промахнулся. Ваш ход";
+                statusText = "Компьютер промахнулся 💧. Ваш ход";
                 playerTurn = true;
                 return;
             } else {
                 // Hit: computer shoots again
-                statusText = "Компьютер попал и стреляет ещё";
+                statusText = (res == ShotResult.SUNK)
+                        ? "Компьютер потопил корабль ☠️ и стреляет ещё"
+                        : "Компьютер попал 💥 и стреляет ещё";
             }
         }
     }
@@ -97,9 +102,13 @@ public class Model {
     private ShotResult shootAt(int[][] board, int x, int y) {
         if (x < 0 || x >= size || y < 0 || y >= size) return ShotResult.IGNORED;
         int cell = board[y][x];
-        if (cell == HIT || cell == MISS) return ShotResult.REPEAT;
+        if (cell == HIT || cell == MISS || cell == SUNK) return ShotResult.REPEAT;
         if (cell == SHIP) {
             board[y][x] = HIT;
+            if (isShipSunk(board, x, y)) {
+                markSunkShip(board, x, y);
+                return ShotResult.SUNK;
+            }
             return ShotResult.HIT;
         } else {
             board[y][x] = MISS;
@@ -116,7 +125,7 @@ public class Model {
         return true;
     }
 
-    public enum ShotResult { HIT, MISS, REPEAT, IGNORED }
+    public enum ShotResult { HIT, MISS, SUNK, REPEAT, IGNORED }
 
     // Ship placement logic (classic set: 1x4, 2x3, 3x2, 4x1)
     private void placeAllShipsRandomly(int[][] board) {
@@ -191,5 +200,97 @@ public class Model {
             }
         }
         return true;
+    }
+
+    // Determine if the ship segment that includes (x, y) has any remaining SHIP cells
+    private boolean isShipSunk(int[][] board, int x, int y) {
+        // Determine orientation: check neighbors for SHIP/HIT
+        boolean horizontal = false;
+        boolean vertical = false;
+        if (x > 0 && (board[y][x - 1] == SHIP || board[y][x - 1] == HIT)) horizontal = true;
+        if (x < size - 1 && (board[y][x + 1] == SHIP || board[y][x + 1] == HIT)) horizontal = true;
+        if (y > 0 && (board[y - 1][x] == SHIP || board[y - 1][x] == HIT)) vertical = true;
+        if (y < size - 1 && (board[y + 1][x] == SHIP || board[y + 1][x] == HIT)) vertical = true;
+
+        if (!horizontal && !vertical) {
+            // Single-cell ship
+            return true;
+        }
+
+        if (horizontal) {
+            // scan left
+            int cx = x;
+            while (cx >= 0 && (board[y][cx] == SHIP || board[y][cx] == HIT)) {
+                if (board[y][cx] == SHIP) return false;
+                cx--;
+            }
+            // scan right
+            cx = x + 1;
+            while (cx < size && (board[y][cx] == SHIP || board[y][cx] == HIT)) {
+                if (board[y][cx] == SHIP) return false;
+                cx++;
+            }
+            return true;
+        } else {
+            // vertical
+            int cy = y;
+            while (cy >= 0 && (board[cy][x] == SHIP || board[cy][x] == HIT)) {
+                if (board[cy][x] == SHIP) return false;
+                cy--;
+            }
+            cy = y + 1;
+            while (cy < size && (board[cy][x] == SHIP || board[cy][x] == HIT)) {
+                if (board[cy][x] == SHIP) return false;
+                cy++;
+            }
+            return true;
+        }
+    }
+
+    // After determining a ship is sunk, convert all its HIT cells to SUNK for clear rendering
+    private void markSunkShip(int[][] board, int x, int y) {
+        // Determine orientation
+        boolean horizontal = false;
+        boolean vertical = false;
+        if (x > 0 && (board[y][x - 1] == SHIP || board[y][x - 1] == HIT)) horizontal = true;
+        if (x < size - 1 && (board[y][x + 1] == SHIP || board[y][x + 1] == HIT)) horizontal = true;
+        if (y > 0 && (board[y - 1][x] == SHIP || board[y - 1][x] == HIT)) vertical = true;
+        if (y < size - 1 && (board[y + 1][x] == SHIP || board[y + 1][x] == HIT)) vertical = true;
+
+        // Single-cell ship
+        if (!horizontal && !vertical) {
+            board[y][x] = SUNK;
+            return;
+        }
+
+        if (horizontal) {
+            // left
+            int cx = x;
+            while (cx >= 0 && (board[y][cx] == HIT)) {
+                board[y][cx] = SUNK;
+                cx--;
+            }
+            // include current if still HIT
+            if (board[y][x] == HIT) board[y][x] = SUNK;
+            // right
+            cx = x + 1;
+            while (cx < size && (board[y][cx] == HIT)) {
+                board[y][cx] = SUNK;
+                cx++;
+            }
+        } else {
+            // vertical
+            int cy = y;
+            while (cy >= 0 && (board[cy][x] == HIT)) {
+                board[cy][x] = SUNK;
+                cy--;
+            }
+            if (board[y][x] == HIT) board[y][x] = SUNK;
+            cy = y + 1;
+            while (cy < size && (board[cy][x] == HIT)) {
+                board[cy][x] = SUNK;
+                cy++;
+            }
+        }
     }
 }
