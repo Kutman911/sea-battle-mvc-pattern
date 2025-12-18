@@ -27,7 +27,6 @@ public class MainMenu extends JDialog {
             setOpacity(0f);
         } catch (Throwable ignored) { }
 
-        // Try to load background image from classpath resources first
         try {
             java.net.URL imgUrl = getClass().getResource("/images/bg_main_menu.jpg");
             if (imgUrl != null) {
@@ -35,9 +34,7 @@ public class MainMenu extends JDialog {
             }
         } catch (Exception ignored) {}
 
-        // Fallbacks in case classpath resource is not found (e.g., running from IDE)
         if (backgroundImage == null) {
-            // relative path inside project
             java.io.File rel = new java.io.File("src\\images\\bg_main_menu.jpg");
             if (rel.exists()) {
                 backgroundImage = new ImageIcon(rel.getAbsolutePath()).getImage();
@@ -61,7 +58,7 @@ public class MainMenu extends JDialog {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                // Draw background image scaled to panel size; if not available, fill with fallback color
+
                 if (backgroundImage != null) {
                     g2d.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
                 } else {
@@ -160,7 +157,6 @@ public class MainMenu extends JDialog {
         });
 
 
-        // Открываем встроенный RulesDialog, НЕ вызываем внешний onRules
         rulesBtn.addActionListener(e -> {
             animationTimer.stop();
             RulesDialog dlg = new RulesDialog(MainMenu.this, () -> animationTimer.start());
@@ -174,7 +170,6 @@ public class MainMenu extends JDialog {
             });
         });
 
-        // Fade-in when window is shown
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowOpened(java.awt.event.WindowEvent e) {
@@ -198,7 +193,6 @@ public class MainMenu extends JDialog {
         try {
             start = getOpacity();
         } catch (Throwable t) {
-            // Opacity not supported; fallback to instant
             if (onDone != null) SwingUtilities.invokeLater(onDone);
             return;
         }
@@ -216,7 +210,6 @@ public class MainMenu extends JDialog {
         timer.addActionListener(ev -> {
             double t = (System.nanoTime() - startTime) / (durationMs * 1_000_000.0);
             if (t >= 1.0) t = 1.0;
-            // ease-in-out (S-curve)
             double eased = t < 0 ? 0 : (t > 1 ? 1 : (t < 0.5 ? 2*t*t : -1 + (4 - 2*t) * t));
             float value = (float)(from + (to - from) * eased);
             try {
@@ -363,7 +356,6 @@ public class MainMenu extends JDialog {
         }
     }
 
-    // Встроенный RulesDialog: прокручиваемое окно с текстом правил
     private class RulesDialog extends JDialog {
         public RulesDialog(Window parent, Runnable onClose) {
             super(parent, ModalityType.APPLICATION_MODAL);
@@ -393,14 +385,43 @@ public class MainMenu extends JDialog {
             title.setOpaque(false);
 
             String rulesText =
-                    "Rules of Sea Battle:\n\n" +
-                            "1. Each player places ships on their grid.\n" +
-                            "2. Players take turns to shoot at coordinates on opponent's grid.\n" +
-                            "3. A hit is marked and you get another turn; a miss passes the turn.\n" +
-                            "4. Sink all opponent's ships to win.\n\n" +
-                            "Controls:\n" +
-                            "- Click on grid cell to fire.\n" +
-                            "- Use settings to toggle hints.\n";
+                    "OBJECTIVE:\n" +
+                            "Sink all opponent's ships before they sink yours!\n\n" +
+
+                            "GAME PHASES:\n\n" +
+
+                            "1. SETUP PHASE:\n" +
+                            "• Place all your ships on your board\n" +
+                            "• Ships come in different sizes: 1x1, 1x2, 1x3, and 1x4\n" +
+                            "• Ships CANNOT touch each other (not even diagonally)\n" +
+                            "• There must be at least one empty cell between ships\n" +
+                            "• Drag ships from the right panel to your board\n" +
+                            "• Double-click a ship to rotate it (horizontal/vertical)\n" +
+                            "• Use RANDOM button for automatic placement\n" +
+                            "• Press START when all ships are placed\n\n" +
+
+                            "2. BATTLE PHASE:\n" +
+                            "• Players take turns shooting at opponent's grid\n" +
+                            "• Click any cell on computer's board to fire\n" +
+                            "• White dot = Miss - turn passes to opponent\n" +
+                            "• Explosion = Hit - you get another turn!\n" +
+                            "• When entire ship is destroyed:\n" +
+                            "  - Ship cells marked with skull symbol\n" +
+                            "  - All adjacent cells automatically marked as miss\n" +
+                            "• First player to sink all enemy ships wins!\n\n" +
+
+                            "CONTROLS:\n" +
+                            "• Mouse: Click to shoot/place ships\n" +
+                            "• Double-click: Rotate ship during setup\n" +
+                            "• Ctrl+Enter: Start battle\n" +
+
+                            "TIPS:\n" +
+                            "• After sinking a ship, surrounding cells are revealed\n" +
+                            "• Use the move history panel to track your shots\n" +
+                            "• Statistics panel shows your progress\n" +
+                            "• Complete all 3 levels to win the game!\n\n" +
+
+                            "Good luck, Captain!";
 
             JTextArea text = new JTextArea(rulesText);
             text.setEditable(false);
