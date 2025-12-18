@@ -23,6 +23,9 @@ public class MainMenu extends JDialog {
         super(parent, ModalityType.APPLICATION_MODAL);
         setUndecorated(true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        try {
+            setOpacity(0f);
+        } catch (Throwable ignored) { }
 
         // Try to load background image from classpath resources first
         try {
@@ -135,7 +138,11 @@ public class MainMenu extends JDialog {
 
         setContentPane(content);
         pack();
-        setLocationRelativeTo(parent);
+        if (parent != null && parent.isVisible()) {
+            setLocationRelativeTo(parent);
+        } else {
+            setLocationRelativeTo(null);
+        }
 
         animationTimer = new Timer(50, e -> {
             for (Snowflake snowflake : snowflakes) {
@@ -147,11 +154,11 @@ public class MainMenu extends JDialog {
 
         startBtn.addActionListener(e -> {
             animationTimer.stop();
-            dispose();
-            if (onStart != null) SwingUtilities.invokeLater(onStart);
+            fadeOutAndClose(() -> {
+                if (onStart != null) SwingUtilities.invokeLater(onStart);
+            });
         });
 
-        // Кнопка Settings удалена — параметр onSettings игнорируется
 
         // Открываем встроенный RulesDialog, НЕ вызываем внешний onRules
         rulesBtn.addActionListener(e -> {
@@ -162,9 +169,66 @@ public class MainMenu extends JDialog {
 
         exitBtn.addActionListener(e -> {
             animationTimer.stop();
-            dispose();
-            if (onExit != null) SwingUtilities.invokeLater(onExit);
+            fadeOutAndClose(() -> {
+                if (onExit != null) SwingUtilities.invokeLater(onExit);
+            });
         });
+
+        // Fade-in when window is shown
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowOpened(java.awt.event.WindowEvent e) {
+                fadeTo(1f, 180, null);
+            }
+        });
+    }
+
+    private void fadeOutAndClose(Runnable afterFade) {
+        fadeTo(0f, 160, () -> {
+            try {
+                dispose();
+            } finally {
+                if (afterFade != null) afterFade.run();
+            }
+        });
+    }
+
+    private void fadeTo(float target, int durationMs, Runnable onDone) {
+        float start;
+        try {
+            start = getOpacity();
+        } catch (Throwable t) {
+            // Opacity not supported; fallback to instant
+            if (onDone != null) SwingUtilities.invokeLater(onDone);
+            return;
+        }
+        final float from = start;
+        final float to = Math.max(0f, Math.min(1f, target));
+        if (Math.abs(from - to) < 0.01f) {
+            if (onDone != null) SwingUtilities.invokeLater(onDone);
+            return;
+        }
+        final int fps = 60;
+        final int interval = 1000 / fps;
+        final int steps = Math.max(1, durationMs / interval);
+        final long startTime = System.nanoTime();
+        Timer timer = new Timer(interval, null);
+        timer.addActionListener(ev -> {
+            double t = (System.nanoTime() - startTime) / (durationMs * 1_000_000.0);
+            if (t >= 1.0) t = 1.0;
+            // ease-in-out (S-curve)
+            double eased = t < 0 ? 0 : (t > 1 ? 1 : (t < 0.5 ? 2*t*t : -1 + (4 - 2*t) * t));
+            float value = (float)(from + (to - from) * eased);
+            try {
+                setOpacity(value);
+            } catch (Throwable ignored) { }
+            if (t >= 1.0) {
+                ((Timer) ev.getSource()).stop();
+                if (onDone != null) onDone.run();
+            }
+        });
+        timer.setRepeats(true);
+        timer.start();
     }
 
     private JButton createMenuButton(String text, Color baseColor) {

@@ -16,6 +16,7 @@ public class Viewer {
     private final JButton startButton;
     private final JButton randomButton;
     private final HistoryPanel historyPanel;
+    private final JPanel dimmer;
 
 
     public Viewer() {
@@ -51,6 +52,7 @@ public class Viewer {
         Color borderYellow = new Color(237, 176, 36);
         startButton.setBackground(btnGreen);
         startButton.setOpaque(true);
+        startButton.setContentAreaFilled(false);
         startButton.setPreferredSize(new Dimension(160, 46));
         startButton.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(borderYellow, 3),
@@ -89,6 +91,7 @@ public class Viewer {
         Color borderYellow2 = new Color(237, 176, 36);
         randomButton.setBackground(btnBlue);
         randomButton.setOpaque(true);
+        randomButton.setContentAreaFilled(false);
         randomButton.setPreferredSize(new Dimension(220, 46));
         randomButton.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(borderYellow2, 3),
@@ -121,6 +124,24 @@ public class Viewer {
         frame.add("North", topPanel);
         frame.add("Center", canvas);
         frame.setLocationRelativeTo(null);
+
+        // Prepare dimming glass pane for smoother transitions/overlays
+        dimmer = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setColor(new Color(0, 0, 0, 140));
+                g2.fillRect(0, 0, getWidth(), getHeight());
+                g2.dispose();
+            }
+        };
+        dimmer.setOpaque(false);
+        dimmer.setVisible(false);
+        dimmer.addMouseListener(new MouseAdapter() {}); // consume
+        dimmer.addMouseMotionListener(new MouseMotionAdapter() {});
+        dimmer.addKeyListener(new KeyAdapter() {});
+        frame.setGlassPane(dimmer);
 
         // Keyboard shortcuts to start (Ctrl+Enter, or S)
         InputMap im = frame.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -189,4 +210,14 @@ public class Viewer {
     }
 
     public JButton getRandomButton() { return randomButton; }
+
+    public void setDimOverlay(boolean on) {
+        if (dimmer != null) {
+            dimmer.setVisible(on);
+            if (on) {
+                dimmer.revalidate();
+                dimmer.repaint();
+            }
+        }
+    }
 }

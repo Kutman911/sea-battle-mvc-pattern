@@ -1,17 +1,29 @@
 import common.SplashWindow;
 import viewer.Viewer;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+import javax.swing.UIManager;
 
 public class Main {
     public static void main(String[] args) {
-        SplashWindow splashWindow = new SplashWindow();
         try {
-            Thread.sleep(3000);
-        } catch (InterruptedException ie) {
-            System.err.println(ie);
-        }
-        splashWindow.closeWindow();
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception ignored) {}
 
-        Viewer viewer = new Viewer();
-        viewer.showMainMenuFromCanvas();
+        SwingUtilities.invokeLater(() -> {
+            SplashWindow splashWindow = new SplashWindow();
+
+            Viewer viewer = new Viewer();
+
+            Timer t = new Timer(3000, e -> {
+                ((Timer) e.getSource()).stop();
+                splashWindow.fadeOutAndClose(null);
+
+                viewer.showMainMenuFromCanvas();
+            });
+
+            t.setRepeats(false);
+            t.start();
+        });
     }
 }

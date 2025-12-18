@@ -659,7 +659,9 @@ public class Canvas extends JPanel {
                     },
                     () -> JOptionPane.showMessageDialog(viewer.getFrame(), "Settings coming soon"),
                     () -> JOptionPane.showMessageDialog(viewer.getFrame(), "Rules coming soon"),
-                    () -> System.exit(0)
+                    () -> {
+                        System.exit(0);
+                    }
             );
             menu.setVisible(true);
         });

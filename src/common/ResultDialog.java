@@ -121,6 +121,7 @@ public class ResultDialog extends JDialog {
         b.setForeground(TEXT_WHITE);
         b.setBackground(btnColor);
         b.setOpaque(true);
+        b.setContentAreaFilled(false);
         b.setPreferredSize(new Dimension(200, 64));
         b.setBorder(BorderFactory.createCompoundBorder(
                 new LineBorder(borderColor, 5),
