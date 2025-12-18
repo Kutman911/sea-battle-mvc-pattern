@@ -112,13 +112,14 @@ public class Canvas extends JPanel {
         if (model.isSetupPhase()) {
             return;
         }
+
         g2.setFont(new Font("Arial", Font.BOLD, 18));
         g2.setColor(Color.WHITE);
 
-        int panelX = 10;
-        int panelY = 10;
-        int panelW = 180;
+        int panelW = 240;
         int panelH = 130;
+        int panelX = 10;
+        int panelY = getHeight() - panelH - 10;
 
         g2.setColor(new Color(0, 0, 0, 150));
         g2.fillRoundRect(panelX, panelY, panelW, panelH, 20, 20);
@@ -127,17 +128,19 @@ public class Canvas extends JPanel {
 
         g2.drawString("Statistics", panelX + 10, panelY + 30);
 
-        g2.drawString("Computer:", panelX + 10, panelY + 60);
+        g2.drawString("You destroyed:", panelX + 10, panelY + 60);
         g2.drawString(
                 model.getDestroyedComputerShips() + " / " + model.getTotalComputerShipCells(),
-                panelX + 110, panelY + 60);
+                panelX + 160, panelY + 60);
 
-        g2.drawString("Player:", panelX + 10, panelY + 90);
+        g2.drawString("You lost:", panelX + 10, panelY + 90);
+        g2.drawString(
+                model.getDestroyedPlayerShips() + " / " + model.getTotalPlayerShipCells(),
+                panelX + 160, panelY + 90);
 
         g2.setColor(Color.YELLOW);
         g2.drawString("Move: " + (model.isPlayerTurn() ? "Player" : "Computer"),
                 panelX + 10, panelY + 120);
-
     }
 
     public Point getComputerBoardPosition() {
