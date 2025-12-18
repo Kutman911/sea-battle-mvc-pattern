@@ -1,23 +1,48 @@
 package common;
-
 import canvas.Canvas;
 import model.Model;
 import viewer.Viewer;
-
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.SwingUtilities;
+import java.awt.Window;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class LevelWindow {
-    private int currentLevel = 1;
-    private int windowState = 0;
-    private final Viewer viewer;
-    private final canvas.Canvas canvas;
-    private final Model model;
-    private float alpha = 0f;
 
+    private final int LEVEL_START = 1;
+    private final int MAX_LEVEL = 3;
+
+//    private static final int STATE_HIDDEN = 0;
+//    private static final int STATE_LEVEL_START = 1;
+//    private static final int STATE_LEVEL_COMPLETED = 2;
+//    private static final int STATE_FINAL = 3;
+
+    public enum WindowState {
+        HIDDEN,
+        LEVEL_START,
+        LEVEL_COMPLETED,
+        FINAL
+    }
+
+    private final int SHOW_DURATION_MS = 2400;
+    private final int FADE_OUT_DELAY_MS = 400;
+    private final int FINAL_RESET_DELAY_MS = 3000;
+    private final int CONGRATS_DURATION_MS = 2000;
+
+    private final float FADE_STEP = 0.03f;
+    private final int FADE_TIMER_PERIOD_MS = 15;
+
+    private final String LEVEL_SOUND_PATH = "src/sounds/levelSound.wav";
+
+    private int currentLevel = LEVEL_START;
+    private WindowState windowState = WindowState.HIDDEN;
+
+    private final Viewer viewer;
+    private final Canvas canvas;
+    private final Model model;
     private final AudioPlayer audioPlayer;
+
+    private float alpha = 0f;
 
     public LevelWindow(Viewer viewer, Canvas canvas, Model model) {
         this.viewer = viewer;
@@ -30,7 +55,7 @@ public class LevelWindow {
         return currentLevel;
     }
 
-    public int getWindowState() {
+    public WindowState getWindowState() {
         return windowState;
     }
 
@@ -39,75 +64,66 @@ public class LevelWindow {
     }
 
     public void showLevelStartWindow() {
-        windowState = 1;
-
-        audioPlayer.playLevelSound("src/sounds/levelSound.wav");
-
+        windowState = windowState.LEVEL_START;
+        audioPlayer.playLevelSound(LEVEL_SOUND_PATH);
         fadeIn();
 
         new Timer().schedule(new TimerTask() {
             public void run() {
                 fadeOut();
-
                 new Timer().schedule(new TimerTask() {
                     public void run() {
-                        windowState = 0;
+                        windowState = WindowState.HIDDEN;
                         SwingUtilities.invokeLater(viewer::update);
                     }
-                }, 400);
-
+                }, FADE_OUT_DELAY_MS);
             }
-        }, 2400);
+        }, SHOW_DURATION_MS);
     }
 
     public void showLevelCompletedWindow() {
-        windowState = 2;
+        windowState = WindowState.LEVEL_COMPLETED;
         fadeIn();
         viewer.update();
 
         new Timer().schedule(new TimerTask() {
             public void run() {
                 fadeOut();
-
                 new Timer().schedule(new TimerTask() {
                     public void run() {
                         SwingUtilities.invokeLater(() -> {
-                            if (currentLevel < 3) {
+                            if (currentLevel < MAX_LEVEL) {
                                 showResultDialog(true);
                             } else {
                                 showCongratulationsWindow();
                             }
                         });
                     }
-                }, 400);
-
+                }, FADE_OUT_DELAY_MS);
             }
-        }, 2400);
+        }, SHOW_DURATION_MS);
     }
 
-
     private void showFinalWindow() {
-        windowState = 3;
+        windowState = WindowState.FINAL;
         fadeIn();
         viewer.update();
     }
 
     public void nextLevel() {
-        currentLevel = currentLevel + 1;
+        currentLevel++;
 
-        if (currentLevel > 3) {
+        if (currentLevel > MAX_LEVEL) {
             showFinalWindow();
-
             new Timer().schedule(new TimerTask() {
                 public void run() {
                     model.resetGame();
                 }
-            }, 3000);
+            }, FINAL_RESET_DELAY_MS);
             return;
         }
 
         model.resetGame();
-
         showLevelStartWindow();
     }
 
@@ -117,14 +133,14 @@ public class LevelWindow {
 
         timer.scheduleAtFixedRate(new TimerTask() {
             public void run() {
-                alpha += 0.03f;
+                alpha += FADE_STEP;
                 if (alpha >= 1f) {
                     alpha = 1f;
                     timer.cancel();
                 }
                 canvas.repaint();
             }
-        }, 0, 15);
+        }, 0, FADE_TIMER_PERIOD_MS);
     }
 
     private void fadeOut() {
@@ -133,19 +149,19 @@ public class LevelWindow {
 
         timer.scheduleAtFixedRate(new TimerTask() {
             public void run() {
-                alpha -= 0.03f;
+                alpha -= FADE_STEP;
                 if (alpha <= 0f) {
                     alpha = 0f;
                     timer.cancel();
                 }
                 canvas.repaint();
             }
-        }, 0, 15);
+        }, 0, FADE_TIMER_PERIOD_MS);
     }
 
     public void resetToLevelOne() {
-        currentLevel = 1;
-        windowState = 0;
+        currentLevel = LEVEL_START;
+        windowState = WindowState.HIDDEN;
         alpha = 0f;
     }
 
@@ -157,32 +173,15 @@ public class LevelWindow {
                     parent,
                     playerWon,
                     currentLevel,
-
                     () -> {
                         model.resetGame();
-                        if (viewer.getStartButton() != null) {
-                            viewer.getStartButton().setEnabled(true);
-                            viewer.getStartButton().setVisible(true);
-                        }
-                        if (viewer.getRandomButton() != null) {
-                            viewer.getRandomButton().setEnabled(true);
-                            viewer.getRandomButton().setVisible(true);
-                        }
+                        enableViewerButtons();
                         showLevelStartWindow();
                     },
-
                     () -> {
                         nextLevel();
-                        if (viewer.getStartButton() != null) {
-                            viewer.getStartButton().setEnabled(true);
-                            viewer.getStartButton().setVisible(true);
-                        }
-                        if (viewer.getRandomButton() != null) {
-                            viewer.getRandomButton().setEnabled(true);
-                            viewer.getRandomButton().setVisible(true);
-                        }
+                        enableViewerButtons();
                     },
-
                     () -> System.exit(0)
             );
 
@@ -191,21 +190,31 @@ public class LevelWindow {
     }
 
     public void showCongratulationsWindow() {
-        windowState = 3;
+        windowState = WindowState.FINAL;
         fadeIn();
         viewer.update();
 
         new Timer().schedule(new TimerTask() {
             public void run() {
                 fadeOut();
-
                 new Timer().schedule(new TimerTask() {
                     public void run() {
                         SwingUtilities.invokeLater(() -> showResultDialog(true));
                     }
-                }, 400);
-
+                }, FADE_OUT_DELAY_MS);
             }
-        }, 2000);
+        }, CONGRATS_DURATION_MS);
+    }
+
+    private void enableViewerButtons() {
+        if (viewer.getStartButton() != null) {
+            viewer.getStartButton().setEnabled(true);
+            viewer.getStartButton().setVisible(true);
+        }
+
+        if (viewer.getRandomButton() != null) {
+            viewer.getRandomButton().setEnabled(true);
+            viewer.getRandomButton().setVisible(true);
+        }
     }
 }

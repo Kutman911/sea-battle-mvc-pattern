@@ -90,7 +90,7 @@ public class Canvas extends JPanel {
 
         boolean showFinalShips = model.won() &&
                 model.getLevelWindow().getCurrentLevel() < 3 &&
-                model.getLevelWindow().getWindowState() == 0;
+                model.getLevelWindow().getWindowState() == LevelWindow.WindowState.HIDDEN;
 
         if (showFinalShips) {
             drawWon(g2);
@@ -527,8 +527,11 @@ public class Canvas extends JPanel {
 
     private void drawLevelWindow(Graphics g) {
         LevelWindow manager = model.getLevelWindow();
-        int state = manager.getWindowState();
-        if (state == 0) return;
+        LevelWindow.WindowState state = manager.getWindowState();
+
+        if (state == LevelWindow.WindowState.HIDDEN) {
+            return;
+        }
 
         float alpha = manager.getAlpha();
         Graphics2D g2 = (Graphics2D) g.create();
@@ -556,9 +559,9 @@ public class Canvas extends JPanel {
         g2.setFont(new Font("Comic Sans MS", Font.BOLD, 38));
 
         String text;
-        if (state == 1) {
+        if (state == LevelWindow.WindowState.LEVEL_START) {
             text = "LEVEL " + manager.getCurrentLevel();
-        } else if (state == 2) {
+        } else if (state == LevelWindow.WindowState.LEVEL_COMPLETED) {
             text = "LEVEL " + manager.getCurrentLevel() + " COMPLETED!";
         } else {
             text = "CONGRATULATIONS!";
