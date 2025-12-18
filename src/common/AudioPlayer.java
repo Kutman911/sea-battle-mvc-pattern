@@ -64,7 +64,7 @@ public class AudioPlayer {
 
             float min = gainControl.getMinimum();
             float max = gainControl.getMaximum();
-            
+
             float gain = (float) (20.0 * Math.log10(volume));
             gain = Math.max(min, Math.min(max, gain));
 

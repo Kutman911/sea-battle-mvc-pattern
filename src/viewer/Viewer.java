@@ -17,6 +17,7 @@ public class Viewer {
     private final JButton randomButton;
     private final HistoryPanel historyPanel;
     private final JPanel dimmer;
+    private final VolumeControlPanel volumeControlPanel;
 
 
     public Viewer() {
@@ -32,6 +33,8 @@ public class Viewer {
 
         historyPanel = new HistoryPanel();
 
+        volumeControlPanel = new VolumeControlPanel(audioPlayer);
+
         frame = new JFrame("Sea Battle MVC Pattern");
         frame.setIconImage(new ImageIcon(Viewer.class.getResource("/images/appIcon.jpg")).getImage());
         frame.setSize(1500, 900);
@@ -42,6 +45,15 @@ public class Viewer {
         JPanel topPanel = new JPanel(new GridBagLayout());
         topPanel.setBackground(new Color(15, 35, 60));
         topPanel.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 0));
+        buttonPanel.setOpaque(false);
+
+        GridBagConstraints gbc3 = new GridBagConstraints();
+        gbc3.gridx = 0;
+        gbc3.gridy = 0;
+        gbc3.anchor = GridBagConstraints.WEST;
+        topPanel.add(volumeControlPanel, gbc3);
 
         startButton = new JButton("START");
         startButton.setToolTipText("Start battle");
@@ -75,11 +87,7 @@ public class Viewer {
             }
             canvas.attemptStart(this);
         });
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0; gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.CENTER;
-        topPanel.add(startButton, gbc);
+        buttonPanel.add(startButton);
 
         // Random Placement button
         randomButton = new JButton("RANDOM");
@@ -114,12 +122,15 @@ public class Viewer {
             controller.getModel().randomizePlayerShips();
             showHint("Ships randomly placed. You can press RANDOM again or adjust manually.", 1800);
         });
+        buttonPanel.add(randomButton);
 
-        GridBagConstraints gbc2 = new GridBagConstraints();
-        gbc2.gridx = 1; gbc2.gridy = 0;
-        gbc2.insets = new Insets(0, 12, 0, 0);
-        gbc2.anchor = GridBagConstraints.CENTER;
-        topPanel.add(randomButton, gbc2);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.weightx = 1; // занимает всё оставшееся пространство
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        topPanel.add(buttonPanel, gbc);
 
         frame.add("North", topPanel);
         frame.add("Center", canvas);
@@ -219,5 +230,9 @@ public class Viewer {
                 dimmer.repaint();
             }
         }
+    }
+
+    public VolumeControlPanel getVolumeControlPanel() {
+        return volumeControlPanel;
     }
 }
