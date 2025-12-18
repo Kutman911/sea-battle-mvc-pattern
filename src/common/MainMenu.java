@@ -17,11 +17,29 @@ public class MainMenu extends JDialog {
 
     private List<Snowflake> snowflakes = new ArrayList<>();
     private Timer animationTimer;
+    private Image backgroundImage;
 
     public MainMenu(Window parent, Runnable onStart, Runnable onSettings, Runnable onRules, Runnable onExit) {
         super(parent, ModalityType.APPLICATION_MODAL);
         setUndecorated(true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
+        // Try to load background image from classpath resources first
+        try {
+            java.net.URL imgUrl = getClass().getResource("/images/bg_main_menu.jpg");
+            if (imgUrl != null) {
+                backgroundImage = new ImageIcon(imgUrl).getImage();
+            }
+        } catch (Exception ignored) {}
+
+        // Fallbacks in case classpath resource is not found (e.g., running from IDE)
+        if (backgroundImage == null) {
+            // relative path inside project
+            java.io.File rel = new java.io.File("src\\images\\bg_main_menu.jpg");
+            if (rel.exists()) {
+                backgroundImage = new ImageIcon(rel.getAbsolutePath()).getImage();
+            }
+        }
 
         Random rand = new Random();
         for (int i = 0; i < 100; i++) {
@@ -40,12 +58,13 @@ public class MainMenu extends JDialog {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                GradientPaint gradient = new GradientPaint(
-                        0, 0, new Color(70, 130, 180),
-                        0, getHeight(), new Color(70, 130, 180)
-                );
-                g2d.setPaint(gradient);
-                g2d.fillRect(0, 0, getWidth(), getHeight());
+                // Draw background image scaled to panel size; if not available, fill with fallback color
+                if (backgroundImage != null) {
+                    g2d.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
+                } else {
+                    g2d.setColor(new Color(70, 130, 180));
+                    g2d.fillRect(0, 0, getWidth(), getHeight());
+                }
 
                 g2d.setColor(Color.WHITE);
                 Random rand = new Random(42);
