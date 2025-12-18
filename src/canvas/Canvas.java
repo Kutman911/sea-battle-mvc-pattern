@@ -23,11 +23,6 @@ public class Canvas extends JPanel {
 
     private static final Color BACKGROUND_COLOR = new Color(75, 139, 181);
     private static final Color WATER_COLOR = new Color(30, 60, 100);
-    private static final Color HIT_BG_COLOR = new Color(200, 50, 50);
-    private static final Color SUNK_BG_COLOR = new Color(160, 30, 30);
-    private static final Color SUNK_BORDER_COLOR = new Color(0, 200, 0);
-    private static final Color SHIP_COLOR = new Color(0, 150, 70);
-    private static final Color SHIP_BORDER_COLOR = new Color(0, 100, 0);
     private static final Color VALID_PLACEMENT_COLOR = new Color(0, 255, 0, 100);
     private static final Color INVALID_PLACEMENT_COLOR = new Color(255, 0, 0, 100);
     private static final Color SNOWFLAKE_COLOR = new Color(255, 255, 255, 180);
@@ -37,13 +32,28 @@ public class Canvas extends JPanel {
     private static final Color LEVEL_TEXT_COLOR = new Color(0, 90, 0);
     private static final Color PLAYER_TURN_GLOW = new Color(0, 255, 0, 100);
     private static final Color COMPUTER_TURN_GLOW = new Color(255, 0, 0, 100);
-    private static final Color ORNAMENT_ORANGE = new Color(255, 150, 0);
-    private static final Color ORNAMENT_BLUE = new Color(0, 19, 255);
-    private static final Color ORNAMENT_PINK = new Color(255, 10, 180);
-    private static final Color ORNAMENT_RED = new Color(255, 2, 2);
-    private static final Color ORNAMENT_WHITE = new Color(255, 255, 255);
-    private static final Color ORNAMENT_HIGHLIGHT = new Color(255, 255, 255, 200);
-    private static final Color ORNAMENT_HOOK = new Color(180, 180, 180);
+    private static final Color CANDY_BLUE = new Color(40, 140, 255);
+    private static final Color CANDY_PINK = new Color(255, 40, 170);
+    private static final Color CANDY_GREEN = new Color(40, 220, 120);
+    private static final Color CANDY_RED = new Color(255, 60, 60);
+    private static final Color CANDY_WHITE = new Color(255, 255, 255, 220);
+    private static final Color CELL_EDGE = new Color(255, 255, 255, 160);
+    private static final Color CELL_INNER = new Color(0, 0, 0, 35);
+    private static final Color ICE_FILL_1 = new Color(170, 235, 255, 160);
+    private static final Color ICE_FILL_2 = new Color(90, 180, 255, 140);
+    private static final Color ICE_EDGE = new Color(240, 252, 255, 220);
+    private static final Color ICE_SHADOW = new Color(0, 0, 0, 40);
+    private static final Color HIT_FILL_TOP = new Color(255, 120, 120, 190);
+    private static final Color HIT_FILL_BOTTOM = new Color(170, 40, 40, 210);
+    private static final Color HIT_STAR = new Color(255, 255, 255, 235);
+    private static final Color HIT_SPARK = new Color(255, 235, 180, 210);
+    private static final Color HIT_CRACK = new Color(255, 255, 255, 170);
+    private static final Color SUNK_DEEP_1 = new Color(255, 70, 70, 240);
+    private static final Color SUNK_DEEP_2 = new Color(160, 20, 20, 245);
+    private static final Color SUNK_RING   = new Color(255, 220, 220, 130);
+    private static final Color SUNK_BUBBLE = new Color(255, 200, 200, 160);
+    private static final Color SUNK_WRECK  = new Color(60, 0, 0, 140);
+
 
     // Transient UI hint overlay
     private String hintMessage = null;
@@ -401,30 +411,17 @@ public class Canvas extends JPanel {
     }
 
     private void drawBoardCell(Graphics2D g, int element, int x, int y, int width, int height, boolean isComputer) {
-        if(element == -1) {
+        if (element == -1) {
             g.setColor(WATER_COLOR);
             g.fillRect(x, y, width, height);
-            g.setColor(Color.WHITE);
-            int cx = x + width / 2;
-            int cy = y + height / 2;
-            g.fillOval(cx - 6, cy - 6, 12, 12);
-        } else if(element == -9) {
-            if (isComputer) {
-                g.setColor(HIT_BG_COLOR);
-                g.fillRect(x, y, width, height);
-            }
-            drawCenteredEmoji(g, "💥", x, y, width, height);
-        } else if (element == -8) {
-            if (isComputer) {
-                g.setColor(SUNK_BG_COLOR);
-                g.fillRect(x, y, width, height);
-            }
-            g.setColor(SUNK_BORDER_COLOR);
-            g.setStroke(new BasicStroke(3));
-            g.drawRect(x, y, width, height);
-            drawCenteredEmoji(g, "☠", x, y, width, height);
-        }
 
+            drawIcyMiss(g, x, y, width, height, isComputer );
+        } else if (element == -9) {
+            drawHitCell(g, x, y, width, height);
+
+        } else if (element == -8) {
+            drawSunkCell(g, x, y, width, height);
+        }
         g.setColor(Color.WHITE);
         g.setStroke(new BasicStroke(1));
         g.drawRect(x, y, width, height);
@@ -469,81 +466,150 @@ public class Canvas extends JPanel {
         }
     }
 
-    private void drawCenteredEmoji(Graphics2D g, String emoji, int x, int y, int w, int h) {
-        int fontSize = (int)(Math.min(w, h) * 0.8);
-        Font prev = g.getFont();
-        Color prevColor = g.getColor();
-        Font emojiFont = new Font("Segoe UI Emoji", Font.PLAIN, fontSize);
-        g.setFont(emojiFont);
-        g.setColor(Color.WHITE);
-
-        FontMetrics fm = g.getFontMetrics();
-        int textWidth = fm.stringWidth(emoji);
-        int textAscent = fm.getAscent();
-        int drawX = x + (w - textWidth) / 2;
-        int drawY = y + (h + textAscent) / 2 - 2;
-        g.drawString(emoji, drawX, drawY);
-
-        g.setFont(prev);
-        g.setColor(prevColor);
+    private Color getCandyBaseBySize(int size) {
+        return switch (size) {
+            case 1 -> CANDY_BLUE;
+            case 2 -> CANDY_PINK;
+            case 3 -> CANDY_GREEN;
+            default -> CANDY_RED;
+        };
     }
+
+    private Color brighten(Color c, float amount) {
+        return new Color(
+                clamp((int)(c.getRed()   + 255 * amount)),
+                clamp((int)(c.getGreen() + 255 * amount)),
+                clamp((int)(c.getBlue()  + 255 * amount)),
+                c.getAlpha()
+        );
+    }
+    private Color darken(Color c, float amount) {
+        return new Color(
+                clamp((int)(c.getRed()   * (1f - amount))),
+                clamp((int)(c.getGreen() * (1f - amount))),
+                clamp((int)(c.getBlue()  * (1f - amount))),
+                c.getAlpha()
+        );
+    }
+    private int clamp(int v) { return Math.max(0, Math.min(255, v)); }
 
     private void drawChristmasShip(Graphics2D g, int x, int y, int w, int h, int size, boolean vertical) {
-        g.setColor(SHIP_COLOR);
-        g.fillRoundRect(x + 2, y + 2, w - 4, h - 4, 8, 8);
+        Color base = getCandyBaseBySize(size);
 
-        g.setColor(SHIP_BORDER_COLOR);
-        g.setStroke(new BasicStroke(2));
-        g.drawRoundRect(x + 2, y + 2, w - 4, h - 4, 8, 8);
+        int segW = vertical ? w : w / size;
+        int segH = vertical ? h / size : h;
+        int arc = 14;
 
-        g.setColor(Color.WHITE);
-        if (vertical) {
-            for (int i = 0; i < size; i++) {
-                int segY = y + (h / size) * i;
-                g.fillRoundRect(x + 4, segY + 4, w - 8, 6, 4, 4);
-            }
-        } else {
-            for (int i = 0; i < size; i++) {
-                int segX = x + (w / size) * i;
-                g.fillRoundRect(segX + 4, y + 4, 6, h - 8, 4, 4);
-            }
-        }
-
-        drawOrnaments(g, x, y, w, h, size, vertical);
-    }
-
-    private void drawOrnaments(Graphics2D g, int x, int y, int w, int h, int size, boolean vertical) {
-        Color[] ornamentColors = {
-                ORNAMENT_ORANGE,
-                ORNAMENT_BLUE,
-                ORNAMENT_PINK,
-                ORNAMENT_RED,
-                ORNAMENT_WHITE
-        };
-
-        int cellWidth = vertical ? w : (w / size);
-        int cellHeight = vertical ? (h / size) : h;
+        g.setColor(new Color(0, 0, 0, 40));
+        g.fillRoundRect(x + 3, y + 4, w, h, arc, arc);
 
         for (int i = 0; i < size; i++) {
-            int ornX, ornY;
-            if (vertical) {
-                ornX = x + w / 2;
-                ornY = y + (cellHeight * i) + cellHeight / 2;
-            } else {
-                ornX = x + (cellWidth * i) + cellWidth / 2;
-                ornY = y + h / 2;
-            }
+            int sx = vertical ? x : x + i * segW;
+            int sy = vertical ? y + i * segH : y;
 
-            Color ornamentColor = ornamentColors[i % ornamentColors.length];
-            g.setColor(ornamentColor);
-            g.fillOval(ornX - 5, ornY - 5, 10, 10);
+            float tone = (i % 2 == 0) ? 0.10f : 0.02f;
+            Color top = brighten(base, 0.18f + tone);
+            Color bottom = darken(base, 0.10f);
 
-            g.setColor(ORNAMENT_HIGHLIGHT);
-            g.fillOval(ornX - 3, ornY - 3, 4, 4);
+            Paint prev = g.getPaint();
+            g.setPaint(new GradientPaint(sx, sy, top, sx, sy + segH, bottom));
+            g.fillRoundRect(sx, sy, segW, segH, arc, arc);
+            g.setPaint(prev);
 
-            g.setColor(ORNAMENT_HOOK);
-            g.fillRect(ornX - 1, ornY - 7, 2, 3);
+            drawCandyStripes(g, sx, sy, segW, segH, vertical);
+
+            g.setColor(CELL_INNER);
+            g.drawRoundRect(sx + 2, sy + 2, segW - 4, segH - 4, arc, arc);
+
+            g.setStroke(new BasicStroke(2f));
+            g.setColor(CELL_EDGE);
+            g.drawRoundRect(sx, sy, segW, segH, arc, arc);
+
+            g.setColor(new Color(255, 255, 255, 85));
+            g.fillRoundRect(sx + 4, sy + 4, (int)(segW * 0.55), (int)(segH * 0.35), 12, 12);
         }
+
+        g.setStroke(new BasicStroke(3f));
+        g.setColor(new Color(255, 255, 255, 140));
+        g.drawRoundRect(x, y, w, h, arc, arc);
+    }
+
+    private void drawCandyStripes(Graphics2D g, int x, int y, int w, int h, boolean vertical) {
+        Shape oldClip = g.getClip();
+        g.setClip(new java.awt.geom.RoundRectangle2D.Float(x, y, w, h, 14, 14));
+
+        g.setColor(CANDY_WHITE);
+
+        int stripe = Math.max(10, Math.min(w, h) / 3);
+        int gap = stripe + 10;
+
+        for (int i = -h; i < w + h; i += gap) {
+            Graphics2D gg = (Graphics2D) g.create();
+            gg.translate(x, y);
+            gg.rotate(Math.toRadians(vertical ? 25 : -25), w / 2.0, h / 2.0);
+            gg.fillRoundRect(i, -10, stripe, h + 20, 10, 10);
+            gg.dispose();
+        }
+
+        g.setClip(oldClip);
+    }
+
+    private void drawIcyMiss(Graphics2D g, int x, int y, int w, int h, boolean isComputer) {
+        g.setColor(ICE_SHADOW);
+        g.fillRoundRect(x + 2, y + 3, w - 3, h - 3, 10, 10);
+
+        Paint prev = g.getPaint();
+        g.setPaint(new GradientPaint(x, y, ICE_FILL_1, x, y + h, ICE_FILL_2));
+        g.fillRoundRect(x + 1, y + 1, w - 2, h - 2, 10, 10);
+        g.setPaint(prev);
+
+        g.setStroke(new BasicStroke(2f));
+        g.setColor(ICE_EDGE);
+        g.drawRoundRect(x + 2, y + 2, w - 4, h - 4, 10, 10);
+
+        int seed = x * 31 + y * 17;
+        for (int i = 0; i < 10; i++) {
+            int px = x + 3 + ((seed + i * 37) & 1023) % (w - 6);
+            int py = y + 3 + ((seed + i * 91) & 1023) % (h - 6);
+            int s  = 1 + (((seed + i * 13) & 7) == 0 ? 2 : 1);
+            g.setColor(new Color(255, 255, 255, 120));
+            g.fillOval(px, py, s, s);
+        }
+
+        drawFlake(g, x, y, w, h);
+
+        g.setColor(new Color(255, 255, 255, 70));
+        g.fillRoundRect(x + 4, y + 4, (int)(w * 0.55), (int)(h * 0.35), 8, 8);
+
+        g.setColor(new Color(255, 255, 255, 120));
+        g.setStroke(new BasicStroke(1f));
+        g.drawRect(x, y, w, h);
+    }
+
+    private void drawFlake(Graphics2D g, int x, int y, int w, int h) {
+        int cx = x + w / 2;
+        int cy = y + h / 2;
+
+        int r = Math.max(6, Math.min(w, h) / 4);
+
+        g.setColor(new Color(255, 255, 255, 210));
+        g.setStroke(new BasicStroke(2.2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+
+        g.drawLine(cx - r, cy, cx + r, cy);
+        g.drawLine(cx, cy - r, cx, cy + r);
+        g.drawLine(cx - r / 2, cy - r / 2, cx + r / 2, cy + r / 2);
+        g.drawLine(cx - r / 2, cy + r / 2, cx + r / 2, cy - r / 2);
+
+        int br = r / 2;
+
+        g.drawLine(cx + br, cy, cx + br + 4, cy - 4);
+        g.drawLine(cx + br, cy, cx + br + 4, cy + 4);
+        g.drawLine(cx - br, cy, cx - br - 4, cy - 4);
+        g.drawLine(cx - br, cy, cx - br - 4, cy + 4);
+        g.drawLine(cx, cy - br, cx - 4, cy - br - 4);
+        g.drawLine(cx, cy - br, cx + 4, cy - br - 4);
+        g.drawLine(cx, cy + br, cx - 4, cy + br + 4);
+        g.drawLine(cx, cy + br, cx + 4, cy + br + 4);
     }
 
     private void drawSnowflakes(Graphics2D g) {
@@ -561,6 +627,95 @@ public class Canvas extends JPanel {
                 g.drawLine(x + size/2, y - 2, x + size/2, y + size + 2);
             }
         }
+    }
+    private void drawHitCell(Graphics2D g, int x, int y, int w, int h) {
+        Paint prev = g.getPaint();
+        g.setPaint(new GradientPaint(x, y, HIT_FILL_TOP, x, y + h, HIT_FILL_BOTTOM));
+        g.fillRoundRect(x + 1, y + 1, w - 2, h - 2, 10, 10);
+        g.setPaint(prev);
+
+        int cx = x + w / 2;
+        int cy = y + h / 2;
+        drawStar(g, cx, cy, Math.max(6, Math.min(w, h) / 5), Math.max(10, Math.min(w, h) / 3), 8, HIT_STAR);
+
+        g.setStroke(new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setColor(HIT_SPARK);
+        g.drawLine(cx - 10, cy + 2, cx - 16, cy + 8);
+        g.drawLine(cx + 10, cy - 2, cx + 16, cy - 8);
+        g.drawLine(cx - 2, cy - 10, cx - 8, cy - 16);
+        g.drawLine(cx + 2, cy + 10, cx + 8, cy + 16);
+
+        g.setColor(HIT_CRACK);
+        g.setStroke(new BasicStroke(1.6f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.drawLine(cx - 3, cy, x + 4, y + 6);
+        g.drawLine(cx + 3, cy, x + w - 5, y + h - 7);
+        g.drawLine(cx, cy - 3, x + w - 6, y + 6);
+
+        g.setColor(new Color(255, 255, 255, 140));
+        g.setStroke(new BasicStroke(1f));
+        g.drawRect(x, y, w, h);
+    }
+
+    private void drawSunkCell(Graphics2D g, int x, int y, int w, int h) {
+        int cx = x + w / 2;
+        int cy = y + h / 2;
+
+        for (int i = 0; i < 10; i++) {
+            float t = i / 9f;                  // 0..1
+            int r = (int)((Math.min(w, h) * 0.55) * (1f - t));
+            int a = (int)(220 * (1f - t) * 0.20f) + 20; // мягко
+            Color c = lerpColor(SUNK_DEEP_2, SUNK_DEEP_1, t, a);
+            g.setColor(c);
+            g.fillOval(cx - r, cy - r, r * 2, r * 2);
+        }
+
+        g.setColor(SUNK_RING);
+        g.setStroke(new BasicStroke(2f));
+        g.drawOval(x + 4, y + 4, w - 8, h - 8);
+
+        g.setColor(SUNK_WRECK);
+        int r  = Math.min(w, h) / 4;
+        g.setStroke(new BasicStroke(4f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.drawLine(cx - r, cy - r, cx + r, cy + r);
+        g.drawLine(cx + r, cy - r, cx - r, cy + r);
+
+        int seed = x * 57 + y * 101;
+        for (int i = 0; i < 9; i++) {
+            int bx = x + 4 + ((seed + i * 37) & 1023) % (w - 8);
+            int by = y + 4 + ((seed + i * 91) & 1023) % (h - 8);
+            int br = 2 + ((seed + i * 17) & 3);
+
+            g.setColor(new Color(SUNK_BUBBLE.getRed(), SUNK_BUBBLE.getGreen(), SUNK_BUBBLE.getBlue(), 110));
+            g.drawOval(bx - br, by - br, br * 2, br * 2);
+
+            g.setColor(new Color(255, 255, 255, 90));
+            g.fillOval(bx - 1, by - 1, 2, 2);
+        }
+
+        g.setColor(new Color(255, 255, 255, 80));
+        g.setStroke(new BasicStroke(2f));
+        g.drawRoundRect(x + 2, y + 2, w - 4, h - 4, 10, 10);
+    }
+
+    private Color lerpColor(Color a, Color b, float t, int alpha) {
+        int r = (int)(a.getRed()   + (b.getRed()   - a.getRed())   * t);
+        int g = (int)(a.getGreen() + (b.getGreen() - a.getGreen()) * t);
+        int bl = (int)(a.getBlue() + (b.getBlue()  - a.getBlue())  * t);
+        return new Color(clamp(r), clamp(g), clamp(bl), clamp(alpha));
+    }
+
+    private void drawStar(Graphics2D g, int cx, int cy, int innerR, int outerR, int points, Color color) {
+        double angle = Math.PI / points;
+        Polygon p = new Polygon();
+        for (int i = 0; i < points * 2; i++) {
+            int r = (i % 2 == 0) ? outerR : innerR;
+            double a = i * angle - Math.PI / 2;
+            p.addPoint(cx + (int)(Math.cos(a) * r), cy + (int)(Math.sin(a) * r));
+        }
+        Color prev = g.getColor();
+        g.setColor(color);
+        g.fillPolygon(p);
+        g.setColor(prev);
     }
 
     private Point getCenteredPosition(int totalWidth, int totalHeight) {
@@ -660,7 +815,7 @@ public class Canvas extends JPanel {
     }
 
     public void scheduleComputerTurn(Viewer viewer) {
-        int delay = 600;
+        int delay = 1000;
 
         Timer timer = new Timer(delay, e -> {
             model.computerTurn();
