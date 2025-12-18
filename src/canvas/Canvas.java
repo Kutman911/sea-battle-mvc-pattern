@@ -109,39 +109,78 @@ public class Canvas extends JPanel {
     }
 
     private void drawCount(Graphics2D g2) {
-        if (model.isSetupPhase()) {
-            return;
-        }
+        if (model.isSetupPhase()) return;
 
-        g2.setFont(new Font("Arial", Font.BOLD, 18));
-        g2.setColor(Color.WHITE);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        int panelW = 240;
-        int panelH = 130;
+        int panelW = 260;
+        int panelH = 150;
         int panelX = 10;
         int panelY = getHeight() - panelH - 10;
 
-        g2.setColor(new Color(0, 0, 0, 150));
-        g2.fillRoundRect(panelX, panelY, panelW, panelH, 20, 20);
+        g2.setColor(new Color(20, 30, 60, 200));
+        g2.fillRoundRect(panelX, panelY, panelW, panelH, 25, 25);
 
+        for (int i = 0; i < 4; i++) {
+            g2.setColor(new Color(255, 215, 0, 60 - i * 10));
+            g2.setStroke(new BasicStroke(3 + i));
+            g2.drawRoundRect(
+                    panelX - i,
+                    panelY - i,
+                    panelW + i * 2,
+                    panelH + i * 2,
+                    25,
+                    25
+            );
+        }
+
+        int lightY = panelY - 6;
+        Color[] colors = {
+                Color.RED, Color.GREEN, Color.YELLOW, Color.CYAN, Color.PINK
+        };
+
+        for (int i = 0; i < panelW; i += 22) {
+            g2.setColor(colors[(i / 22) % colors.length]);
+            g2.fillOval(panelX + i + 8, lightY, 10, 10);
+        }
+
+        g2.setFont(new Font("Serif", Font.BOLD, 20));
         g2.setColor(Color.WHITE);
+        g2.drawString("🎄 Statistics", panelX + 20, panelY + 30);
 
-        g2.drawString("Statistics", panelX + 10, panelY + 30);
+        g2.setFont(new Font("Arial", Font.PLAIN, 16));
 
-        g2.drawString("You destroyed:", panelX + 10, panelY + 60);
+        g2.drawString("You destroyed:", panelX + 15, panelY + 65);
+        g2.setColor(Color.GREEN);
         g2.drawString(
                 model.getDestroyedComputerShips() + " / " + model.getTotalComputerShipCells(),
-                panelX + 160, panelY + 60);
+                panelX + 170, panelY + 65
+        );
 
-        g2.drawString("You lost:", panelX + 10, panelY + 90);
+        g2.setColor(Color.WHITE);
+        g2.drawString("You lost:", panelX + 15, panelY + 95);
+        g2.setColor(Color.RED);
         g2.drawString(
                 model.getDestroyedPlayerShips() + " / " + model.getTotalPlayerShipCells(),
-                panelX + 160, panelY + 90);
+                panelX + 170, panelY + 95
+        );
 
-        g2.setColor(Color.YELLOW);
-        g2.drawString("Move: " + (model.isPlayerTurn() ? "Player" : "Computer"),
-                panelX + 10, panelY + 120);
+        g2.setFont(new Font("Arial", Font.BOLD, 16));
+        g2.setColor(model.isPlayerTurn() ? Color.GREEN : Color.ORANGE);
+        g2.drawString(
+                "Move: " + (model.isPlayerTurn() ? "Player" : "Computer"),
+                panelX + 15,
+                panelY + 125
+        );
+
+        g2.setColor(new Color(255, 255, 255, 180));
+        for (int i = 0; i < 25; i++) {
+            int x = panelX + (int) (Math.random() * panelW);
+            int y = panelY + (int) (Math.random() * panelH);
+            g2.fillOval(x, y, 2, 2);
+        }
     }
+
 
     public Point getComputerBoardPosition() {
         return new Point(computerBoardX, TOP_Y);
