@@ -109,6 +109,9 @@ public class Canvas extends JPanel {
     }
 
     private void drawCount(Graphics2D g2) {
+        if (model.isSetupPhase()) {
+            return;
+        }
         g2.setFont(new Font("Arial", Font.BOLD, 18));
         g2.setColor(Color.WHITE);
 
