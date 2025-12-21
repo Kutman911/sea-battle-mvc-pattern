@@ -368,22 +368,121 @@ public class MainMenu extends JDialog {
                     super.paintComponent(g);
                     Graphics2D g2d = (Graphics2D) g.create();
                     g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    GradientPaint gp = new GradientPaint(0, 0, new Color(25, 50, 80), 0, getHeight(), new Color(10, 25, 50));
-                    g2d.setPaint(gp);
-                    g2d.fillRect(0, 0, getWidth(), getHeight());
+
+                    int w = getWidth();
+                    int h = getHeight();
+
+                    // Фон: вертикальный ночной градиент
+                    GradientPaint bg = new GradientPaint(0, 0, new Color(5, 25, 60), 0, h, new Color(3, 10, 30));
+                    g2d.setPaint(bg);
+                    g2d.fillRect(0, 0, w, h);
+
+                    // Сверкающие звёзды (детерминированно)
+                    java.util.Random rnd = new java.util.Random(1234);
+                    g2d.setColor(new Color(255, 255, 255, 200));
+                    for (int i = 0; i < 60; i++) {
+                        int sx = rnd.nextInt(Math.max(1, w));
+                        int sy = rnd.nextInt(Math.max(1, h / 2));
+                        int s = rnd.nextInt(3) + 1;
+                        g2d.fillOval(sx, sy, s, s);
+                    }
+
+                    // Гирлянда (синусоида) сверху
+                    g2d.setStroke(new BasicStroke(4f));
+                    g2d.setColor(new Color(30, 90, 30));
+                    int y0 = 30;
+                    java.awt.geom.Path2D garland = new java.awt.geom.Path2D.Double();
+                    garland.moveTo(0, y0);
+                    for (int x = 0; x <= w; x += 20) {
+                        double y = y0 + Math.sin((x / (double) Math.max(1, w)) * Math.PI * 4) * 14;
+                        garland.lineTo(x, y);
+                    }
+                    g2d.draw(garland);
+
+                    // Лампочки гирлянды
+                    int bulbStep = 40;
+                    java.awt.Color[] bulbs = new java.awt.Color[] {
+                            new Color(220, 50, 50),
+                            new Color(240, 200, 20),
+                            new Color(30, 150, 140),
+                            new Color(200, 120, 180)
+                    };
+                    for (int x = 0, i = 0; x <= w; x += bulbStep, i++) {
+                        double y = y0 + Math.sin((x / (double) Math.max(1, w)) * Math.PI * 4) * 14;
+                        int bx = x - 8;
+                        int by = (int) y - 8;
+                        java.awt.Color c = bulbs[i % bulbs.length];
+                        GradientPaint gp = new GradientPaint(bx, by, c.brighter(), bx + 12, by + 12, c.darker());
+                        g2d.setPaint(gp);
+                        g2d.fillOval(bx, by, 16, 16);
+                        g2d.setColor(new Color(0,0,0,40));
+                        g2d.drawOval(bx, by, 16, 16);
+                    }
+
+                    // Снежные украшения по углам
+                    g2d.setColor(new Color(255, 255, 255, 180));
+                    drawSnowflake(g2d, 20, h - 40, 14);
+                    drawSnowflake(g2d, w - 40, h - 60, 10);
+                    drawSnowflake(g2d, w - 60, 20, 12);
+
+                    // Внешняя рамка (как гирлянда) от BORDER_YELLOW
+                    g2d.setColor(BORDER_YELLOW);
+                    g2d.setStroke(new BasicStroke(6f));
+                    g2d.drawRoundRect(3, 3, w - 7, h - 7, 18, 18);
+
                     g2d.dispose();
+                }
+
+                private void drawSnowflake(Graphics2D g2d, int cx, int cy, int size) {
+                    int half = size / 2;
+                    g2d.setStroke(new BasicStroke(2f));
+                    for (int i = 0; i < 6; i++) {
+                        double angle = Math.PI / 3 * i;
+                        int x1 = cx + (int)(Math.cos(angle) * half);
+                        int y1 = cy + (int)(Math.sin(angle) * half);
+                        int x2 = cx + (int)(Math.cos(angle) * (half + 6));
+                        int y2 = cy + (int)(Math.sin(angle) * (half + 6));
+                        g2d.drawLine(cx, cy, x2, y2);
+                        g2d.drawLine(x1, y1, x2, y2);
+                    }
                 }
             };
             content.setBorder(new LineBorder(BORDER_YELLOW, 6));
             content.setPreferredSize(new Dimension(700, 520));
 
-            JLabel title = new JLabel("📜 RULES");
+            JLabel title = new JLabel("📜 RULES") {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                    String txt = getText();
+                    Font f = getFont().deriveFont(Font.BOLD, 36f);
+                    g2.setFont(f);
+                    FontMetrics fm = g2.getFontMetrics();
+                    int x = (getWidth() - fm.stringWidth(txt)) / 2;
+                    int y = fm.getAscent() + 6;
+
+                    // Тень
+                    g2.setColor(new Color(0, 0, 0, 90));
+                    g2.drawString(txt, x + 3, y + 3);
+
+                    // Золотой градиент для заголовка
+                    GradientPaint gp = new GradientPaint(x, 0, new Color(255, 215, 90), x + fm.stringWidth(txt), 0, new Color(240, 160, 40));
+                    g2.setPaint(gp);
+                    g2.drawString(txt, x, y);
+
+                    g2.dispose();
+                    // НЕ вызывать super.paintComponent(g) — это убирает двойную надпись
+                }
+            };
             title.setForeground(BORDER_YELLOW);
             title.setHorizontalAlignment(SwingConstants.CENTER);
             title.setFont(new Font("SansSerif", Font.BOLD, 36));
             title.setBorder(new EmptyBorder(20, 20, 10, 20));
             title.setOpaque(false);
 
+            // Восстановленный текст правил (оставлен оригинальный контент)
             String rulesText =
                     "OBJECTIVE:\n" +
                             "Sink all opponent's ships before they sink yours!\n\n" +
@@ -432,12 +531,37 @@ public class MainMenu extends JDialog {
             text.setFont(new Font("SansSerif", Font.PLAIN, 16));
             text.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-            JScrollPane scroll = new JScrollPane(text);
+            JPanel card = new JPanel(new BorderLayout()) {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    int w = getWidth(), h = getHeight();
+                    GradientPaint gp = new GradientPaint(0, 0, new Color(255, 255, 255, 20), 0, h, new Color(255, 255, 255, 8));
+                    g2.setPaint(gp);
+                    g2.fillRoundRect(0, 0, w, h, 14, 14);
+                    g2.setColor(new Color(255, 255, 255, 40));
+                    g2.drawRoundRect(0, 0, w - 1, h - 1, 14, 14);
+                    g2.dispose();
+                    super.paintComponent(g);
+                }
+            };
+            card.setOpaque(false);
+            card.setBorder(new EmptyBorder(12, 12, 12, 12));
+            card.add(text, BorderLayout.CENTER);
+
+            JScrollPane scroll = new JScrollPane(card);
             scroll.setOpaque(false);
             scroll.getViewport().setOpaque(false);
             scroll.setBorder(null);
             scroll.setPreferredSize(new Dimension(700 - 80, 520 - 160));
             scroll.getVerticalScrollBar().setUnitIncrement(16);
+            scroll.getVerticalScrollBar().setUI(new javax.swing.plaf.basic.BasicScrollBarUI() {
+                @Override protected void configureScrollBarColors() {
+                    this.thumbColor = new Color(200, 200, 200, 120);
+                    this.trackColor = new Color(0,0,0,0);
+                }
+            });
 
             JPanel center = new JPanel(new BorderLayout());
             center.setOpaque(false);
@@ -446,8 +570,42 @@ public class MainMenu extends JDialog {
 
             JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER));
             buttons.setOpaque(false);
-            JButton close = new JButton("Close");
+            JButton close = new JButton("Close") {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    int w = getWidth(), h = getHeight();
+                    GradientPaint gp = new GradientPaint(0, 0, new Color(220, 80, 80), 0, h, new Color(180, 40, 40));
+                    g2.setPaint(gp);
+                    g2.fillRoundRect(0, 0, w, h, 12, 12);
+                    g2.setColor(BORDER_YELLOW);
+                    g2.setStroke(new BasicStroke(2f));
+                    g2.drawRoundRect(0, 0, w - 1, h - 1, 12, 12);
+
+                    // маленькая снежинка-иконка слева
+                    g2.setColor(new Color(255, 255, 255, 200));
+                    int s = Math.min(12, h - 8);
+                    int cx = 8 + s / 2;
+                    int cy = h / 2;
+                    for (int i = 0; i < 6; i++) {
+                        double angle = Math.PI / 3 * i;
+                        int x2 = cx + (int)(Math.cos(angle) * (s / 2));
+                        int y2 = cy + (int)(Math.sin(angle) * (s / 2));
+                        g2.drawLine(cx, cy, x2, y2);
+                    }
+
+                    g2.dispose();
+                    super.paintComponent(g);
+                }
+            };
+            close.setOpaque(false);
+            close.setContentAreaFilled(false);
+            close.setFocusPainted(false);
             close.setFont(new Font("SansSerif", Font.PLAIN, 16));
+            close.setForeground(TEXT_WHITE);
+            close.setBorder(null);
+            close.setPreferredSize(new Dimension(120, 36));
             close.addActionListener(e -> {
                 dispose();
                 if (onClose != null) SwingUtilities.invokeLater(onClose);
@@ -468,4 +626,5 @@ public class MainMenu extends JDialog {
             }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
         }
     }
+
 }
