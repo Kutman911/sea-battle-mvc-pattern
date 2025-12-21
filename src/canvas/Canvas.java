@@ -123,75 +123,65 @@ public class Canvas extends JPanel {
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        int panelW = 260;
-        int panelH = 150;
+        int panelW = getWidth() - 40;
+        int panelH = 70;
+        int panelX = 20;
+        int panelY = getHeight() - panelH - 15;
 
-        int margin = 5;
-        int topOffset = 50;
+        g2.setColor(OVERLAY_COLOR);
+        g2.fillRoundRect(panelX, panelY, panelW, panelH, 20, 20);
 
-        int panelX = margin;
-        int panelY = margin + topOffset;
-
-
-        g2.setColor(new Color(20, 30, 60, 200));
-        g2.fillRoundRect(panelX, panelY, panelW, panelH, 25, 25);
-
-        for (int i = 0; i < 4; i++) {
-            g2.setColor(new Color(255, 215, 0, 60 - i * 10));
-            g2.setStroke(new BasicStroke(3 + i));
-            g2.drawRoundRect(
-                    panelX - i,
-                    panelY - i,
-                    panelW + i * 2,
-                    panelH + i * 2,
-                    25,
-                    25
-            );
+        for (int i = 0; i < 3; i++) {
+            g2.setColor(new Color(255, 215, 0, 40 - i * 10));
+            g2.setStroke(new BasicStroke(2 + i));
+            g2.drawRoundRect(panelX - i, panelY - i, panelW + i * 2, panelH + i * 2, 20, 20);
         }
 
-        int lightY = panelY - 6;
-        Color[] colors = {
-                Color.RED, Color.GREEN, Color.YELLOW, Color.CYAN, Color.PINK
-        };
-
-        for (int i = 0; i < panelW; i += 22) {
-            g2.setColor(colors[(i / 22) % colors.length]);
-            g2.fillOval(panelX + i + 8, lightY, 10, 10);
+        int lightY = panelY - 5;
+        Color[] lightColors = {Color.RED, Color.GREEN, Color.YELLOW, Color.CYAN, Color.PINK};
+        for (int i = 0; i < panelW; i += 30) {
+            g2.setColor(lightColors[(i / 30) % lightColors.length]);
+            g2.fillOval(panelX + i + 10, lightY, 8, 8);
         }
 
-        g2.setFont(new Font("Serif", Font.BOLD, 20));
+        int leftX = panelX + 25;
+        int topY = panelY + 28;
+        int bottomY = panelY + 52;
+
+        g2.setFont(new Font("Arial", Font.BOLD, 16));
         g2.setColor(Color.WHITE);
-        g2.drawString("🎄 Statistics", panelX + 20, panelY + 30);
-
-        g2.setFont(new Font("Arial", Font.PLAIN, 16));
-
-        g2.drawString("You destroyed:", panelX + 15, panelY + 65);
+        g2.drawString("You destroyed:", leftX, topY);
         g2.setColor(Color.GREEN);
         g2.drawString(
                 model.getDestroyedComputerShips() + " / " + model.getTotalComputerShipCells(),
-                panelX + 170, panelY + 65
+                leftX + 150, topY
         );
 
         g2.setColor(Color.WHITE);
-        g2.drawString("You lost:", panelX + 15, panelY + 95);
+        g2.drawString("You lost:", leftX, bottomY);
         g2.setColor(Color.RED);
         g2.drawString(
                 model.getDestroyedPlayerShips() + " / " + model.getTotalPlayerShipCells(),
-                panelX + 170, panelY + 95
+                leftX + 150, bottomY
         );
 
-        g2.setFont(new Font("Arial", Font.BOLD, 16));
-        g2.setColor(model.isPlayerTurn() ? Color.GREEN : Color.ORANGE);
-        g2.drawString(
-                "Move: " + (model.isPlayerTurn() ? "Player" : "Computer"),
-                panelX + 15,
-                panelY + 125
-        );
+        int rightX = panelX + panelW - 220;
+        int centerY = panelY + panelH / 2;
 
-        g2.setColor(new Color(255, 255, 255, 180));
-        for (int i = 0; i < 25; i++) {
-            int x = panelX + (int) (Math.random() * panelW);
-            int y = panelY + (int) (Math.random() * panelH);
+        g2.setFont(new Font("Arial", Font.BOLD, 18));
+        g2.setColor(Color.WHITE);
+        g2.drawString("Current Turn:", rightX, centerY - 5);
+
+        g2.setFont(new Font("Arial", Font.BOLD, 22));
+        String turnText = model.isPlayerTurn() ? "Player" : "Computer";
+        g2.setColor(model.isPlayerTurn() ? Color.GREEN : Color.RED);
+        g2.drawString(turnText, rightX + 10, centerY + 20);
+
+        g2.setColor(SNOWFLAKE_COLOR);
+        Random rand = new Random(panelX + panelY);
+        for (int i = 0; i < 20; i++) {
+            int x = panelX + rand.nextInt(panelW);
+            int y = panelY + rand.nextInt(panelH);
             g2.fillOval(x, y, 2, 2);
         }
     }
