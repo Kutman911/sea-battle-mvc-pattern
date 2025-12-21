@@ -503,6 +503,8 @@ public class Model {
         System.out.println("Setup phase complete. Starting battle!");
         setPlayerTurn(true);
         battleStarted = true;
+
+        viewer.showHistoryPanel();
     }
 
     public void updateDesktopPlayer() {
@@ -661,6 +663,7 @@ public class Model {
 
         viewer.getCanvas().revalidate();
         viewer.getCanvas().repaint();
+        viewer.hideHistoryPanel();
     }
 
     public boolean isPlayerTurn() {

@@ -18,6 +18,9 @@ public class Viewer {
     private final HistoryPanel historyPanel;
     private final JPanel dimmer;
     private final VolumeControlPanel volumeControlPanel;
+    private final JPanel historyContainer;
+    private final JButton historyButton;
+    private boolean historyVisible;
 
 
     public Viewer() {
@@ -32,6 +35,11 @@ public class Viewer {
         canvas.getModel().setCanvas(canvas);
 
         historyPanel = new HistoryPanel();
+        historyContainer = new JPanel(new BorderLayout());
+        historyContainer.add(historyPanel, BorderLayout.CENTER);
+        historyVisible = false;
+        historyContainer.setVisible(false);
+
 
         volumeControlPanel = new VolumeControlPanel(audioPlayer);
 
@@ -40,7 +48,8 @@ public class Viewer {
         frame.setSize(1500, 900);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        frame.add("East", historyPanel);
+//        frame.add("East", historyPanel);
+        frame.add(historyContainer, BorderLayout.EAST);
         // Top control panel with centered, styled START button
         JPanel topPanel = new JPanel(new GridBagLayout());
         topPanel.setBackground(new Color(15, 35, 60));
@@ -70,13 +79,13 @@ public class Viewer {
                 BorderFactory.createLineBorder(borderYellow, 3),
                 BorderFactory.createEmptyBorder(6, 18, 6, 18)
         ));
-        startButton.addMouseListener(new java.awt.event.MouseAdapter() {
+        startButton.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseEntered(java.awt.event.MouseEvent e) {
+            public void mouseEntered(MouseEvent e) {
                 if (startButton.isEnabled()) startButton.setBackground(btnGreen.darker());
             }
             @Override
-            public void mouseExited(java.awt.event.MouseEvent e) {
+            public void mouseExited(MouseEvent e) {
                 if (startButton.isEnabled()) startButton.setBackground(btnGreen);
             }
         });
@@ -105,13 +114,13 @@ public class Viewer {
                 BorderFactory.createLineBorder(borderYellow2, 3),
                 BorderFactory.createEmptyBorder(6, 18, 6, 18)
         ));
-        randomButton.addMouseListener(new java.awt.event.MouseAdapter() {
+        randomButton.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseEntered(java.awt.event.MouseEvent e) {
+            public void mouseEntered(MouseEvent e) {
                 if (randomButton.isEnabled()) randomButton.setBackground(btnBlue.darker());
             }
             @Override
-            public void mouseExited(java.awt.event.MouseEvent e) {
+            public void mouseExited(MouseEvent e) {
                 if (randomButton.isEnabled()) randomButton.setBackground(btnBlue);
             }
         });
@@ -123,6 +132,50 @@ public class Viewer {
             showHint("Ships randomly placed. You can press RANDOM again or adjust manually.", 1800);
         });
         buttonPanel.add(randomButton);
+
+
+        historyButton = new JButton("HISTORY");
+        historyButton.setToolTipText("Show / hide move history");
+        historyButton.setFocusPainted(false);
+        historyButton.setFont(new Font("SansSerif", Font.BOLD, 18));
+        historyButton.setForeground(Color.WHITE);
+
+        Color btnPurple = new Color(120, 80, 180);
+        Color borderYellow3 = new Color(237, 176, 36);
+
+        historyButton.setBackground(btnPurple);
+        historyButton.setOpaque(true);
+        historyButton.setContentAreaFilled(false);
+        historyButton.setPreferredSize(new Dimension(180, 46));
+        historyButton.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(borderYellow3, 3),
+                BorderFactory.createEmptyBorder(6, 18, 6, 18)
+        ));
+
+        historyButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                if (historyButton.isEnabled()) {
+                    historyButton.setBackground(btnPurple.darker());
+                }
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                if (historyButton.isEnabled()) {
+                    historyButton.setBackground(btnPurple);
+                }
+            }
+        });
+
+        historyButton.addActionListener(e -> {
+            if (audioPlayer != null) {
+                audioPlayer.playSound("src/sounds/buttonClick.wav");
+            }
+            toggleHistoryPanel();
+        });
+
+        buttonPanel.add(historyButton);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 1;
@@ -179,6 +232,7 @@ public class Viewer {
                 }
             }
         });
+
     }
 
     public void update() {
@@ -235,4 +289,27 @@ public class Viewer {
     public VolumeControlPanel getVolumeControlPanel() {
         return volumeControlPanel;
     }
+
+    public void toggleHistoryPanel() {
+        historyVisible = !historyVisible;
+        historyContainer.setVisible(historyVisible);
+
+        frame.revalidate();
+        frame.repaint();
+    }
+
+    public void showHistoryPanel() {
+        historyVisible = true;
+        historyContainer.setVisible(true);
+        frame.revalidate();
+        frame.repaint();
+    }
+
+    public void hideHistoryPanel() {
+        historyVisible = false;
+        historyContainer.setVisible(false);
+        frame.revalidate();
+        frame.repaint();
+    }
+
 }
