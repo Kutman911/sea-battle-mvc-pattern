@@ -175,12 +175,16 @@ public class Viewer {
             toggleHistoryPanel();
         });
 
-        buttonPanel.add(historyButton);
+        GridBagConstraints gbc1 = new GridBagConstraints();
+        gbc1.gridx = 2;
+        gbc1.gridy = 0;
+        gbc1.anchor = GridBagConstraints.EAST;
+        topPanel.add(historyButton, gbc1);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 0;
-        gbc.weightx = 1; // занимает всё оставшееся пространство
+        gbc.weightx = 1;
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         topPanel.add(buttonPanel, gbc);
