@@ -125,8 +125,13 @@ public class Canvas extends JPanel {
 
         int panelW = 260;
         int panelH = 150;
-        int panelX = 10;
-        int panelY = getHeight() - panelH - 10;
+
+        int margin = 5;
+        int topOffset = 50;
+
+        int panelX = margin;
+        int panelY = margin + topOffset;
+
 
         g2.setColor(new Color(20, 30, 60, 200));
         g2.fillRoundRect(panelX, panelY, panelW, panelH, 25, 25);
