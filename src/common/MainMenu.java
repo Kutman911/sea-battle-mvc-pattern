@@ -28,7 +28,7 @@ public class MainMenu extends JDialog {
         } catch (Throwable ignored) { }
 
         try {
-            java.net.URL imgUrl = getClass().getResource("/images/bg_main_menu.png");
+            java.net.URL imgUrl = getClass().getResource("/resources/images/bg_main_menu.png");
             if (imgUrl != null) {
                 backgroundImage = new ImageIcon(imgUrl).getImage();
             }

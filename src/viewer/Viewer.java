@@ -25,8 +25,7 @@ public class Viewer {
 
     public Viewer() {
         audioPlayer = new AudioPlayer();
-        audioPlayer.playBackgroundMusic("src/sounds/background_music.wav");
-
+        audioPlayer.playBackgroundMusic("/resources/sounds/background_music.wav");
         controller = new Controller(this);
 
         canvas = new Canvas(controller.getModel());
@@ -44,11 +43,11 @@ public class Viewer {
         volumeControlPanel = new VolumeControlPanel(audioPlayer);
 
         frame = new JFrame("Sea Battle MVC Pattern");
-        frame.setIconImage(new ImageIcon(Viewer.class.getResource("/images/appIcon.jpg")).getImage());
+        frame.setIconImage(new ImageIcon(Viewer.class.getResource("/resources/images/appIcon.jpg")).getImage());
         frame.setSize(1500, 900);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-//        frame.add("East", historyPanel);
+        //frame.add("East", historyPanel);
         frame.add(historyContainer, BorderLayout.EAST);
         // Top control panel with centered, styled START button
         JPanel topPanel = new JPanel(new GridBagLayout());
@@ -92,7 +91,7 @@ public class Viewer {
 
         startButton.addActionListener(e -> {
             if (audioPlayer != null) {
-                audioPlayer.playSound("src/sounds/buttonClick.wav");
+                audioPlayer.playSound("/resources/sounds/buttonClick.wav");
             }
             canvas.attemptStart(this);
         });
@@ -126,7 +125,7 @@ public class Viewer {
         });
         randomButton.addActionListener(e -> {
             if (audioPlayer != null) {
-                audioPlayer.playSound("src/sounds/buttonClick.wav");
+                audioPlayer.playSound("/resources/sounds/buttonClick.wav");
             }
             controller.getModel().randomizePlayerShips();
             showHint("Ships randomly placed. You can press RANDOM again or adjust manually.", 1800);
@@ -170,7 +169,7 @@ public class Viewer {
 
         historyButton.addActionListener(e -> {
             if (audioPlayer != null) {
-                audioPlayer.playSound("src/sounds/buttonClick.wav");
+                audioPlayer.playSound("/resources/sounds/buttonClick.wav");
             }
             toggleHistoryPanel();
         });

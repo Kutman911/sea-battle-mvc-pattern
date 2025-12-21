@@ -872,7 +872,7 @@ public class Canvas extends JPanel {
             viewer.getAudioPlayer().stop();
         }
         if (!isWin) {
-            viewer.getAudioPlayer().playSound("src/sounds/loseSound.wav");
+            viewer.getAudioPlayer().playSound("/resources/sounds/loseSound.wav");
         }
 
         SwingUtilities.invokeLater(() -> {
@@ -900,7 +900,7 @@ public class Canvas extends JPanel {
                         }
                         SwingUtilities.invokeLater(() -> model.getLevelWindow().showLevelStartWindow());
                         if (viewer.getAudioPlayer() != null) {
-                            viewer.getAudioPlayer().playBackgroundMusic("src/sounds/background_music.wav");
+                            viewer.getAudioPlayer().playBackgroundMusic("/resources/sounds/background_music.wav");
                         }
                     },
                     () -> {
@@ -915,7 +915,7 @@ public class Canvas extends JPanel {
                             viewer.getRandomButton().setVisible(true);
                         }
                         if (viewer.getAudioPlayer() != null) {
-                            viewer.getAudioPlayer().playBackgroundMusic("src/sounds/background_music.wav");
+                            viewer.getAudioPlayer().playBackgroundMusic("/resources/sounds/background_music.wav");
                         }
                     },
                     () -> System.exit(0)

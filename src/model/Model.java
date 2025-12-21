@@ -75,7 +75,7 @@ public class Model {
                 if (won()) {
                     levelWindow.showLevelCompletedWindow();
                     if (viewer.getAudioPlayer() != null) {
-                        viewer.getAudioPlayer().playSound("src/sounds/winSound.wav");
+                        viewer.getAudioPlayer().playSound("/resources/sounds/winSound.wav");
                     }
 
                     return;
@@ -104,7 +104,7 @@ public class Model {
             desktopComputer[row][col] = -1;
 
             if (viewer.getAudioPlayer() != null) {
-                viewer.getAudioPlayer().playSound("src/sounds/waterSound.wav");
+                viewer.getAudioPlayer().playSound("/resources/sounds/waterSound.wav");
             }
             
         } else {
@@ -114,11 +114,11 @@ public class Model {
 
             if (sunk) {
                 if (viewer.getAudioPlayer() != null) {
-                    viewer.getAudioPlayer().playSound("src/sounds/crashSound.wav");
+                    viewer.getAudioPlayer().playSound("/resources/sounds/crashSound.wav");
                 }
             } else {
                 if (viewer.getAudioPlayer() != null) {
-                    viewer.getAudioPlayer().playSound("src/sounds/shotSound.wav");
+                    viewer.getAudioPlayer().playSound("/resources/sounds/shotSound.wav");
                 }
             }
             // If the whole ship is destroyed, convert its parts to SUNK (-8)
@@ -155,7 +155,7 @@ public class Model {
                 desktopPlayer[row][col] = -1;
 
                 if (viewer.getAudioPlayer() != null) {
-                    viewer.getAudioPlayer().playSound("src/sounds/waterSound.wav");
+                    viewer.getAudioPlayer().playSound("/resources/sounds/waterSound.wav");
                 }
 
             } else {
@@ -166,8 +166,8 @@ public class Model {
 
                 if (viewer.getAudioPlayer() != null) {
                     viewer.getAudioPlayer().playSound(
-                            sunk ? "src/sounds/crashSound.wav"
-                                    : "src/sounds/shotSound.wav"
+                            sunk ? "/resources/sounds/crashSound.wav"
+                                    : "/resources/sounds/shotSound.wav"
                     );
                 }
             }

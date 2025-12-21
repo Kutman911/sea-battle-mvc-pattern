@@ -32,7 +32,7 @@ public class LevelWindow {
     private final float FADE_STEP = 0.03f;
     private final int FADE_TIMER_PERIOD_MS = 15;
 
-    private final String LEVEL_SOUND_PATH = "src/sounds/levelSound.wav";
+    private final String LEVEL_SOUND_PATH = "/resources/sounds/levelSound.wav";
 
     private int currentLevel = LEVEL_START;
     private WindowState windowState = WindowState.HIDDEN;

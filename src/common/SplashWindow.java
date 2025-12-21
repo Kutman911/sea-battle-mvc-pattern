@@ -10,7 +10,7 @@ public class SplashWindow {
     public SplashWindow() {
         window = new JWindow();
         window.setAlwaysOnTop(true);
-        ImageIcon icon = new ImageIcon("src/images/splash.gif");
+        ImageIcon icon = new ImageIcon(getClass().getResource("/resources/images/splash.gif"));
         Image scaledImage = icon.getImage().getScaledInstance(1500, 900, Image.SCALE_DEFAULT);
         ImageIcon scaledIcon = new ImageIcon(scaledImage);
         JLabel label = new JLabel(scaledIcon);
