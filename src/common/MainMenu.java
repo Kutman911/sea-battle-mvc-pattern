@@ -28,14 +28,14 @@ public class MainMenu extends JDialog {
         } catch (Throwable ignored) { }
 
         try {
-            java.net.URL imgUrl = getClass().getResource("/images/bg_main_menu.jpg");
+            java.net.URL imgUrl = getClass().getResource("/images/bg_main_menu.png");
             if (imgUrl != null) {
                 backgroundImage = new ImageIcon(imgUrl).getImage();
             }
         } catch (Exception ignored) {}
 
         if (backgroundImage == null) {
-            java.io.File rel = new java.io.File("src\\images\\bg_main_menu.jpg");
+            java.io.File rel = new java.io.File("src\\images\\bg_main_menu.png");
             if (rel.exists()) {
                 backgroundImage = new ImageIcon(rel.getAbsolutePath()).getImage();
             }
